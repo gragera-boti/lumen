@@ -1,0 +1,145 @@
+[
+  {
+    "id": "cat_self_love",
+    "locale": "en-GB",
+    "name": "Self-love",
+    "description": "Kindness and acceptance toward yourself.",
+    "icon": "heart.fill",
+    "isPremium": false,
+    "isSensitive": false,
+    "sortOrder": 1,
+    "updatedAt": "2026-02-17T12:00:00Z"
+  },
+  {
+    "id": "cat_confidence",
+    "locale": "en-GB",
+    "name": "Confidence",
+    "description": "Believable confidence-building statements.",
+    "icon": "sparkles",
+    "isPremium": false,
+    "isSensitive": false,
+    "sortOrder": 2,
+    "updatedAt": "2026-02-17T12:00:00Z"
+  },
+  {
+    "id": "cat_calm",
+    "locale": "en-GB",
+    "name": "Calm",
+    "description": "Gentle grounding for stress and worry.",
+    "icon": "wind",
+    "isPremium": false,
+    "isSensitive": false,
+    "sortOrder": 3,
+    "updatedAt": "2026-02-17T12:00:00Z"
+  },
+  {
+    "id": "cat_motivation",
+    "locale": "en-GB",
+    "name": "Motivation",
+    "description": "Encouragement to take meaningful action.",
+    "icon": "bolt.fill",
+    "isPremium": false,
+    "isSensitive": false,
+    "sortOrder": 4,
+    "updatedAt": "2026-02-17T12:00:00Z"
+  },
+  {
+    "id": "cat_gratitude",
+    "locale": "en-GB",
+    "name": "Gratitude",
+    "description": "Balanced gratitude without invalidation.",
+    "icon": "hands.sparkles.fill",
+    "isPremium": false,
+    "isSensitive": false,
+    "sortOrder": 5,
+    "updatedAt": "2026-02-17T12:00:00Z"
+  },
+  {
+    "id": "cat_relationships",
+    "locale": "en-GB",
+    "name": "Relationships",
+    "description": "Connection, empathy, and boundaries.",
+    "icon": "person.2.fill",
+    "isPremium": true,
+    "isSensitive": false,
+    "sortOrder": 6,
+    "updatedAt": "2026-02-17T12:00:00Z"
+  },
+  {
+    "id": "cat_boundaries",
+    "locale": "en-GB",
+    "name": "Boundaries",
+    "description": "Permission to protect your time and energy.",
+    "icon": "shield.fill",
+    "isPremium": true,
+    "isSensitive": false,
+    "sortOrder": 7,
+    "updatedAt": "2026-02-17T12:00:00Z"
+  },
+  {
+    "id": "cat_sleep",
+    "locale": "en-GB",
+    "name": "Sleep wind-down",
+    "description": "Night-time phrases to help you let go of the day.",
+    "icon": "moon.stars.fill",
+    "isPremium": true,
+    "isSensitive": false,
+    "sortOrder": 8,
+    "updatedAt": "2026-02-17T12:00:00Z"
+  },
+  {
+    "id": "cat_focus",
+    "locale": "en-GB",
+    "name": "Work & Focus",
+    "description": "Clarity, priorities, and gentle productivity.",
+    "icon": "target",
+    "isPremium": true,
+    "isSensitive": false,
+    "sortOrder": 9,
+    "updatedAt": "2026-02-17T12:00:00Z"
+  },
+  {
+    "id": "cat_resilience",
+    "locale": "en-GB",
+    "name": "Resilience",
+    "description": "Support for difficult seasons.",
+    "icon": "mountain.2.fill",
+    "isPremium": true,
+    "isSensitive": false,
+    "sortOrder": 10,
+    "updatedAt": "2026-02-17T12:00:00Z"
+  },
+  {
+    "id": "cat_spiritual",
+    "locale": "en-GB",
+    "name": "Spiritual",
+    "description": "Optional spiritual language and purpose.",
+    "icon": "sun.max.fill",
+    "isPremium": true,
+    "isSensitive": false,
+    "sortOrder": 11,
+    "updatedAt": "2026-02-17T12:00:00Z"
+  },
+  {
+    "id": "cat_sensitive_grief",
+    "locale": "en-GB",
+    "name": "Grief (Sensitive)",
+    "description": "Opt-in affirmations for grief and loss.",
+    "icon": "drop.fill",
+    "isPremium": true,
+    "isSensitive": true,
+    "sortOrder": 12,
+    "updatedAt": "2026-02-17T12:00:00Z"
+  },
+  {
+    "id": "cat_sensitive_illness",
+    "locale": "en-GB",
+    "name": "Chronic illness (Sensitive)",
+    "description": "Opt-in affirmations that respect illness and disability.",
+    "icon": "cross.case.fill",
+    "isPremium": true,
+    "isSensitive": true,
+    "sortOrder": 13,
+    "updatedAt": "2026-02-17T12:00:00Z"
+  }
+]

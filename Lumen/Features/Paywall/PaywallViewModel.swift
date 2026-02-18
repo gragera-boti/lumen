@@ -1,0 +1,53 @@
+import Foundation
+import OSLog
+
+@MainActor @Observable
+final class PaywallViewModel {
+    var products: [ProductInfo] = []
+    var isLoading = false
+    var isPurchasing = false
+    var errorMessage: String?
+    var purchaseSuccess = false
+
+    private let entitlementService: EntitlementServiceProtocol
+    private let logger = Logger(subsystem: "com.lumen.app", category: "Paywall")
+
+    init(entitlementService: EntitlementServiceProtocol = EntitlementService.shared) {
+        self.entitlementService = entitlementService
+    }
+
+    func loadProducts() async {
+        isLoading = true
+        defer { isLoading = false }
+
+        do {
+            products = try await entitlementService.availableProducts()
+        } catch {
+            logger.error("Failed to load products: \(error.localizedDescription)")
+            errorMessage = error.localizedDescription
+        }
+    }
+
+    func purchase(_ product: ProductInfo) async {
+        isPurchasing = true
+        defer { isPurchasing = false }
+
+        do {
+            try await entitlementService.purchase(productId: product.id)
+            purchaseSuccess = true
+        } catch {
+            logger.error("Purchase failed: \(error.localizedDescription)")
+            errorMessage = error.localizedDescription
+        }
+    }
+
+    func restore() async {
+        do {
+            try await entitlementService.restorePurchases()
+            purchaseSuccess = await entitlementService.isPremium()
+        } catch {
+            logger.error("Restore failed: \(error.localizedDescription)")
+            errorMessage = error.localizedDescription
+        }
+    }
+}

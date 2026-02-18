@@ -1,0 +1,38 @@
+flowchart TB
+  subgraph iOS_App[Lumen iOS App]
+    UI[SwiftUI UI]
+    VM[ViewModels]
+    UC[Domain Use Cases]
+    REPO[Repositories]
+    DB[(SQLite/GRDB)]
+    NOTIF[NotificationScheduler]
+    TTS[SpeechService]
+    RENDER[ShareImageRenderer]
+    ML[MLBackgroundService]
+  end
+
+  subgraph Extensions[Extensions]
+    WIDGET[WidgetKit Extension]
+    WATCH[watchOS App (P1)]
+  end
+
+  subgraph Optional_Backend[Optional Backend]
+    API[API Gateway]
+    PACKS[Content Packs CDN]
+    SYNC[User Sync]
+    CONFIG[Remote Config]
+  end
+
+  UI --> VM --> UC --> REPO --> DB
+  UC --> NOTIF
+  UC --> TTS
+  UC --> RENDER
+  UC --> ML
+
+  WIDGET --> DB
+  WATCH --> DB
+
+  REPO -. optional .-> API
+  API --> PACKS
+  API --> SYNC
+  API --> CONFIG

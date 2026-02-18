@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/schemas/content-pack.schema.json",
+  "title": "ContentPack",
+  "type": "object",
+  "required": [
+    "meta",
+    "categories",
+    "affirmations"
+  ],
+  "properties": {
+    "meta": {
+      "type": "object",
+      "required": [
+        "packId",
+        "version",
+        "locale",
+        "generatedAt",
+        "checksumSha256"
+      ],
+      "properties": {
+        "packId": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "locale": {
+          "type": "string"
+        },
+        "generatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "checksumSha256": {
+          "type": "string",
+          "pattern": "^[a-fA-F0-9]{64}$"
+        },
+        "notes": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "categories": {
+      "type": "array",
+      "items": {
+        "$ref": "category.schema.json"
+      }
+    },
+    "affirmations": {
+      "type": "array",
+      "items": {
+        "$ref": "affirmation.schema.json"
+      }
+    }
+  },
+  "additionalProperties": false
+}

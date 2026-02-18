@@ -1,0 +1,33 @@
+# Xcode
+*.xcodeproj/xcuserdata/
+*.xcworkspace/xcuserdata/
+DerivedData/
+build/
+*.pbxuser
+*.mode1v3
+*.mode2v3
+*.perspectivev3
+*.xccheckout
+*.moved-aside
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# Swift Package Manager
+.build/
+Packages/
+
+# CocoaPods (if ever used)
+Pods/
+
+# OS
+.DS_Store
+*.swp
+*~
+
+# OpenClaw workspace internals
+.openclaw/
+
+# Secrets
+*.storekit

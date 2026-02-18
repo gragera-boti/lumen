@@ -1,0 +1,153 @@
+/* App */
+"app.name" = "Lumen";
+
+/* Tabs */
+"tab.forYou" = "For You";
+"tab.explore" = "Explore";
+"tab.favorites" = "Favorites";
+"tab.settings" = "Settings";
+
+/* Onboarding */
+"onboarding.welcome.headline" = "Lumen";
+"onboarding.welcome.subtitle" = "Daily affirmations that feel kind — not forced.";
+"onboarding.welcome.disclaimer" = "This app is for wellness, not medical care. If you feel unsafe or in crisis, tap below.";
+"onboarding.welcome.helpButton" = "Get help now";
+"onboarding.welcome.continueButton" = "Continue";
+
+"onboarding.categories.title" = "Choose what you want more of";
+"onboarding.categories.subtitle" = "Pick at least one";
+"onboarding.categories.sensitive" = "Sensitive topics (opt-in)";
+
+"onboarding.tone.title" = "Choose your tone";
+
+"onboarding.reminders.title" = "Set your reminders";
+"onboarding.reminders.enable" = "Enable reminders";
+"onboarding.reminders.notNow" = "Not now";
+"onboarding.reminders.perDay" = "Reminders per day: %d";
+
+/* Feed */
+"feed.favorite" = "Favorite";
+"feed.listen" = "Listen";
+"feed.pause" = "Pause";
+"feed.share" = "Share";
+"feed.empty.title" = "No affirmations match your filters";
+"feed.empty.description" = "Try adding more categories or turning off Gentle mode.";
+"feed.createCustom" = "Create custom affirmation";
+
+/* Explore */
+"explore.title" = "Explore";
+"explore.premium" = "Premium";
+
+/* Favorites */
+"favorites.title" = "Favorites";
+"favorites.empty.title" = "No favorites yet";
+"favorites.empty.description" = "Tap the heart on any affirmation to save it here.";
+"favorites.remove" = "Remove";
+
+/* Settings */
+"settings.title" = "Settings";
+"settings.content" = "Content";
+"settings.contentFilters" = "Content Filters";
+"settings.gentleMode" = "Gentle Mode";
+"settings.tone" = "Tone";
+"settings.reminders" = "Reminders";
+"settings.reminderSchedule" = "Reminder Schedule";
+"settings.appearance" = "Appearance";
+"settings.themes" = "Themes & Backgrounds";
+"settings.voice" = "Voice";
+"settings.voiceSettings" = "Voice Settings";
+"settings.subscription" = "Subscription";
+"settings.manageSubscription" = "Manage Subscription";
+"settings.premium" = "Premium";
+"settings.dataPrivacy" = "Data & Privacy";
+"settings.privacyData" = "Privacy & Data";
+"settings.deleteAll" = "Delete All Data";
+"settings.deleteConfirm.title" = "Delete all data?";
+"settings.deleteConfirm.message" = "This will reset the app to its initial state. This cannot be undone.";
+"settings.help" = "Help";
+"settings.getHelp" = "Get help now";
+
+/* Reminders Settings */
+"reminders.title" = "Reminders";
+"reminders.perDay" = "Reminders per day: %d";
+"reminders.windowStart" = "Window start";
+"reminders.windowEnd" = "Window end";
+"reminders.quietStart" = "Quiet start";
+"reminders.quietEnd" = "Quiet end";
+"reminders.testButton" = "Send test notification";
+"reminders.testSent" = "Test sent!";
+"reminders.permission" = "Notification permission";
+"reminders.enabled" = "Enabled";
+"reminders.disabled" = "Disabled";
+"reminders.notSet" = "Not set";
+
+/* Content Filters */
+"filters.title" = "Content Filters";
+"filters.contentTypes" = "Content types";
+"filters.contentTypesFooter" = "Toggle which content types appear in your feed.";
+"filters.spiritual" = "Spiritual content";
+"filters.manifestation" = "Manifestation language";
+"filters.bodyFocus" = "Body & fitness";
+"filters.sensitiveTopics" = "Sensitive topics";
+"filters.sensitiveFooter" = "These topics are hidden by default to avoid unexpected content.";
+"filters.includeSensitive" = "Include sensitive topics (grief, illness)";
+"filters.intensity" = "Intensity";
+"filters.gentleMode" = "Gentle mode";
+"filters.gentleModeDescription" = "Gentle mode hides intense or absolute statements like \"I am unstoppable\".";
+
+/* Voice */
+"voice.title" = "Voice";
+"voice.speed" = "Speed";
+"voice.rate" = "Rate: %.1f×";
+"voice.language" = "Language";
+"voice.preview" = "Preview voice";
+
+/* Paywall */
+"paywall.title" = "Unlock Lumen Premium";
+"paywall.feature.categories" = "All categories and content";
+"paywall.feature.generation" = "Unlimited background generation";
+"paywall.feature.watermark" = "Remove watermarks";
+"paywall.feature.themes" = "Premium themes";
+"paywall.restore" = "Restore Purchases";
+"paywall.legal" = "Payment will be charged to your Apple ID account at confirmation of purchase. Subscription automatically renews unless it is cancelled at least 24 hours before the end of the current period.";
+
+/* Theme Generator */
+"generator.title" = "Generate Background";
+"generator.style" = "Style";
+"generator.color" = "Color";
+"generator.mood" = "Mood";
+"generator.detail" = "Detail level";
+"generator.generate" = "Generate";
+"generator.generating" = "Generating…";
+"generator.footer" = "Images are generated on your device.";
+
+/* Crisis */
+"crisis.title" = "Get Help";
+"crisis.headline" = "You're not alone";
+"crisis.body" = "If you or someone you know is in crisis or feeling unsafe, please reach out for help.";
+"crisis.emergency" = "Emergency Services";
+"crisis.emergencySubtitle" = "Call your local emergency number (112, 911, 999)";
+"crisis.textLine" = "Crisis Text Line";
+"crisis.textLineSubtitle" = "Text HOME to 741741 (US)";
+"crisis.iasp" = "International Association for Suicide Prevention";
+"crisis.iaspSubtitle" = "Find a crisis centre near you";
+"crisis.befrienders" = "Befrienders Worldwide";
+"crisis.befriendersSubtitle" = "Emotional support worldwide";
+"crisis.dismiss" = "I'm not in crisis";
+
+/* Custom Affirmation */
+"custom.title" = "New Affirmation";
+"custom.placeholder" = "Write something kind for yourself…";
+"custom.tone" = "Tone";
+"custom.save" = "Save";
+"custom.cancel" = "Cancel";
+"custom.tooLong" = "Keep it under 200 characters.";
+
+/* General */
+"general.ok" = "OK";
+"general.cancel" = "Cancel";
+"general.delete" = "Delete";
+"general.close" = "Close";
+"general.error" = "Error";
+"general.terms" = "Terms";
+"general.privacy" = "Privacy";

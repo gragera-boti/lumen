@@ -1,0 +1,153 @@
+/* App */
+"app.name" = "Lumen";
+
+/* Tabs */
+"tab.forYou" = "Para ti";
+"tab.explore" = "Explorar";
+"tab.favorites" = "Favoritos";
+"tab.settings" = "Ajustes";
+
+/* Onboarding */
+"onboarding.welcome.headline" = "Lumen";
+"onboarding.welcome.subtitle" = "Afirmaciones diarias que se sienten amables, no forzadas.";
+"onboarding.welcome.disclaimer" = "Esta app es para bienestar, no atención médica. Si no te sientes seguro o estás en crisis, toca abajo.";
+"onboarding.welcome.helpButton" = "Buscar ayuda";
+"onboarding.welcome.continueButton" = "Continuar";
+
+"onboarding.categories.title" = "Elige lo que quieres más";
+"onboarding.categories.subtitle" = "Selecciona al menos una";
+"onboarding.categories.sensitive" = "Temas sensibles (opcional)";
+
+"onboarding.tone.title" = "Elige tu tono";
+
+"onboarding.reminders.title" = "Configura tus recordatorios";
+"onboarding.reminders.enable" = "Activar recordatorios";
+"onboarding.reminders.notNow" = "Ahora no";
+"onboarding.reminders.perDay" = "Recordatorios por día: %d";
+
+/* Feed */
+"feed.favorite" = "Favorito";
+"feed.listen" = "Escuchar";
+"feed.pause" = "Pausa";
+"feed.share" = "Compartir";
+"feed.empty.title" = "Ninguna afirmación coincide con tus filtros";
+"feed.empty.description" = "Prueba a añadir más categorías o desactivar el modo suave.";
+"feed.createCustom" = "Crear afirmación personalizada";
+
+/* Explore */
+"explore.title" = "Explorar";
+"explore.premium" = "Premium";
+
+/* Favorites */
+"favorites.title" = "Favoritos";
+"favorites.empty.title" = "Aún no hay favoritos";
+"favorites.empty.description" = "Toca el corazón en cualquier afirmación para guardarla aquí.";
+"favorites.remove" = "Eliminar";
+
+/* Settings */
+"settings.title" = "Ajustes";
+"settings.content" = "Contenido";
+"settings.contentFilters" = "Filtros de contenido";
+"settings.gentleMode" = "Modo suave";
+"settings.tone" = "Tono";
+"settings.reminders" = "Recordatorios";
+"settings.reminderSchedule" = "Horario de recordatorios";
+"settings.appearance" = "Apariencia";
+"settings.themes" = "Temas y fondos";
+"settings.voice" = "Voz";
+"settings.voiceSettings" = "Ajustes de voz";
+"settings.subscription" = "Suscripción";
+"settings.manageSubscription" = "Gestionar suscripción";
+"settings.premium" = "Premium";
+"settings.dataPrivacy" = "Datos y privacidad";
+"settings.privacyData" = "Privacidad y datos";
+"settings.deleteAll" = "Eliminar todos los datos";
+"settings.deleteConfirm.title" = "¿Eliminar todos los datos?";
+"settings.deleteConfirm.message" = "Esto restablecerá la app a su estado inicial. No se puede deshacer.";
+"settings.help" = "Ayuda";
+"settings.getHelp" = "Buscar ayuda";
+
+/* Reminders Settings */
+"reminders.title" = "Recordatorios";
+"reminders.perDay" = "Recordatorios por día: %d";
+"reminders.windowStart" = "Inicio de ventana";
+"reminders.windowEnd" = "Fin de ventana";
+"reminders.quietStart" = "Inicio de silencio";
+"reminders.quietEnd" = "Fin de silencio";
+"reminders.testButton" = "Enviar notificación de prueba";
+"reminders.testSent" = "¡Prueba enviada!";
+"reminders.permission" = "Permiso de notificaciones";
+"reminders.enabled" = "Activado";
+"reminders.disabled" = "Desactivado";
+"reminders.notSet" = "Sin configurar";
+
+/* Content Filters */
+"filters.title" = "Filtros de contenido";
+"filters.contentTypes" = "Tipos de contenido";
+"filters.contentTypesFooter" = "Elige qué tipos de contenido aparecen en tu feed.";
+"filters.spiritual" = "Contenido espiritual";
+"filters.manifestation" = "Lenguaje de manifestación";
+"filters.bodyFocus" = "Cuerpo y fitness";
+"filters.sensitiveTopics" = "Temas sensibles";
+"filters.sensitiveFooter" = "Estos temas están ocultos por defecto para evitar contenido inesperado.";
+"filters.includeSensitive" = "Incluir temas sensibles (duelo, enfermedad)";
+"filters.intensity" = "Intensidad";
+"filters.gentleMode" = "Modo suave";
+"filters.gentleModeDescription" = "El modo suave oculta afirmaciones intensas o absolutas como \"Soy imparable\".";
+
+/* Voice */
+"voice.title" = "Voz";
+"voice.speed" = "Velocidad";
+"voice.rate" = "Velocidad: %.1f×";
+"voice.language" = "Idioma";
+"voice.preview" = "Vista previa de voz";
+
+/* Paywall */
+"paywall.title" = "Desbloquea Lumen Premium";
+"paywall.feature.categories" = "Todas las categorías y contenido";
+"paywall.feature.generation" = "Generación ilimitada de fondos";
+"paywall.feature.watermark" = "Eliminar marcas de agua";
+"paywall.feature.themes" = "Temas premium";
+"paywall.restore" = "Restaurar compras";
+"paywall.legal" = "El pago se cargará a tu cuenta de Apple ID al confirmar la compra. La suscripción se renueva automáticamente a menos que se cancele al menos 24 horas antes del final del período actual.";
+
+/* Theme Generator */
+"generator.title" = "Generar fondo";
+"generator.style" = "Estilo";
+"generator.color" = "Color";
+"generator.mood" = "Estado de ánimo";
+"generator.detail" = "Nivel de detalle";
+"generator.generate" = "Generar";
+"generator.generating" = "Generando…";
+"generator.footer" = "Las imágenes se generan en tu dispositivo.";
+
+/* Crisis */
+"crisis.title" = "Buscar ayuda";
+"crisis.headline" = "No estás solo";
+"crisis.body" = "Si tú o alguien que conoces está en crisis o no se siente seguro, por favor busca ayuda.";
+"crisis.emergency" = "Servicios de emergencia";
+"crisis.emergencySubtitle" = "Llama a tu número de emergencias local (112, 911, 999)";
+"crisis.textLine" = "Línea de crisis";
+"crisis.textLineSubtitle" = "Envía HOME al 741741 (EE.UU.)";
+"crisis.iasp" = "Asociación Internacional para la Prevención del Suicidio";
+"crisis.iaspSubtitle" = "Encuentra un centro de crisis cerca de ti";
+"crisis.befrienders" = "Befrienders Worldwide";
+"crisis.befriendersSubtitle" = "Apoyo emocional en todo el mundo";
+"crisis.dismiss" = "No estoy en crisis";
+
+/* Custom Affirmation */
+"custom.title" = "Nueva afirmación";
+"custom.placeholder" = "Escribe algo amable para ti…";
+"custom.tone" = "Tono";
+"custom.save" = "Guardar";
+"custom.cancel" = "Cancelar";
+"custom.tooLong" = "Máximo 200 caracteres.";
+
+/* General */
+"general.ok" = "OK";
+"general.cancel" = "Cancelar";
+"general.delete" = "Eliminar";
+"general.close" = "Cerrar";
+"general.error" = "Error";
+"general.terms" = "Términos";
+"general.privacy" = "Privacidad";

@@ -1,0 +1,25 @@
+sequenceDiagram
+  participant User
+  participant App
+  participant DB as Local DB
+  participant Widget as Widget Extension
+  participant Notif as Notification Scheduler
+  participant ML as ML Generator
+
+  User->>App: Open app
+  App->>DB: Load preferences + daily affirmation
+  DB-->>App: Data
+  App-->>User: Show affirmation card
+
+  User->>App: Favorite
+  App->>DB: Save favorite
+  App->>Widget: Update widget snapshot (App Group)
+
+  User->>App: Enable reminders
+  App->>Notif: Schedule next 7 days
+  Notif-->>User: Notifications delivered
+
+  User->>App: Generate background
+  App->>ML: Run on-device diffusion
+  ML-->>App: Generated image + metadata
+  App->>DB: Save theme record

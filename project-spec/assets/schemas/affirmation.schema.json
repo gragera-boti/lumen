@@ -1,0 +1,106 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/schemas/affirmation.schema.json",
+  "title": "Affirmation",
+  "type": "object",
+  "required": [
+    "id",
+    "locale",
+    "text",
+    "tone",
+    "intensity",
+    "absolute",
+    "sensitiveTopic",
+    "categoryIds",
+    "tags",
+    "isPremium",
+    "source",
+    "createdAt",
+    "updatedAt"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Stable UUID"
+    },
+    "locale": {
+      "type": "string",
+      "description": "BCP-47 locale, e.g., en-GB"
+    },
+    "text": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "tone": {
+      "type": "string",
+      "enum": [
+        "GENTLE",
+        "NEUTRAL",
+        "ENERGETIC",
+        "SPIRITUAL"
+      ]
+    },
+    "intensity": {
+      "type": "string",
+      "enum": [
+        "LOW",
+        "MEDIUM",
+        "HIGH"
+      ]
+    },
+    "absolute": {
+      "type": "boolean"
+    },
+    "sensitiveTopic": {
+      "type": "boolean"
+    },
+    "categoryIds": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 0
+    },
+    "contraindications": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 0,
+      "default": []
+    },
+    "readingLevel": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 12,
+      "default": 6
+    },
+    "isPremium": {
+      "type": "boolean"
+    },
+    "source": {
+      "type": "string",
+      "enum": [
+        "CURATED",
+        "USER"
+      ]
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "additionalProperties": false
+}
