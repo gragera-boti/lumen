@@ -5,6 +5,7 @@ struct FavoritesView: View {
     @State private var viewModel = FavoritesViewModel()
     @State private var showSlideshow = false
     @State private var editingAffirmation: Affirmation?
+    @State private var editingCardAffirmation: Affirmation?
     @State private var showDeleteConfirm = false
     @State private var affirmationToDelete: Affirmation?
     @Environment(\.modelContext) private var modelContext
@@ -36,10 +37,24 @@ struct FavoritesView: View {
             }
         }
         .fullScreenCover(isPresented: $showSlideshow) {
-            SlideshowView(affirmations: viewModel.allFavorites)
+            SlideshowView(
+                affirmations: viewModel.allFavorites,
+                customizations: viewModel.customizations
+            )
         }
         .sheet(item: $editingAffirmation) { affirmation in
             EditAffirmationSheet(affirmation: affirmation)
+        }
+        .sheet(item: $editingCardAffirmation) { affirmation in
+            CardEditorView(
+                affirmation: affirmation,
+                existingCustomization: viewModel.customizations[affirmation.id]
+            )
+        }
+        .onChange(of: editingCardAffirmation) { _, newValue in
+            if newValue == nil {
+                viewModel.reloadCustomizations(modelContext: modelContext)
+            }
         }
         .alert("Delete Affirmation", isPresented: $showDeleteConfirm) {
             Button("Delete", role: .destructive) {
@@ -72,6 +87,12 @@ struct FavoritesView: View {
                                     editingAffirmation = affirmation
                                 } label: {
                                     Label("Edit", systemImage: "pencil")
+                                }
+
+                                Button {
+                                    editingCardAffirmation = affirmation
+                                } label: {
+                                    Label("Customize Card", systemImage: "paintbrush")
                                 }
 
                                 Button(role: .destructive) {
@@ -114,6 +135,13 @@ struct FavoritesView: View {
                             .contentShape(Rectangle())
                             .onTapGesture {
                                 router.navigate(to: .affirmationDetail(affirmationId: affirmation.id), in: .favorites)
+                            }
+                            .contextMenu {
+                                Button {
+                                    editingCardAffirmation = affirmation
+                                } label: {
+                                    Label("Customize Card", systemImage: "paintbrush")
+                                }
                             }
                             .swipeActions(edge: .trailing) {
                                 Button(role: .destructive) {

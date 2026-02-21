@@ -5,34 +5,53 @@ struct AffirmationCardView: View {
     let gradientColors: [Color]
     let backgroundImage: UIImage?
     let isFavorited: Bool
+    let customization: CardCustomization?
     let onFavorite: () -> Void
     let onShare: () -> Void
+    let onEdit: () -> Void
 
     init(
         affirmation: Affirmation,
         gradientColors: [Color],
         backgroundImage: UIImage? = nil,
         isFavorited: Bool,
+        customization: CardCustomization? = nil,
         onFavorite: @escaping () -> Void,
-        onShare: @escaping () -> Void
+        onShare: @escaping () -> Void,
+        onEdit: @escaping () -> Void = {}
     ) {
         self.affirmation = affirmation
         self.gradientColors = gradientColors
         self.backgroundImage = backgroundImage
         self.isFavorited = isFavorited
+        self.customization = customization
         self.onFavorite = onFavorite
         self.onShare = onShare
+        self.onEdit = onEdit
     }
 
-    /// Font selection — respects user-chosen font for custom affirmations,
-    /// otherwise uses curated defaults (primarily New York serif).
+    /// The display text — uses customText if available (user-owned only), otherwise original.
+    private var displayText: String {
+        if let custom = customization?.customText, !custom.isEmpty {
+            return custom
+        }
+        return affirmation.text
+    }
+
+    /// Font selection — respects customization override, then user-chosen font, then curated defaults.
     private var affirmationFont: Font {
-        if let styleName = affirmation.fontStyle,
-           let style = AffirmationFontStyle(rawValue: styleName) {
-            return style.cardFont(textLength: affirmation.text.count)
+        // Customization font override takes priority
+        if let overrideName = customization?.fontStyleOverride,
+           let style = AffirmationFontStyle(rawValue: overrideName) {
+            return style.cardFont(textLength: displayText.count)
         }
 
-        let length = affirmation.text.count
+        if let styleName = affirmation.fontStyle,
+           let style = AffirmationFontStyle(rawValue: styleName) {
+            return style.cardFont(textLength: displayText.count)
+        }
+
+        let length = displayText.count
         let design = Self.fontDesign(for: affirmation)
         let weight = Self.fontWeight(for: affirmation)
 
@@ -57,6 +76,10 @@ struct AffirmationCardView: View {
     }
 
     private var letterSpacing: CGFloat {
+        if let overrideName = customization?.fontStyleOverride,
+           let _ = AffirmationFontStyle(rawValue: overrideName) {
+            return 0.3
+        }
         if let styleName = affirmation.fontStyle,
            let _ = AffirmationFontStyle(rawValue: styleName) {
             return 0.3
@@ -88,7 +111,7 @@ struct AffirmationCardView: View {
             VStack {
                 Spacer()
 
-                Text(affirmation.text)
+                Text(displayText)
                     .font(affirmationFont)
                     .tracking(letterSpacing)
                     .foregroundStyle(.white)
@@ -119,6 +142,12 @@ struct AffirmationCardView: View {
                 label: "feed.favorite".localized,
                 isActive: isFavorited,
                 action: onFavorite
+            )
+
+            ActionButton(
+                icon: "paintbrush",
+                label: "feed.edit".localized,
+                action: onEdit
             )
 
             ActionButton(
@@ -169,7 +198,8 @@ private struct ActionButton: View {
         gradientColors: [.teal, .blue],
         isFavorited: false,
         onFavorite: {},
-        onShare: {}
+        onShare: {},
+        onEdit: {}
     )
     .ignoresSafeArea()
 }
@@ -185,7 +215,8 @@ private struct ActionButton: View {
         gradientColors: [.orange, .pink],
         isFavorited: true,
         onFavorite: {},
-        onShare: {}
+        onShare: {},
+        onEdit: {}
     )
     .ignoresSafeArea()
 }

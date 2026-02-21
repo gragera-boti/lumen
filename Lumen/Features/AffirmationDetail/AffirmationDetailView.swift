@@ -6,6 +6,10 @@ struct AffirmationDetailView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var affirmation: Affirmation?
     @State private var isFavorited = false
+    @State private var editingAffirmation: Affirmation?
+    @State private var customization: CardCustomization?
+
+    private let customizationService: CardCustomizationServiceProtocol = CardCustomizationService.shared
 
     var body: some View {
         Group {
@@ -20,12 +24,26 @@ struct AffirmationDetailView: View {
         }
         .navigationBarTitleDisplayMode(.inline)
         .task { loadAffirmation() }
+        .sheet(item: $editingAffirmation) { aff in
+            CardEditorView(
+                affirmation: aff,
+                existingCustomization: customization
+            )
+        }
+        .onChange(of: editingAffirmation) { _, newValue in
+            if newValue == nil {
+                reloadCustomization()
+            }
+        }
     }
 
     @ViewBuilder
     private func detailContent(_ affirmation: Affirmation) -> some View {
         let gradientIndex = abs(affirmation.id.hashValue) % LumenTheme.Colors.gradients.count
         let colors = LumenTheme.Colors.gradients[gradientIndex]
+        let displayText = customization?.customText?.isEmpty == false
+            ? customization!.customText!
+            : affirmation.text
 
         ZStack {
             LinearGradient(colors: colors, startPoint: .topLeading, endPoint: .bottomTrailing)
@@ -37,8 +55,8 @@ struct AffirmationDetailView: View {
             VStack(spacing: LumenTheme.Spacing.xl) {
                 Spacer()
 
-                Text(affirmation.text)
-                    .font(.system(.title2, design: .serif, weight: .medium))
+                Text(displayText)
+                    .font(detailFont(for: affirmation))
                     .foregroundStyle(.white)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, LumenTheme.Spacing.xl)
@@ -76,7 +94,20 @@ struct AffirmationDetailView: View {
                     .accessibilityLabel(isFavorited ? "Remove from favorites" : "Add to favorites")
                     .accessibilityIdentifier("detail_favorite_button")
 
-                    ShareLink(item: affirmation.text) {
+                    Button {
+                        editingAffirmation = affirmation
+                    } label: {
+                        Label("Edit", systemImage: "paintbrush")
+                            .font(.body)
+                            .foregroundStyle(.white)
+                            .padding(.horizontal, LumenTheme.Spacing.lg)
+                            .padding(.vertical, LumenTheme.Spacing.sm)
+                            .background(.ultraThinMaterial, in: Capsule())
+                    }
+                    .accessibilityLabel("Customize card")
+                    .accessibilityIdentifier("detail_edit_button")
+
+                    ShareLink(item: displayText) {
                         Label("share".localized, systemImage: "square.and.arrow.up")
                             .font(.body)
                             .foregroundStyle(.white)
@@ -91,6 +122,14 @@ struct AffirmationDetailView: View {
         }
     }
 
+    private func detailFont(for affirmation: Affirmation) -> Font {
+        if let overrideName = customization?.fontStyleOverride,
+           let style = AffirmationFontStyle(rawValue: overrideName) {
+            return style.cardFont(textLength: affirmation.text.count)
+        }
+        return .system(.title2, design: .serif, weight: .medium)
+    }
+
     private func loadAffirmation() {
         let id = affirmationId
         let descriptor = FetchDescriptor<Affirmation>(
@@ -98,6 +137,14 @@ struct AffirmationDetailView: View {
         )
         affirmation = try? modelContext.fetch(descriptor).first
         isFavorited = affirmation?.isFavorited ?? false
+        reloadCustomization()
+    }
+
+    private func reloadCustomization() {
+        customization = try? customizationService.customization(
+            for: affirmationId,
+            modelContext: modelContext
+        )
     }
 
     private func toggleFavorite(_ affirmation: Affirmation) {
@@ -119,5 +166,5 @@ struct AffirmationDetailView: View {
     NavigationStack {
         AffirmationDetailView(affirmationId: "preview_1")
     }
-    .modelContainer(for: [Affirmation.self, Favorite.self], inMemory: true)
+    .modelContainer(for: [Affirmation.self, Favorite.self, CardCustomization.self], inMemory: true)
 }

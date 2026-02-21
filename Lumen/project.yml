@@ -2,9 +2,9 @@ name: Lumen
 options:
   bundleIdPrefix: com.gragera
   deploymentTarget:
-    iOS: "17.0"
-    watchOS: "10.0"
-  xcodeVersion: "15.0"
+    iOS: "26.0"
+    watchOS: "26.0"
+  xcodeVersion: "26.0"
   createIntermediateGroups: true
   generateEmptyDirectories: true
   groupSortPosition: top

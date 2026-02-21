@@ -3,6 +3,7 @@ import SwiftData
 
 struct SlideshowView: View {
     let affirmations: [Affirmation]
+    var customizations: [String: CardCustomization] = [:]
 
     @Environment(\.dismiss) private var dismiss
     @State private var currentIndex = 0
@@ -26,7 +27,12 @@ struct SlideshowView: View {
 
             // Affirmation text
             if !affirmations.isEmpty {
-                Text(affirmations[currentIndex].text)
+                let aff = affirmations[currentIndex]
+                let custom = customizations[aff.id]
+                let displayText = (custom?.customText?.isEmpty == false)
+                    ? custom!.customText!
+                    : aff.text
+                Text(displayText)
                     .font(.system(.title, design: .serif, weight: .medium))
                     .foregroundStyle(.white)
                     .multilineTextAlignment(.center)

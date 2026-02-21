@@ -22,6 +22,14 @@ final class FeedViewModel {
     /// Active theme IDs for rotation.
     private var activeThemeIds: [String] = []
 
+    /// The affirmation currently being edited in the CardEditor sheet.
+    var editingAffirmation: Affirmation?
+
+    /// Card customizations keyed by affirmation id.
+    var customizations: [String: CardCustomization] = [:]
+
+    private let customizationService: CardCustomizationServiceProtocol
+
     /// Auto-advance timer for feed rotation.
     private var autoAdvanceTask: Task<Void, Never>?
     /// Seconds between auto-advances.
@@ -44,12 +52,14 @@ final class FeedViewModel {
         feedService: FeedServiceProtocol = FeedService.shared,
         favoriteService: FavoriteServiceProtocol = FavoriteService.shared,
         shareService: ShareServiceProtocol = ShareService.shared,
-        moodService: MoodServiceProtocol = MoodService.shared
+        moodService: MoodServiceProtocol = MoodService.shared,
+        customizationService: CardCustomizationServiceProtocol = CardCustomizationService.shared
     ) {
         self.feedService = feedService
         self.favoriteService = favoriteService
         self.shareService = shareService
         self.moodService = moodService
+        self.customizationService = customizationService
     }
 
     // MARK: - Actions
@@ -91,6 +101,9 @@ final class FeedViewModel {
 
                 // Assign random backgrounds from active themes
                 await assignBackgrounds(for: result.feed)
+
+                // Load card customizations
+                applyCustomizations(to: result.feed, modelContext: modelContext)
             }
         } catch {
             logger.error("Feed load error: \(error.localizedDescription)")
@@ -170,6 +183,33 @@ final class FeedViewModel {
             size: CGSize(width: 1080, height: 1920),
             showWatermark: !isPremium
         )
+    }
+
+    // MARK: - Card Customizations
+
+    /// Loads the customization for a single affirmation, if one exists.
+    func loadCustomization(for affirmation: Affirmation, modelContext: ModelContext) throws -> CardCustomization? {
+        try customizationService.customization(for: affirmation.id, modelContext: modelContext)
+    }
+
+    /// Bulk-loads all customizations and indexes them by affirmation id.
+    func applyCustomizations(to cards: [Affirmation], modelContext: ModelContext) {
+        do {
+            let all = try customizationService.allCustomizations(modelContext: modelContext)
+            let cardIds = Set(cards.map(\.id))
+            var map: [String: CardCustomization] = [:]
+            for c in all where cardIds.contains(c.affirmationId) {
+                map[c.affirmationId] = c
+            }
+            customizations = map
+        } catch {
+            logger.error("Failed to load customizations: \(error.localizedDescription)")
+        }
+    }
+
+    /// Reloads customizations for the current card set.
+    func reloadCustomizations(modelContext: ModelContext) {
+        applyCustomizations(to: cards, modelContext: modelContext)
     }
 
     // MARK: - Auto Advance

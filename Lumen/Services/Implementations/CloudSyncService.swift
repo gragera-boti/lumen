@@ -26,8 +26,7 @@ final class CloudSyncService: CloudSyncServiceProtocol {
     }
 
     /// Whether CloudKit container is configured in the app entitlements.
-    /// Set to `true` once iCloud container is registered in ASC + Xcode.
-    private let isCloudKitConfigured = false
+    private let isCloudKitConfigured = true
 
     func syncStatus() async -> CloudSyncStatus {
         guard isSyncEnabled() else { return .disabled }

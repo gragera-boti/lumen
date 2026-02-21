@@ -39,6 +39,17 @@ struct FeedView: View {
         }) {
             CustomAffirmationSheet()
         }
+        .sheet(item: $viewModel.editingAffirmation) { affirmation in
+            CardEditorView(
+                affirmation: affirmation,
+                existingCustomization: viewModel.customizations[affirmation.id]
+            )
+        }
+        .onChange(of: viewModel.editingAffirmation) { _, newValue in
+            if newValue == nil {
+                viewModel.reloadCustomizations(modelContext: modelContext)
+            }
+        }
         .task {
             await viewModel.loadFeed(
                 preferences: preferences,
@@ -157,11 +168,15 @@ struct FeedView: View {
     @ViewBuilder
     private func cardTextAndActions(geo: GeometryProxy) -> some View {
         if let current = currentAffirmation {
+            let customization = viewModel.customizations[current.id]
+            let displayText = customization?.customText?.isEmpty == false
+                ? customization!.customText!
+                : current.text
             VStack {
                 Spacer()
 
-                Text(current.text)
-                    .font(affirmationFont(for: current))
+                Text(displayText)
+                    .font(customizedFont(for: current, customization: customization))
                     .tracking(letterSpacing(for: current))
                     .foregroundStyle(.white)
                     .multilineTextAlignment(.center)
@@ -262,6 +277,15 @@ struct FeedView: View {
             }
 
             feedButton(
+                icon: "paintbrush",
+                label: "feed.edit".localized
+            ) {
+                if let aff = currentAffirmation {
+                    viewModel.editingAffirmation = aff
+                }
+            }
+
+            feedButton(
                 icon: "square.and.arrow.up",
                 label: "feed.share".localized
             ) {
@@ -298,6 +322,14 @@ struct FeedView: View {
     }
 
     // MARK: - Typography
+
+    private func customizedFont(for affirmation: Affirmation, customization: CardCustomization?) -> Font {
+        if let overrideName = customization?.fontStyleOverride,
+           let style = AffirmationFontStyle(rawValue: overrideName) {
+            return style.cardFont(textLength: affirmation.text.count)
+        }
+        return affirmationFont(for: affirmation)
+    }
 
     private func affirmationFont(for affirmation: Affirmation) -> Font {
         if let styleName = affirmation.fontStyle,

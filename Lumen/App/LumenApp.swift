@@ -21,10 +21,9 @@ struct LumenApp: App {
             UserPreferences.self,
             EntitlementState.self,
             MoodEntry.self,
+            CardCustomization.self,
         ])
 
-        // CloudKit sync requires iCloud container entitlement in the provisioning profile.
-        // Once configured in ASC + Xcode, change .none → .automatic here.
         let config = ModelConfiguration(
             schema: schema,
             isStoredInMemoryOnly: false,

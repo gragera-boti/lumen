@@ -9,6 +9,9 @@ final class FavoritesViewModel {
     var isLoading = false
     var errorMessage: String?
 
+    /// Card customizations keyed by affirmation id.
+    var customizations: [String: CardCustomization] = [:]
+
     /// All favorites combined (for slideshow).
     var allFavorites: [Affirmation] {
         userCreated + curatedFavorites
@@ -19,14 +22,17 @@ final class FavoritesViewModel {
 
     private let favoriteService: FavoriteServiceProtocol
     private let widgetService: WidgetServiceProtocol
+    private let customizationService: CardCustomizationServiceProtocol
     private let logger = Logger(subsystem: "com.gragera.lumen", category: "Favorites")
 
     init(
         favoriteService: FavoriteServiceProtocol = FavoriteService.shared,
-        widgetService: WidgetServiceProtocol = WidgetService.shared
+        widgetService: WidgetServiceProtocol = WidgetService.shared,
+        customizationService: CardCustomizationServiceProtocol = CardCustomizationService.shared
     ) {
         self.favoriteService = favoriteService
         self.widgetService = widgetService
+        self.customizationService = customizationService
     }
 
     func loadFavorites(modelContext: ModelContext) {
@@ -41,6 +47,7 @@ final class FavoritesViewModel {
             curatedFavorites = all.filter { $0.source != .user }
 
             syncFavoritesWidget()
+            loadCustomizations(for: all, modelContext: modelContext)
         } catch {
             logger.error("Failed to load favorites: \(error.localizedDescription)")
             errorMessage = error.localizedDescription
@@ -77,5 +84,25 @@ final class FavoritesViewModel {
             logger.error("Failed to delete affirmation: \(error.localizedDescription)")
             errorMessage = error.localizedDescription
         }
+    }
+
+    // MARK: - Card Customizations
+
+    func loadCustomizations(for affirmations: [Affirmation], modelContext: ModelContext) {
+        do {
+            let all = try customizationService.allCustomizations(modelContext: modelContext)
+            let ids = Set(affirmations.map(\.id))
+            var map: [String: CardCustomization] = [:]
+            for c in all where ids.contains(c.affirmationId) {
+                map[c.affirmationId] = c
+            }
+            customizations = map
+        } catch {
+            logger.error("Failed to load customizations: \(error.localizedDescription)")
+        }
+    }
+
+    func reloadCustomizations(modelContext: ModelContext) {
+        loadCustomizations(for: allFavorites, modelContext: modelContext)
     }
 }
