@@ -8,17 +8,19 @@ final class HistoryViewModel {
     var isLoading = false
     var errorMessage: String?
 
-    private let logger = Logger(subsystem: "com.lumen.app", category: "History")
+    private let logger = Logger(subsystem: "com.gragera.lumen", category: "History")
 
     struct HistoryEntry: Identifiable {
         let id: String
+        let affirmationId: String
         let text: String
         let seenAt: Date
         let source: SeenSource
         let categoryNames: String
 
         init(seenEvent: SeenEvent) {
-            self.id = "\(seenEvent.affirmation?.id ?? "")_\(seenEvent.seenAt.timeIntervalSince1970)"
+            self.affirmationId = seenEvent.affirmation?.id ?? ""
+            self.id = "\(affirmationId)_\(seenEvent.seenAt.timeIntervalSince1970)"
             self.text = seenEvent.affirmation?.text ?? "Unknown"
             self.seenAt = seenEvent.seenAt
             self.source = seenEvent.source

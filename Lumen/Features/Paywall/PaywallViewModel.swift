@@ -1,6 +1,7 @@
 import Foundation
 import OSLog
 
+/// Retained for test compatibility. The live paywall uses RevenueCatUI.
 @MainActor @Observable
 final class PaywallViewModel {
     var products: [ProductInfo] = []
@@ -10,7 +11,7 @@ final class PaywallViewModel {
     var purchaseSuccess = false
 
     private let entitlementService: EntitlementServiceProtocol
-    private let logger = Logger(subsystem: "com.lumen.app", category: "Paywall")
+    private let logger = Logger(subsystem: "com.gragera.lumen", category: "Paywall")
 
     init(entitlementService: EntitlementServiceProtocol = EntitlementService.shared) {
         self.entitlementService = entitlementService

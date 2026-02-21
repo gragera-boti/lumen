@@ -4,7 +4,7 @@ import OSLog
 
 final class NotificationService: NotificationServiceProtocol, @unchecked Sendable {
     static let shared = NotificationService()
-    private let logger = Logger(subsystem: "com.lumen.app", category: "NotificationService")
+    private let logger = Logger(subsystem: "com.gragera.lumen", category: "NotificationService")
     private let center = UNUserNotificationCenter.current()
 
     func requestPermission() async throws -> Bool {

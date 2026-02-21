@@ -16,6 +16,9 @@ final class Affirmation {
     var createdAt: Date
     var updatedAt: Date
 
+    /// Optional font style for user-created affirmations (e.g. "serif", "rounded", "handwritten").
+    var fontStyle: String?
+
     var categories: [Category]
 
     @Relationship(deleteRule: .cascade, inverse: \Favorite.affirmation)

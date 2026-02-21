@@ -13,36 +13,37 @@ struct SettingsView: View {
                 contentSection(prefs)
                 remindersSection(prefs)
                 appearanceSection
-                voiceSection
                 subscriptionSection
+                // cloudSyncSection — hidden until CloudKit container is configured in ASC
                 historySection
                 dataSection
                 helpSection
+                developerSection
             }
         }
-        .navigationTitle("Settings")
+        .navigationTitle("settings.title".localized)
         .task {
             await viewModel.load(modelContext: modelContext)
         }
-        .alert("Delete all data?", isPresented: $showDeleteConfirmation) {
-            Button("Delete", role: .destructive) {
+        .alert("settings.deleteConfirm.title".localized, isPresented: $showDeleteConfirmation) {
+            Button("general.delete".localized, role: .destructive) {
                 viewModel.deleteAllData(modelContext: modelContext)
             }
-            Button("Cancel", role: .cancel) {}
+            Button("general.cancel".localized, role: .cancel) {}
         } message: {
-            Text("This will reset the app to its initial state. This cannot be undone.")
+            Text("settings.deleteConfirm.message".localized)
         }
     }
 
     // MARK: - Sections
 
     private func contentSection(_ prefs: UserPreferences) -> some View {
-        Section("Content") {
+        Section("settings.content".localized) {
             NavigationLink(value: AppDestination.contentFilterSettings) {
-                Label("Content Filters", systemImage: "slider.horizontal.3")
+                Label("settings.contentFilters".localized, systemImage: "slider.horizontal.3")
             }
 
-            Toggle("Gentle Mode", isOn: Binding(
+            Toggle("settings.gentleMode".localized, isOn: Binding(
                 get: { prefs.gentleMode },
                 set: {
                     prefs.gentleMode = $0
@@ -50,7 +51,7 @@ struct SettingsView: View {
                 }
             ))
 
-            Picker("Tone", selection: Binding(
+            Picker("settings.tone".localized, selection: Binding(
                 get: { prefs.tonePreset },
                 set: {
                     prefs.tonePreset = $0
@@ -65,39 +66,39 @@ struct SettingsView: View {
     }
 
     private func remindersSection(_ prefs: UserPreferences) -> some View {
-        Section("Reminders") {
+        Section("settings.reminders".localized) {
             NavigationLink(value: AppDestination.reminders) {
-                Label("Reminder Schedule", systemImage: "bell.fill")
+                Label("settings.reminderSchedule".localized, systemImage: "bell.fill")
             }
         }
     }
 
     private var appearanceSection: some View {
-        Section("Appearance") {
+        Section("settings.appearance".localized) {
             NavigationLink(value: AppDestination.themes) {
-                Label("Themes & Backgrounds", systemImage: "paintpalette.fill")
-            }
-        }
-    }
-
-    private var voiceSection: some View {
-        Section("Voice") {
-            NavigationLink(value: AppDestination.voiceSettings) {
-                Label("Voice Settings", systemImage: "speaker.wave.2.fill")
+                Label("settings.themes".localized, systemImage: "paintpalette.fill")
             }
         }
     }
 
     private var subscriptionSection: some View {
-        Section("Subscription") {
+        Section("settings.subscription".localized) {
             NavigationLink(value: AppDestination.subscription) {
                 HStack {
-                    Label("Manage Subscription", systemImage: "star.fill")
+                    Label(
+                        viewModel.isPremium ? "settings.manageSubscription".localized : "subscription.upgrade.title".localized,
+                        systemImage: viewModel.isPremium ? "star.fill" : "sparkles"
+                    )
+                    .foregroundStyle(viewModel.isPremium ? Color.primary : Color.orange)
                     Spacer()
                     if viewModel.isPremium {
-                        Text("Premium")
+                        Text("subscription.plan.premium".localized)
                             .font(.caption)
                             .foregroundStyle(.orange)
+                    } else {
+                        Text("subscription.plan.free".localized)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
                     }
                 }
             }
@@ -105,33 +106,83 @@ struct SettingsView: View {
     }
 
     private var historySection: some View {
-        Section("History") {
+        Section("settings.history".localized) {
             NavigationLink(value: AppDestination.history) {
-                Label("Recently Viewed", systemImage: "clock.fill")
+                Label("settings.recentlyViewed".localized, systemImage: "clock.fill")
             }
         }
     }
 
+    private var cloudSyncSection: some View {
+        Section {
+            HStack {
+                Label("iCloud Sync", systemImage: "icloud.fill")
+                Spacer()
+                if viewModel.isPremium {
+                    Toggle("", isOn: Binding(
+                        get: { viewModel.isCloudSyncEnabled },
+                        set: { viewModel.toggleCloudSync($0) }
+                    ))
+                    .labelsHidden()
+                } else {
+                    Button {
+                        router.isShowingPaywall = true
+                    } label: {
+                        HStack(spacing: 4) {
+                            Image(systemName: "lock.fill")
+                                .font(.caption)
+                            Text("Pro")
+                                .font(.caption.weight(.semibold))
+                        }
+                        .foregroundStyle(.orange)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(Capsule().fill(Color.orange.opacity(0.15)))
+                    }
+                }
+            }
+            if viewModel.isPremium && viewModel.isCloudSyncEnabled {
+                Text(viewModel.cloudSyncStatusText)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        } footer: {
+            Text("Sync favorites, preferences, and themes across your devices.")
+        }
+    }
+
     private var dataSection: some View {
-        Section("Data & Privacy") {
+        Section("settings.dataPrivacy".localized) {
             NavigationLink(value: AppDestination.privacyData) {
-                Label("Privacy & Data", systemImage: "lock.fill")
+                Label("settings.privacyData".localized, systemImage: "lock.fill")
             }
 
             Button(role: .destructive) {
                 showDeleteConfirmation = true
             } label: {
-                Label("Delete All Data", systemImage: "trash.fill")
+                Label("settings.deleteAll".localized, systemImage: "trash.fill")
             }
         }
     }
 
+    #if DEBUG
+    private var developerSection: some View {
+        Section("Developer") {
+            Button("Reset Onboarding") {
+                viewModel.resetOnboarding(modelContext: modelContext)
+            }
+        }
+    }
+    #else
+    private var developerSection: some View { EmptyView() }
+    #endif
+
     private var helpSection: some View {
-        Section("Help") {
+        Section("settings.help".localized) {
             Button {
                 router.isShowingCrisis = true
             } label: {
-                Label("Get help now", systemImage: "heart.text.square.fill")
+                Label("settings.getHelp".localized, systemImage: "heart.text.square.fill")
                     .foregroundStyle(.red)
             }
         }

@@ -10,10 +10,22 @@ final class FeedViewModel {
     var cards: [Affirmation] = []
     var currentIndex: Int = 0
     var dailyAffirmation: Affirmation?
-    var isPlayingTTS = false
     var isLoading = false
     var errorMessage: String?
     var showRelaxFiltersPrompt = false
+    var currentMood: Mood?
+    var needsMoodCheckIn = false
+    var favoritedIds: Set<String> = []
+
+    /// Background images keyed by affirmation id for random rotation.
+    var cardBackgrounds: [String: UIImage] = [:]
+    /// Active theme IDs for rotation.
+    private var activeThemeIds: [String] = []
+
+    /// Auto-advance timer for feed rotation.
+    private var autoAdvanceTask: Task<Void, Never>?
+    /// Seconds between auto-advances.
+    private let autoAdvanceInterval: TimeInterval = 12
 
     var currentCard: Affirmation? {
         guard currentIndex >= 0, currentIndex < cards.count else { return nil }
@@ -24,59 +36,79 @@ final class FeedViewModel {
 
     private let feedService: FeedServiceProtocol
     private let favoriteService: FavoriteServiceProtocol
-    private let speechService: SpeechServiceProtocol
     private let shareService: ShareServiceProtocol
-    private let logger = Logger(subsystem: "com.lumen.app", category: "Feed")
+    private let moodService: MoodServiceProtocol
+    private let logger = Logger(subsystem: "com.gragera.lumen", category: "Feed")
 
     init(
         feedService: FeedServiceProtocol = FeedService.shared,
         favoriteService: FavoriteServiceProtocol = FavoriteService.shared,
-        speechService: SpeechServiceProtocol = SpeechService.shared,
-        shareService: ShareServiceProtocol = ShareService.shared
+        shareService: ShareServiceProtocol = ShareService.shared,
+        moodService: MoodServiceProtocol = MoodService.shared
     ) {
         self.feedService = feedService
         self.favoriteService = favoriteService
-        self.speechService = speechService
         self.shareService = shareService
+        self.moodService = moodService
     }
 
     // MARK: - Actions
 
-    func loadFeed(preferences: UserPreferences, isPremium: Bool, modelContext: ModelContext) {
+    func loadFeed(preferences: UserPreferences, isPremium: Bool, modelContext: ModelContext) async {
         isLoading = true
         defer { isLoading = false }
 
+        // Load active theme IDs for rotation
+        await loadActiveThemes(modelContext: modelContext)
+
+        // Check if user already logged mood today
+        if let existing = try? moodService.todaysMood(modelContext: modelContext) {
+            currentMood = existing.mood
+            needsMoodCheckIn = false
+        } else {
+            needsMoodCheckIn = true
+        }
+
+        // Single-pass batch load (one fetch of all data instead of 20+ repeated queries)
         do {
-            // Load daily affirmation
-            dailyAffirmation = try feedService.dailyAffirmation(
+            let result = try feedService.loadBatch(
+                count: 20,
                 preferences: preferences,
                 isPremium: isPremium,
+                mood: currentMood,
                 modelContext: modelContext
             )
 
-            // Pre-load batch of cards
-            var batch: [Affirmation] = []
-            let seen = Set<String>()
-            for _ in 0..<20 {
-                if let next = try feedService.nextAffirmation(
-                    preferences: preferences,
-                    isPremium: isPremium,
-                    modelContext: modelContext
-                ), !seen.contains(next.id) {
-                    batch.append(next)
-                }
-            }
+            dailyAffirmation = result.daily
 
-            if batch.isEmpty {
+            if result.feed.isEmpty {
                 showRelaxFiltersPrompt = true
             } else {
-                cards = batch
+                cards = result.feed
                 currentIndex = 0
                 showRelaxFiltersPrompt = false
+                favoritedIds = Set(result.feed.filter { $0.isFavorited }.map { $0.id })
+
+                // Assign random backgrounds from active themes
+                await assignBackgrounds(for: result.feed)
             }
         } catch {
             logger.error("Feed load error: \(error.localizedDescription)")
             errorMessage = error.localizedDescription
+        }
+    }
+
+    func recordMood(_ mood: Mood, preferences: UserPreferences, isPremium: Bool, modelContext: ModelContext) async {
+        do {
+            try moodService.recordMood(mood, modelContext: modelContext)
+            currentMood = mood
+            needsMoodCheckIn = false
+            logger.info("Mood set to \(mood.rawValue), reloading feed")
+
+            // Reload feed with mood-tuned selection
+            await loadFeed(preferences: preferences, isPremium: isPremium, modelContext: modelContext)
+        } catch {
+            logger.error("Failed to record mood: \(error.localizedDescription)")
         }
     }
 
@@ -88,6 +120,7 @@ final class FeedViewModel {
                 if let next = try feedService.nextAffirmation(
                     preferences: preferences,
                     isPremium: isPremium,
+                    mood: currentMood,
                     modelContext: modelContext
                 ) {
                     cards.append(next)
@@ -107,28 +140,22 @@ final class FeedViewModel {
         }
     }
 
+    func isFavorited(_ affirmation: Affirmation) -> Bool {
+        favoritedIds.contains(affirmation.id)
+    }
+
     func toggleFavorite(modelContext: ModelContext) {
         guard let card = currentCard else { return }
         do {
             try favoriteService.toggleFavorite(affirmation: card, modelContext: modelContext)
+            if favoritedIds.contains(card.id) {
+                favoritedIds.remove(card.id)
+            } else {
+                favoritedIds.insert(card.id)
+            }
         } catch {
             logger.error("Favorite error: \(error.localizedDescription)")
             errorMessage = error.localizedDescription
-        }
-    }
-
-    func toggleTTS(voice: VoiceSettings) {
-        guard let card = currentCard else { return }
-
-        if isPlayingTTS {
-            speechService.stop()
-            isPlayingTTS = false
-        } else {
-            isPlayingTTS = true
-            Task {
-                await speechService.speak(text: card.text, voice: voice)
-                isPlayingTTS = false
-            }
         }
     }
 
@@ -145,6 +172,53 @@ final class FeedViewModel {
         )
     }
 
+    // MARK: - Auto Advance
+
+    func startAutoAdvance() {
+        stopAutoAdvance()
+        autoAdvanceTask = Task { [weak self] in
+            while !Task.isCancelled {
+                try? await Task.sleep(for: .seconds(self?.autoAdvanceInterval ?? 12))
+                guard !Task.isCancelled else { break }
+                self?.swipeToNext()
+            }
+        }
+    }
+
+    func stopAutoAdvance() {
+        autoAdvanceTask?.cancel()
+        autoAdvanceTask = nil
+    }
+
+    func resetAutoAdvance() {
+        // Restart the timer on manual interaction
+        startAutoAdvance()
+    }
+
+    /// Insert the most recently created user affirmation right after the current card and navigate to it.
+    func insertLatestUserAffirmation(modelContext: ModelContext) {
+        do {
+            let userSource = AffirmationSource.user
+            var descriptor = FetchDescriptor<Affirmation>(
+                predicate: #Predicate<Affirmation> { $0.source == userSource },
+                sortBy: [SortDescriptor(\.createdAt, order: .reverse)]
+            )
+            descriptor.fetchLimit = 1
+
+            guard let newest = try modelContext.fetch(descriptor).first else { return }
+
+            // Don't insert if already in the feed
+            guard !cards.contains(where: { $0.id == newest.id }) else { return }
+
+            // Insert right after current position
+            let insertIndex = min(currentIndex + 1, cards.count)
+            cards.insert(newest, at: insertIndex)
+            currentIndex = insertIndex
+        } catch {
+            logger.error("Failed to insert user affirmation: \(error.localizedDescription)")
+        }
+    }
+
     func swipeToNext() {
         if currentIndex < cards.count - 1 {
             currentIndex += 1
@@ -155,5 +229,90 @@ final class FeedViewModel {
         if currentIndex > 0 {
             currentIndex -= 1
         }
+    }
+
+    // MARK: - Theme Rotation
+
+    /// Load active theme IDs from SwiftData.
+    private func loadActiveThemes(modelContext: ModelContext) async {
+        do {
+            let descriptor = FetchDescriptor<AppTheme>(
+                predicate: #Predicate<AppTheme> { $0.isActive == true || $0.isActive == nil }
+            )
+            let themes = try modelContext.fetch(descriptor)
+            activeThemeIds = themes.map(\.id)
+            logger.info("Loaded \(themes.count) active themes for rotation")
+        } catch {
+            logger.error("Failed to load active themes: \(error.localizedDescription)")
+            activeThemeIds = []
+        }
+    }
+
+    /// Assign a random background image to each card from the active theme pool.
+    private func assignBackgrounds(for affirmations: [Affirmation]) async {
+        guard !activeThemeIds.isEmpty else {
+            cardBackgrounds = [:]
+            return
+        }
+
+        let themeIds = activeThemeIds
+        let assignments: [(String, String)] = affirmations.map { aff in
+            let themeId = themeIds[abs(aff.id.hashValue) % themeIds.count]
+            return (aff.id, themeId)
+        }
+
+        // Load images off main thread
+        let loaded: [(String, UIImage)] = await Task.detached {
+            assignments.compactMap { (affId, themeId) in
+                guard let image = Self.loadThemeImage(themeId: themeId) else { return nil }
+                return (affId, image)
+            }
+        }.value
+
+        var backgrounds: [String: UIImage] = [:]
+        for (affId, image) in loaded {
+            backgrounds[affId] = image
+        }
+        cardBackgrounds = backgrounds
+    }
+
+    /// Resolve a theme image from disk (generated or AI).
+    private nonisolated static func loadThemeImage(themeId: String) -> UIImage? {
+        let searchDirs: [URL] = [
+            FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.gragera.lumen")?
+                .appendingPathComponent("themes/generated"),
+            FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.gragera.lumen")?
+                .appendingPathComponent("themes/ai"),
+            FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first?
+                .appendingPathComponent("themes/generated"),
+            FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first?
+                .appendingPathComponent("themes/ai"),
+        ].compactMap { $0 }
+
+        let extensions = ["png", "jpg"]
+
+        for dir in searchDirs {
+            for ext in extensions {
+                let imagePath = dir.appendingPathComponent("\(themeId).\(ext)")
+                if let data = try? Data(contentsOf: imagePath), let image = UIImage(data: data) {
+                    // Downscale to screen size
+                    let screenScale = 2.0
+                    let targetWidth = 430.0 * screenScale
+                    let scale = targetWidth / image.size.width
+                    let targetSize = CGSize(width: targetWidth, height: image.size.height * scale)
+                    let renderer = UIGraphicsImageRenderer(size: targetSize)
+                    return renderer.image { _ in
+                        image.draw(in: CGRect(origin: .zero, size: targetSize))
+                    }
+                }
+            }
+        }
+
+        return nil
+    }
+
+    /// Get the background image for a specific affirmation card.
+    func backgroundImage(for affirmation: Affirmation) -> UIImage? {
+        cardBackgrounds[affirmation.id]
     }
 }

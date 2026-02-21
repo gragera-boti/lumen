@@ -10,14 +10,14 @@ struct ContentFilterSettingsView: View {
     var body: some View {
         List {
             if let prefs = preferences {
-                Section(header: Text("Content types"), footer: Text("Toggle which content types appear in your feed.")) {
-                    Toggle("Spiritual content", isOn: binding(for: \.spiritual, prefs: prefs))
-                    Toggle("Manifestation language", isOn: binding(for: \.manifestation, prefs: prefs))
-                    Toggle("Body & fitness", isOn: binding(for: \.bodyFocus, prefs: prefs))
+                Section(header: Text("filters.contentTypes".localized), footer: Text("filters.contentTypesFooter".localized)) {
+                    Toggle("filters.spiritual".localized, isOn: binding(for: \.spiritual, prefs: prefs))
+                    Toggle("filters.manifestation".localized, isOn: binding(for: \.manifestation, prefs: prefs))
+                    Toggle("filters.bodyFocus".localized, isOn: binding(for: \.bodyFocus, prefs: prefs))
                 }
 
-                Section(header: Text("Sensitive topics"), footer: Text("These topics are hidden by default to avoid unexpected content.")) {
-                    Toggle("Include sensitive topics (grief, illness)", isOn: Binding(
+                Section(header: Text("filters.sensitiveTopics".localized), footer: Text("filters.sensitiveFooter".localized)) {
+                    Toggle("filters.includeSensitive".localized, isOn: Binding(
                         get: { prefs.includeSensitiveTopics },
                         set: {
                             prefs.includeSensitiveTopics = $0
@@ -26,8 +26,8 @@ struct ContentFilterSettingsView: View {
                     ))
                 }
 
-                Section(header: Text("Intensity")) {
-                    Toggle("Gentle mode", isOn: Binding(
+                Section(header: Text("filters.intensity".localized)) {
+                    Toggle("filters.gentleMode".localized, isOn: Binding(
                         get: { prefs.gentleMode },
                         set: {
                             prefs.gentleMode = $0
@@ -35,13 +35,13 @@ struct ContentFilterSettingsView: View {
                         }
                     ))
 
-                    Text("Gentle mode hides intense or absolute statements like \"I am unstoppable\".")
+                    Text("filters.gentleModeDescription".localized)
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
             }
         }
-        .navigationTitle("Content Filters")
+        .navigationTitle("filters.title".localized)
         .task {
             preferences = try? preferencesService.getOrCreate(modelContext: modelContext)
         }

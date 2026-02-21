@@ -45,7 +45,7 @@ struct PrivacyDataView: View {
                 Link("Read our privacy policy", destination: URL(string: "https://example.com/privacy")!)
             }
         }
-        .navigationTitle("Privacy & Data")
+        .navigationTitle("settings.privacyData".localized)
         .task {
             preferences = try? preferencesService.getOrCreate(modelContext: modelContext)
         }

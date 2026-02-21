@@ -61,11 +61,11 @@ struct OnboardingView: View {
                     .foregroundStyle(.white)
                     .symbolEffect(.pulse)
 
-                Text("Lumen")
+                Text("onboarding.welcome.headline".localized)
                     .font(.system(.largeTitle, design: .serif, weight: .bold))
                     .foregroundStyle(.white)
 
-                Text("Daily affirmations that feel kind —\nnot forced.")
+                Text("onboarding.welcome.subtitle".localized)
                     .font(.title3)
                     .foregroundStyle(.white.opacity(0.9))
                     .multilineTextAlignment(.center)
@@ -73,19 +73,19 @@ struct OnboardingView: View {
                 Spacer()
 
                 VStack(spacing: LumenTheme.Spacing.sm) {
-                    Text("This app is for wellness, not medical care.\nIf you feel unsafe or in crisis, tap below.")
+                    Text("onboarding.welcome.disclaimer".localized)
                         .font(.footnote)
                         .foregroundStyle(.white.opacity(0.7))
                         .multilineTextAlignment(.center)
 
-                    Button("Get help now") {
+                    Button("onboarding.welcome.helpButton".localized) {
                         // Show crisis sheet
                     }
                     .font(.footnote.bold())
                     .foregroundStyle(.white)
                 }
 
-                PrimaryButton(title: "Continue") {
+                PrimaryButton(title: "onboarding.welcome.continueButton".localized) {
                     viewModel.advance()
                 }
                 .padding(.horizontal, LumenTheme.Spacing.lg)
@@ -110,13 +110,13 @@ struct OnboardingView: View {
         var body: some View {
             ScrollView {
                 VStack(spacing: LumenTheme.Spacing.lg) {
-                    Text("Choose what you want\nmore of")
+                    Text("onboarding.categories.title".localized)
                         .font(LumenTheme.Typography.headlineFont)
                         .foregroundStyle(.white)
                         .multilineTextAlignment(.center)
                         .padding(.top, LumenTheme.Spacing.lg)
 
-                    Text("Pick at least one")
+                    Text("onboarding.categories.subtitle".localized)
                         .font(.subheadline)
                         .foregroundStyle(.white.opacity(0.7))
 
@@ -140,7 +140,7 @@ struct OnboardingView: View {
                             .background(.white.opacity(0.3))
                             .padding(.horizontal, LumenTheme.Spacing.lg)
 
-                        Text("Sensitive topics (opt-in)")
+                        Text("onboarding.categories.sensitive".localized)
                             .font(.subheadline)
                             .foregroundStyle(.white.opacity(0.7))
 
@@ -160,7 +160,7 @@ struct OnboardingView: View {
                         .padding(.horizontal, LumenTheme.Spacing.md)
                     }
 
-                    PrimaryButton(title: "Continue", action: { viewModel.advance() },
+                    PrimaryButton(title: "onboarding.welcome.continueButton".localized, action: { viewModel.advance() },
                                   isDisabled: !viewModel.canContinueFromCategories)
                         .padding(.horizontal, LumenTheme.Spacing.lg)
                         .padding(.bottom, LumenTheme.Spacing.xxl)
@@ -178,7 +178,7 @@ struct OnboardingView: View {
             VStack(spacing: LumenTheme.Spacing.lg) {
                 Spacer()
 
-                Text("Choose your tone")
+                Text("onboarding.tone.title".localized)
                     .font(LumenTheme.Typography.headlineFont)
                     .foregroundStyle(.white)
 
@@ -196,7 +196,7 @@ struct OnboardingView: View {
 
                 Spacer()
 
-                PrimaryButton(title: "Continue") {
+                PrimaryButton(title: "onboarding.welcome.continueButton".localized) {
                     viewModel.advance()
                 }
                 .padding(.horizontal, LumenTheme.Spacing.lg)
@@ -221,13 +221,13 @@ struct OnboardingView: View {
                     .font(.system(size: 48))
                     .foregroundStyle(.white)
 
-                Text("Set your reminders")
+                Text("onboarding.reminders.title".localized)
                     .font(LumenTheme.Typography.headlineFont)
                     .foregroundStyle(.white)
 
                 VStack(spacing: LumenTheme.Spacing.md) {
                     Stepper(
-                        "Reminders per day: \(viewModel.remindersPerDay)",
+                        "onboarding.reminders.perDay".localized(with: viewModel.remindersPerDay),
                         value: $viewModel.remindersPerDay,
                         in: 0...12
                     )
@@ -240,7 +240,7 @@ struct OnboardingView: View {
                 Spacer()
 
                 VStack(spacing: LumenTheme.Spacing.md) {
-                    PrimaryButton(title: "Enable reminders") {
+                    PrimaryButton(title: "onboarding.reminders.enable".localized) {
                         Task {
                             await viewModel.requestNotificationPermission()
                             viewModel.completeOnboarding(modelContext: modelContext)
@@ -248,7 +248,7 @@ struct OnboardingView: View {
                         }
                     }
 
-                    SecondaryButton(title: "Not now") {
+                    SecondaryButton(title: "onboarding.reminders.notNow".localized) {
                         viewModel.remindersPerDay = 0
                         viewModel.completeOnboarding(modelContext: modelContext)
                         onComplete()

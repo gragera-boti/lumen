@@ -3,7 +3,7 @@ import OSLog
 
 @MainActor @Observable
 final class DeepLinkHandler {
-    private let logger = Logger(subsystem: "com.lumen.app", category: "DeepLink")
+    private let logger = Logger(subsystem: "com.gragera.lumen", category: "DeepLink")
 
     func handle(url: URL, router: AppRouter) {
         guard let components = URLComponents(url: url, resolvingAgainstBaseURL: false),

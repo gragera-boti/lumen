@@ -7,7 +7,7 @@ final class FavoritesViewModelTests: XCTestCase {
 
     // MARK: - Mock
 
-    private final class MockFavoriteService: FavoriteServiceProtocol {
+    private final class MockFavoriteService: FavoriteServiceProtocol, @unchecked Sendable {
         var favorites: [Affirmation] = []
         var toggleCalledWith: String?
         var shouldThrow = false
@@ -23,10 +23,15 @@ final class FavoritesViewModelTests: XCTestCase {
         }
     }
 
+    private final class MockWidgetService: WidgetServiceProtocol, @unchecked Sendable {
+        func updateWidget(affirmationText: String, gradientColors: [String]) {}
+        func updateFavoritesWidget(favorites: [(text: String, gradientColors: [String])]) {}
+    }
+
     // MARK: - Tests
 
     func test_initialState() {
-        let vm = FavoritesViewModel()
+        let vm = FavoritesViewModel(widgetService: MockWidgetService())
         XCTAssertTrue(vm.favorites.isEmpty)
         XCTAssertFalse(vm.isLoading)
         XCTAssertNil(vm.errorMessage)

@@ -5,7 +5,7 @@ import SwiftData
 @MainActor
 final class SettingsViewModelTests: XCTestCase {
 
-    private final class MockPreferencesService: PreferencesServiceProtocol {
+    private final class MockPreferencesService: PreferencesServiceProtocol, @unchecked Sendable {
         var prefs: UserPreferences?
 
         func getOrCreate(modelContext: ModelContext) throws -> UserPreferences {
@@ -18,13 +18,19 @@ final class SettingsViewModelTests: XCTestCase {
         func save(modelContext: ModelContext) throws {}
     }
 
-    private final class MockEntitlementService: EntitlementServiceProtocol {
+    private final class MockEntitlementService: EntitlementServiceProtocol, @unchecked Sendable {
         var premium = false
 
         func isPremium() async -> Bool { premium }
         func purchase(productId: String) async throws {}
         func restorePurchases() async throws {}
         func availableProducts() async throws -> [ProductInfo] { [] }
+    }
+
+    private final class MockCloudSyncService: CloudSyncServiceProtocol, @unchecked Sendable {
+        func isSyncEnabled() -> Bool { false }
+        func setSyncEnabled(_ enabled: Bool) {}
+        func syncStatus() async -> CloudSyncStatus { .disabled }
     }
 
     func test_initialState() {

@@ -72,7 +72,7 @@ struct WatchContentView: View {
 
     private func loadFromSharedStorage() {
         guard let containerURL = FileManager.default.containerURL(
-            forSecurityApplicationGroupIdentifier: "group.com.lumen.app"
+            forSecurityApplicationGroupIdentifier: "group.com.gragera.lumen"
         ) else { return }
 
         let fileURL = containerURL.appendingPathComponent("watch_affirmations.json")
@@ -96,7 +96,7 @@ struct WatchContentView: View {
 
     private func loadNext() {
         guard let containerURL = FileManager.default.containerURL(
-            forSecurityApplicationGroupIdentifier: "group.com.lumen.app"
+            forSecurityApplicationGroupIdentifier: "group.com.gragera.lumen"
         ) else { return }
 
         let fileURL = containerURL.appendingPathComponent("watch_affirmations.json")

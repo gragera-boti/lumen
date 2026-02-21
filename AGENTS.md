@@ -213,16 +213,17 @@ This is a starting point. Add your own conventions, style, and rules as you figu
 
 # Agent Instructions for iOS Development
 
-You are an expert Senior iOS Engineer specializing in Swift, SwiftUI, and SwiftData. You write clean, well-structured, production-ready code that follows Apple's Human Interface Guidelines. When asked to implement a feature, you deliver complete, working code — never stubs or placeholders.
+You are an expert Senior iOS Engineer specializing in Swift, SwiftUI, and SwiftData. You write clean, well-structured, production-ready code that follows Apple's Human Interface Guidelines (including the Liquid Glass design language introduced at WWDC25). When asked to implement a feature, you deliver complete, working code — never stubs or placeholders.
 
 ---
 
 ## 1. Platform & Language
 
-- **Deployment Target:** iOS 17.0+
-- **Language:** Swift 6+ with strict concurrency checking enabled.
-- **UI Framework:** SwiftUI (use UIKit only when wrapping platform components unavailable in SwiftUI, e.g., `MFMailComposeViewController`).
+- **Deployment Target:** iOS 26.0+ (latest SDK).
+- **Language:** Swift 6.2 with strict concurrency checking enabled and complete region-based isolation.
+- **UI Framework:** SwiftUI. Use UIKit only when wrapping platform components unavailable in SwiftUI (e.g., `MFMailComposeViewController`).
 - **Persistence:** SwiftData.
+- **Testing:** Swift Testing framework (`import Testing`) — not XCTest for new tests.
 - **No third-party dependencies** unless explicitly approved. Prefer Foundation and platform frameworks.
 
 ---
@@ -234,7 +235,7 @@ Follow a strict separation of concerns across three layers:
 | Layer | Responsibility | Rules |
 |-------|---------------|-------|
 | **View** | Declarative UI, layout, styling | No business logic. No direct model mutations. Max ~80 lines per view body (extract subviews). |
-| **ViewModel** | Presentation logic, state management | Always a `@MainActor` `@Observable class`. Never imports SwiftUI (except for `SwiftUI.Image` or similar value types if unavoidable). One ViewModel per screen. |
+| **ViewModel** | Presentation logic, state management | Always a `@MainActor @Observable final class`. Never imports SwiftUI (except value types like `SwiftUI.Image` if unavoidable). One ViewModel per screen. |
 | **Service** | Data access, networking, persistence | Protocol-defined. Injected into ViewModels. Works with model types, never view types. |
 
 ### Dependency Injection
@@ -247,9 +248,9 @@ Follow a strict separation of concerns across three layers:
 // ✅ Correct
 @MainActor @Observable
 final class ContactListViewModel {
-    private let contactService: ContactServiceProtocol
+    private let contactService: any ContactServiceProtocol
 
-    init(contactService: ContactServiceProtocol = ContactService.shared) {
+    init(contactService: some ContactServiceProtocol = ContactService.shared) {
         self.contactService = contactService
     }
 }
@@ -268,8 +269,8 @@ App/
 ├── ContentView.swift              # Root navigation
 │
 ├── Theme/
-│   ├── Theme.swift                # Design tokens (colors, fonts, spacing, radii)
-│   └── Components/                # Reusable themed UI components (e.g., PrimaryButton, CardView)
+│   ├── Theme.swift                # Design tokens (colors, fonts, spacing, radii, materials)
+│   └── Components/                # Reusable themed UI components (GlassCard, PrimaryButton, etc.)
 │
 ├── Models/
 │   ├── Contact.swift              # SwiftData @Model types
@@ -288,8 +289,8 @@ App/
 │   │   └── Components/            # View-specific subviews
 │   │       └── ContactRow.swift
 │   └── ContactDetail/
-│       ├── ContactDetailView.swift
-│       └── ContactDetailViewModel.swift
+│   │   ├── ContactDetailView.swift
+│   │   └── ContactDetailViewModel.swift
 │
 ├── Navigation/
 │   └── AppRouter.swift            # Centralized navigation state
@@ -302,7 +303,8 @@ App/
 │
 └── Tests/
     ├── ViewModelTests/
-    └── ServiceTests/
+    ├── ServiceTests/
+    └── SnapshotTests/
 ```
 
 ### File Rules
@@ -320,16 +322,19 @@ App/
 - Annotate persistent types with `@Model`.
 - Keep models as pure data containers — no business logic, no computed properties with side effects.
 - Use explicit `@Attribute` and `@Relationship` annotations for clarity.
+- Use `#Unique` macro for compound uniqueness constraints.
 
 ```swift
 @Model
 final class Contact {
+    #Unique<Contact>([\.email])
+
     var name: String
     var email: String
     var lastContactedDate: Date?
     var notes: String
 
-    @Relationship(deleteRule: .cascade)
+    @Relationship(deleteRule: .cascade, inverse: \Interaction.contact)
     var interactions: [Interaction]
 
     init(name: String, email: String, notes: String = "", interactions: [Interaction] = []) {
@@ -345,7 +350,9 @@ final class Contact {
 
 - **Never use `@Query` directly in views for write-heavy screens.** Use `@Query` only in simple read-only list views. For screens that read and write, route through the ViewModel's service layer.
 - Services receive a `ModelContext` (or `ModelContainer`) through injection and perform all CRUD operations.
-- Wrap bulk mutations in explicit `modelContext.transaction { }` blocks when available, or batch saves.
+- Use `#Predicate` with compound expressions and `#Expression` for reusable predicate fragments.
+- Use `FetchDescriptor` with `sortBy`, `fetchLimit`, and `fetchOffset` for efficient pagination.
+- Wrap bulk mutations in explicit save batches.
 
 ### Migrations
 
@@ -387,6 +394,7 @@ enum AppDestination: Hashable {
 - Inject `AppRouter` via `@Environment`.
 - Views call `router.navigate(to:)` — they never construct or push views directly in `NavigationLink` closures.
 - Use `.navigationDestination(for:)` to map destinations to views in one place.
+- Use `TabView` with the tab-based customization API (`.tabViewStyle`, `.tab`) for top-level navigation.
 
 ---
 
@@ -394,9 +402,11 @@ enum AppDestination: Hashable {
 
 - **ViewModels:** Always `@MainActor`.
 - **Services:** Use `actor` isolation for services that manage shared mutable state. For stateless services, a plain `struct` or `final class` with `async` methods is fine.
-- **Background work:** Use structured concurrency (`TaskGroup`, `async let`) over unstructured `Task { }` wherever possible. If `Task { }` is needed (e.g., in `onAppear`), store it and cancel in `onDisappear`.
-- **Never use `DispatchQueue`** unless interfacing with legacy callback-based APIs.
+- **Background work:** Use structured concurrency (`TaskGroup`, `async let`, `withThrowingTaskGroup`) over unstructured `Task { }` wherever possible. If `Task { }` is needed (e.g., in `.task {}`), let SwiftUI manage its lifecycle — it cancels automatically on view disappear.
+- **`sending` parameters:** Use the `sending` keyword for function parameters that cross isolation boundaries.
+- **Never use `DispatchQueue`** unless interfacing with legacy callback-based APIs (wrap with `withCheckedContinuation`).
 - **Never use `nonisolated(unsafe)`** to silence concurrency warnings. Fix the underlying issue.
+- **Prefer `AsyncStream` / `AsyncSequence`** for reactive data flows over Combine. Use `.values` on Combine publishers only when bridging legacy code.
 
 ---
 
@@ -409,12 +419,14 @@ enum ContactServiceError: LocalizedError {
     case notFound(Contact.ID)
     case saveFailed(underlying: Error)
     case validationFailed(reason: String)
+    case networkUnavailable
 
     var errorDescription: String? {
         switch self {
         case .notFound(let id): "Contact \(id) not found."
         case .saveFailed(let err): "Failed to save: \(err.localizedDescription)"
         case .validationFailed(let reason): reason
+        case .networkUnavailable: "No internet connection."
         }
     }
 }
@@ -422,7 +434,7 @@ enum ContactServiceError: LocalizedError {
 
 - Services throw domain errors. ViewModels catch them and map to user-facing state.
 - ViewModels expose an `errorMessage: String?` (or a richer `AlertState`) that views bind to `.alert()`.
-- **Never force-unwrap** (`!`) except for IB outlets (which you shouldn't have in SwiftUI) or truly compile-time-guaranteed values like `URL(string: "https://apple.com")!`.
+- **Never force-unwrap** (`!`) except for truly compile-time-guaranteed values like `URL(string: "https://apple.com")!`.
 - **Never use `try!` or `try?`** without documented justification.
 
 ---
@@ -435,39 +447,49 @@ enum ContactServiceError: LocalizedError {
 - Use `guard` for early exits. Avoid nesting beyond 3 levels.
 - Prefer `struct` over `class` for value types. Use `class` only when reference semantics are required (ViewModels, SwiftData models).
 - Use trailing closures. Omit explicit types when the compiler can infer them and readability isn't harmed.
-- Mark everything `private` or `internal` by default. Only use `public` for framework/module boundaries.
+- Mark everything `private` or `internal` by default. Only use `public` or `package` for module boundaries.
 - **Max function length: ~40 lines.** Extract helpers if longer.
+- Use `if`/`switch` expressions (Swift 5.9+) for concise returns.
 
 ### Formatting
 
 - Use consistent 4-space indentation.
 - Place `// MARK: -` sections for logical grouping in larger files (Properties, Lifecycle, Actions, Subviews).
 - No commented-out code in committed files.
+- Use `#warning("TODO: ...")` for known incomplete work — never leave silent gaps.
 
 ---
 
-## 9. Theming & Design Tokens
+## 9. Theming & Design — Liquid Glass
+
+iOS 26 introduces **Liquid Glass**, a translucent, depth-aware material system. Embrace it:
+
+- Use `.glassEffect()` modifier for elevated surfaces (cards, toolbars, floating actions).
+- Let system materials and vibrancy handle background blending — don't fight it with opaque backgrounds.
+- Use SF Symbols 7 with the new rendering modes. Prefer `.symbolEffect()` for animated state transitions.
+- Respect the new **semantic depth hierarchy**: content recedes behind glass surfaces; keep text and icons high-contrast.
 
 **Never hardcode colors, fonts, spacing, or corner radii.** Always reference `Theme`:
 
 ```swift
 enum Theme {
-    // MARK: - Colors
+    // MARK: - Colors (defined in Assets.xcassets with light/dark/tinted variants)
     enum Colors {
         static let primaryText = Color("PrimaryText")
         static let secondaryText = Color("SecondaryText")
-        static let accent = Color("Accent")
+        static let accent = Color.accentColor
         static let background = Color("Background")
         static let surfaceCard = Color("SurfaceCard")
         static let destructive = Color("Destructive")
     }
 
-    // MARK: - Typography
+    // MARK: - Typography (system text styles — Dynamic Type compatible)
     enum Typography {
         static let largeTitle = Font.largeTitle.weight(.bold)
         static let headline = Font.headline
         static let body = Font.body
         static let caption = Font.caption.weight(.medium)
+        static let footnote = Font.footnote
     }
 
     // MARK: - Spacing
@@ -477,6 +499,7 @@ enum Theme {
         static let md: CGFloat = 16
         static let lg: CGFloat = 24
         static let xl: CGFloat = 32
+        static let xxl: CGFloat = 48
     }
 
     // MARK: - Radii
@@ -484,12 +507,21 @@ enum Theme {
         static let sm: CGFloat = 8
         static let md: CGFloat = 12
         static let lg: CGFloat = 20
+        static let continuous: CGFloat = 28 // for large cards, use .continuous corner style
+    }
+
+    // MARK: - Animation
+    enum Animation {
+        static let standard = SwiftUI.Animation.smooth(duration: 0.3)
+        static let spring = SwiftUI.Animation.spring(duration: 0.4, bounce: 0.2)
+        static let quick = SwiftUI.Animation.easeOut(duration: 0.15)
     }
 }
 ```
 
-- Define colors in `Assets.xcassets` with light/dark variants. Reference them by name in `Theme.Colors`.
-- Reusable styled components (buttons, cards, text fields) live in `Theme/Components/`.
+- Define colors in `Assets.xcassets` with light/dark/tinted variants. Reference them by name in `Theme.Colors`.
+- Reusable styled components (glass cards, buttons, text fields) live in `Theme/Components/`.
+- Use `ContainerRelativeShape` for adaptive corner radii inside containers.
 
 ---
 
@@ -499,10 +531,13 @@ Accessibility is a **requirement**, not an enhancement:
 
 - Every interactive element must have an `.accessibilityLabel(_:)` if its purpose isn't clear from visible text.
 - Use `.accessibilityHint(_:)` for non-obvious actions.
-- Support Dynamic Type — avoid fixed font sizes. Use `Theme.Typography` values (which are based on system text styles).
+- Support Dynamic Type — never use fixed font sizes. Use `Theme.Typography` values (system text styles).
 - Test with VoiceOver mentally: ensure logical reading order via `.accessibilityElement(children:)` and `.accessibilitySortPriority(_:)` when needed.
-- Use semantic colors (from `Theme.Colors`) that adapt to high-contrast mode.
+- Use semantic colors (from `Theme.Colors`) that adapt to high-contrast and increased-contrast modes.
 - Ensure all tap targets are at least 44×44pt.
+- Use `.accessibilityRepresentation` for custom controls to provide standard accessible behavior.
+- Add accessibility identifiers (`.accessibilityIdentifier(_:)`) to key elements for UI testing.
+- For Liquid Glass surfaces, ensure text passes WCAG AA contrast ratios against the glass material.
 
 ---
 
@@ -512,7 +547,9 @@ Accessibility is a **requirement**, not an enhancement:
 |---|---|
 | `AnyView` | Use `@ViewBuilder`, generics, or `some View` returns |
 | Force unwraps (`!`) | `guard let`, `if let`, or nil-coalescing |
-| `@ObservedObject` for owned state | `@State` for `@Observable` types (iOS 17+) |
+| `@ObservedObject` for owned state | `@State` for `@Observable` types |
+| `@StateObject` / `ObservableObject` | Use `@Observable` macro (Observation framework) |
+| Combine for new reactive flows | `AsyncStream` / `AsyncSequence` |
 | Singletons without protocol abstraction | Protocol + injectable default instance |
 | Massive view bodies (100+ lines) | Extract subviews as private computed properties or separate structs |
 | String-based identifiers or keys | Enums, typed IDs, or `#Predicate` |
@@ -521,27 +558,154 @@ Accessibility is a **requirement**, not an enhancement:
 | Business logic in Views | Move to ViewModel or Service |
 | Raw `UserDefaults` access | `@AppStorage` or a typed `SettingsService` |
 | `print()` for debugging | Use `os.Logger` with subsystem and category |
+| Opaque backgrounds over Liquid Glass | Use `.glassEffect()` or system materials |
+| XCTest for new test files | Swift Testing (`@Test`, `@Suite`, `#expect`) |
+| `@Published` / `ObservableObject` | `@Observable` macro |
+| Manual `Equatable` on simple types | Let the compiler synthesize it |
 
 ---
 
 ## 12. Testing
 
-### Unit Tests (XCTest)
+### Framework: Swift Testing (primary)
+
+Use the Swift Testing framework for all new tests. Use `@Test`, `@Suite`, `#expect`, and `#require`.
+
+```swift
+import Testing
+@testable import MyApp
+
+@Suite("ContactListViewModel")
+@MainActor
+struct ContactListViewModelTests {
+
+    // MARK: - Mock
+    final class MockContactService: ContactServiceProtocol {
+        var stubbedContacts: [Contact] = []
+        var shouldThrow = false
+        var deleteCallCount = 0
+
+        func fetchAll() async throws(ContactServiceError) -> [Contact] {
+            guard !shouldThrow else { throw .saveFailed(underlying: NSError()) }
+            return stubbedContacts
+        }
+
+        func delete(_ contact: Contact) async throws(ContactServiceError) {
+            deleteCallCount += 1
+        }
+    }
+
+    // MARK: - Tests
+
+    @Test("loads contacts successfully")
+    func loadContacts() async {
+        let mock = MockContactService()
+        mock.stubbedContacts = [Contact(name: "Alice", email: "alice@test.com")]
+        let vm = ContactListViewModel(contactService: mock)
+
+        await vm.loadContacts()
+
+        #expect(vm.contacts.count == 1)
+        #expect(vm.contacts.first?.name == "Alice")
+        #expect(!vm.isLoading)
+        #expect(vm.errorMessage == nil)
+    }
+
+    @Test("sets error on fetch failure")
+    func loadContactsFailure() async {
+        let mock = MockContactService()
+        mock.shouldThrow = true
+        let vm = ContactListViewModel(contactService: mock)
+
+        await vm.loadContacts()
+
+        #expect(vm.contacts.isEmpty)
+        #expect(vm.errorMessage != nil)
+    }
+
+    @Test("delete removes contact from list and calls service")
+    func deleteContact() async {
+        let mock = MockContactService()
+        let contact = Contact(name: "Bob", email: "bob@test.com")
+        mock.stubbedContacts = [contact]
+        let vm = ContactListViewModel(contactService: mock)
+        await vm.loadContacts()
+
+        await vm.deleteContact(contact)
+
+        #expect(vm.contacts.isEmpty)
+        #expect(mock.deleteCallCount == 1)
+    }
+}
+```
+
+### Parameterized Tests
+
+Use `@Test(arguments:)` for data-driven testing:
+
+```swift
+@Test("validates email format", arguments: [
+    ("valid@email.com", true),
+    ("invalid", false),
+    ("@missing.com", false),
+    ("user@.com", false),
+])
+func emailValidation(email: String, isValid: Bool) {
+    #expect(EmailValidator.isValid(email) == isValid)
+}
+```
+
+### Test Traits and Organization
+
+- Use `@Suite` to group related tests with shared setup.
+- Use `.tags()` trait for categorizing tests (e.g., `.tags(.critical)`, `.tags(.slow)`).
+- Use `#require` for preconditions that should abort the test if unmet (not just fail).
+- Use `confirmation()` for verifying async callbacks/notifications fire.
+
+### Test Coverage Requirements
 
 - Write tests for **every public and internal method** on ViewModels and Services.
-- Use protocol-based mocks for service dependencies — no third-party mocking frameworks.
-- Follow the **Arrange → Act → Assert** pattern with clear section comments.
-- Test names describe behavior: `test_deleteContact_removesFromListAndPersists()`.
+- Use protocol-based mocks — no third-party mocking frameworks.
+- **Minimum coverage targets:** ViewModels 90%+, Services 85%+, Models 70%+.
+- Every bug fix must include a regression test.
 
-### UI / Snapshot Tests
+### What To Test
 
-- Use `ViewInspector` or Xcode's snapshot testing for critical UI states (empty, loaded, error).
-- Test at minimum: default state, empty state, error state, loading state.
+- ViewModel state transitions (loading → loaded → error).
+- Service CRUD operations with in-memory ModelContainer.
+- Edge cases: empty data, nil values, concurrent access.
+- Error propagation from service through ViewModel to user-facing state.
 
 ### What Not To Test
 
 - SwiftUI layout internals (frame math, padding values).
 - Apple framework behavior (e.g., "does NavigationStack push work").
+- Trivial getters/setters with no logic.
+
+### Previews as Visual Tests
+
+Use `#Preview` extensively as visual validation:
+
+```swift
+#Preview("Contact List — Loaded") {
+    ContactListView()
+        .previewWith(mockContacts: .sampleList)
+}
+
+#Preview("Contact List — Empty") {
+    ContactListView()
+        .previewWith(mockContacts: [])
+}
+
+#Preview("Contact List — Error") {
+    ContactListView()
+        .previewWith(shouldError: true)
+}
+```
+
+- Create `PreviewHelpers/` with `.previewWith()` modifiers that inject mock services.
+- Every screen must have previews for: default, empty, loading, and error states.
+- Use preview traits (`PreviewTrait`) for device variations and accessibility settings.
 
 ---
 
@@ -558,234 +722,78 @@ extension Logger {
     static let viewModel = Logger(subsystem: subsystem, category: "ViewModel")
     static let service = Logger(subsystem: subsystem, category: "Service")
     static let navigation = Logger(subsystem: subsystem, category: "Navigation")
+    static let data = Logger(subsystem: subsystem, category: "Data")
 }
 ```
 
-- Use `.debug` for development-only info, `.info` for notable events, `.error` for failures.
-- **Never log sensitive user data** (emails, names) at `.info` or above.
+- Use `.debug` for development-only info, `.info` for notable events, `.error` for failures, `.fault` for programming errors.
+- **Never log sensitive user data** (emails, names, tokens) at `.info` or above.
+- Use string interpolation privacy: `\(email, privacy: .private)` for sensitive values.
 
 ---
 
-## 14. Canonical Example
+## 14. Modern SwiftUI Patterns (iOS 26)
 
-Below is a minimal but complete example of a feature implemented according to these guidelines.
+### Prefer These APIs
 
-### Model
+- **`@Bindable`** for creating bindings from `@Observable` objects in views.
+- **`@State`** to own `@Observable` ViewModels in views.
+- **`.task { }` and `.task(id:) { }`** for async work tied to view lifecycle — SwiftUI handles cancellation.
+- **`ScrollView` with `.scrollPosition(id:)`** for programmatic scroll control.
+- **`.contentTransition(.numericText())`** for animated number changes.
+- **`.sensoryFeedback()`** for haptic feedback instead of `UIFeedbackGenerator`.
+- **`ContentUnavailableView`** for empty/error states.
+- **`.inspector(isPresented:)`** for supplementary detail panels.
+- **`MeshGradient`** for rich background effects.
+- **`.symbolEffect()`** for animated SF Symbol transitions.
+- **`PhaseAnimator` / `KeyframeAnimator`** for multi-step animations.
+- **`.onChange(of:initial:)`** with the two-parameter closure form.
+- **`ControlGroup` and `ControlWidgetButton`** for Control Center widgets.
 
-```swift
-// Models/Contact.swift
-import SwiftData
+### Data Flow Rules
 
-@Model
-final class Contact {
-    var name: String
-    var email: String
-    var lastContactedDate: Date?
-
-    init(name: String, email: String, lastContactedDate: Date? = nil) {
-        self.name = name
-        self.email = email
-        self.lastContactedDate = lastContactedDate
-    }
-}
+```
+View (@State var vm) → ViewModel (@Observable) → Service (protocol) → SwiftData/Network
+     ↑ bindings via @Bindable                        ↑ injected via init
 ```
 
-### Service Protocol & Implementation
-
-```swift
-// Services/Protocols/ContactServiceProtocol.swift
-import Foundation
-
-protocol ContactServiceProtocol: Sendable {
-    func fetchAll() async throws(ContactServiceError) -> [Contact]
-    func delete(_ contact: Contact) async throws(ContactServiceError)
-}
-```
-
-```swift
-// Services/Implementations/ContactService.swift
-import SwiftData
-import OSLog
-
-final class ContactService: ContactServiceProtocol {
-    static let shared = ContactService()
-
-    private let logger = Logger.service
-
-    func fetchAll() async throws(ContactServiceError) -> [Contact] {
-        // Implementation using ModelContext
-        logger.debug("Fetching all contacts")
-        // ...
-    }
-
-    func delete(_ contact: Contact) async throws(ContactServiceError) {
-        logger.info("Deleting contact: \(contact.id)")
-        // ...
-    }
-}
-```
-
-### ViewModel
-
-```swift
-// Features/ContactList/ContactListViewModel.swift
-import Foundation
-import OSLog
-
-@MainActor @Observable
-final class ContactListViewModel {
-    // MARK: - State
-    private(set) var contacts: [Contact] = []
-    private(set) var isLoading = false
-    var errorMessage: String?
-
-    // MARK: - Dependencies
-    private let contactService: ContactServiceProtocol
-    private let logger = Logger.viewModel
-
-    // MARK: - Init
-    init(contactService: ContactServiceProtocol = ContactService.shared) {
-        self.contactService = contactService
-    }
-
-    // MARK: - Actions
-    func loadContacts() async {
-        isLoading = true
-        defer { isLoading = false }
-
-        do {
-            contacts = try await contactService.fetchAll()
-        } catch {
-            logger.error("Failed to load contacts: \(error.localizedDescription)")
-            errorMessage = error.localizedDescription
-        }
-    }
-
-    func deleteContact(_ contact: Contact) async {
-        do {
-            try await contactService.delete(contact)
-            contacts.removeAll { $0.id == contact.id }
-        } catch {
-            logger.error("Failed to delete contact: \(error.localizedDescription)")
-            errorMessage = error.localizedDescription
-        }
-    }
-}
-```
-
-### View
-
-```swift
-// Features/ContactList/ContactListView.swift
-import SwiftUI
-
-struct ContactListView: View {
-    @State private var viewModel = ContactListViewModel()
-    @Environment(AppRouter.self) private var router
-
-    var body: some View {
-        Group {
-            if viewModel.isLoading {
-                ProgressView()
-            } else if viewModel.contacts.isEmpty {
-                emptyState
-            } else {
-                contactList
-            }
-        }
-        .navigationTitle("Contacts")
-        .task { await viewModel.loadContacts() }
-        .alert("Error", isPresented: alertBinding) {
-            Button("OK") { viewModel.errorMessage = nil }
-        } message: {
-            Text(viewModel.errorMessage ?? "")
-        }
-    }
-
-    // MARK: - Subviews
-
-    private var contactList: some View {
-        List(viewModel.contacts) { contact in
-            ContactRow(contact: contact)
-                .onTapGesture { router.navigate(to: .contactDetail(contact.id)) }
-        }
-    }
-
-    private var emptyState: some View {
-        ContentUnavailableView(
-            "No Contacts Yet",
-            systemImage: "person.2.slash",
-            description: Text("Tap + to add your first contact.")
-        )
-    }
-
-    private var alertBinding: Binding<Bool> {
-        Binding(
-            get: { viewModel.errorMessage != nil },
-            set: { if !$0 { viewModel.errorMessage = nil } }
-        )
-    }
-}
-```
-
-### Test
-
-```swift
-// Tests/ViewModelTests/ContactListViewModelTests.swift
-import XCTest
-
-@MainActor
-final class ContactListViewModelTests: XCTestCase {
-    // MARK: - Mock
-    private final class MockContactService: ContactServiceProtocol {
-        var stubbedContacts: [Contact] = []
-        var shouldThrow = false
-
-        func fetchAll() async throws(ContactServiceError) -> [Contact] {
-            guard !shouldThrow else { throw .saveFailed(underlying: NSError()) }
-            return stubbedContacts
-        }
-
-        func delete(_ contact: Contact) async throws(ContactServiceError) {}
-    }
-
-    // MARK: - Tests
-    func test_loadContacts_populatesContactsList() async {
-        // Arrange
-        let mock = MockContactService()
-        mock.stubbedContacts = [Contact(name: "Alice", email: "alice@test.com")]
-        let vm = ContactListViewModel(contactService: mock)
-
-        // Act
-        await vm.loadContacts()
-
-        // Assert
-        XCTAssertEqual(vm.contacts.count, 1)
-        XCTAssertEqual(vm.contacts.first?.name, "Alice")
-        XCTAssertFalse(vm.isLoading)
-        XCTAssertNil(vm.errorMessage)
-    }
-
-    func test_loadContacts_setsErrorOnFailure() async {
-        // Arrange
-        let mock = MockContactService()
-        mock.shouldThrow = true
-        let vm = ContactListViewModel(contactService: mock)
-
-        // Act
-        await vm.loadContacts()
-
-        // Assert
-        XCTAssertTrue(vm.contacts.isEmpty)
-        XCTAssertNotNil(vm.errorMessage)
-    }
-}
-```
+- Views own ViewModels via `@State private var viewModel = ViewModel()`.
+- Child views receive `@Observable` objects as plain parameters (no property wrapper needed for read-only observation).
+- Use `@Bindable var vm = viewModel` when you need two-way bindings to ViewModel properties.
 
 ---
 
-## 15. Documentation
+## 15. Workflow & Best Practices
+
+### Development Workflow
+
+1. **Design in Previews:** Start every feature by building the view with mock data in `#Preview`. Iterate visually before wiring up real data.
+2. **Write the test first (or alongside):** For ViewModel logic, write the `@Test` before or simultaneously with the implementation.
+3. **Small, focused commits:** One logical change per commit. Use conventional commit messages (`feat:`, `fix:`, `refactor:`, `test:`, `docs:`).
+4. **PR checklist:** Tests pass, previews render, no warnings, accessibility labels present, no force-unwraps.
+
+### Performance
+
+- Use `LazyVStack` / `LazyHStack` inside `ScrollView` for large lists.
+- Profile with Instruments (Time Profiler, SwiftUI instrument) before optimizing.
+- Avoid `.onAppear` / `.onDisappear` for data loading — prefer `.task {}`.
+- Use `EquatableView` or `.equatable()` only when profiling reveals unnecessary redraws.
+- Minimize view identity changes — use stable `id` values.
+- For images, use `AsyncImage` with `.resizable()` and proper placeholder/phases, or pre-cache with a dedicated `ImageCacheService`.
+
+### Security
+
+- Store secrets in Keychain via a `KeychainService` — never in `UserDefaults` or plain files.
+- Use `URLSession` with certificate pinning for sensitive endpoints.
+- Sanitize all user input before persistence or display.
+- Use `@Attribute(.transformable(by:))` for encrypting sensitive SwiftData fields at rest.
+
+---
+
+## 16. Documentation
 
 - Update `Documentation.md` when adding or changing any public-facing API, service protocol, or navigation destination.
 - Use Swift DocC comments (`/// Description`) on all protocol methods and non-trivial public/internal functions.
 - Keep a `CHANGELOG.md` at the project root with dated entries for each feature or fix.
+- Add `// MARK:` headers in every file with more than one logical section.
+- Document non-obvious design decisions inline with `// NOTE:` or `// DESIGN:` comments.

@@ -3,22 +3,95 @@ import SwiftUI
 struct AffirmationCardView: View {
     let affirmation: Affirmation
     let gradientColors: [Color]
+    let backgroundImage: UIImage?
     let isFavorited: Bool
-    let isPlayingTTS: Bool
     let onFavorite: () -> Void
-    let onListen: () -> Void
     let onShare: () -> Void
 
-    @State private var showOverflow = false
+    init(
+        affirmation: Affirmation,
+        gradientColors: [Color],
+        backgroundImage: UIImage? = nil,
+        isFavorited: Bool,
+        onFavorite: @escaping () -> Void,
+        onShare: @escaping () -> Void
+    ) {
+        self.affirmation = affirmation
+        self.gradientColors = gradientColors
+        self.backgroundImage = backgroundImage
+        self.isFavorited = isFavorited
+        self.onFavorite = onFavorite
+        self.onShare = onShare
+    }
+
+    /// Font selection — respects user-chosen font for custom affirmations,
+    /// otherwise uses curated defaults (primarily New York serif).
+    private var affirmationFont: Font {
+        // User-created affirmations with a custom font style
+        if let styleName = affirmation.fontStyle,
+           let style = AffirmationFontStyle(rawValue: styleName) {
+            return style.cardFont(textLength: affirmation.text.count)
+        }
+
+        let length = affirmation.text.count
+        let design = Self.fontDesign(for: affirmation)
+        let weight = Self.fontWeight(for: affirmation)
+
+        if length < 40 {
+            return .system(size: 34, weight: weight, design: design)
+        } else if length < 80 {
+            return .system(size: 28, weight: weight, design: design)
+        } else if length < 140 {
+            return .system(size: 24, weight: weight, design: design)
+        } else {
+            return .system(size: 21, weight: weight, design: design)
+        }
+    }
+
+    /// 70% serif (New York), 20% rounded, 10% default.
+    private static func fontDesign(for aff: Affirmation) -> Font.Design {
+        let hash = abs(aff.id.hashValue)
+        let roll = hash % 10
+        if roll < 7 { return .serif }
+        if roll < 9 { return .rounded }
+        return .default
+    }
+
+    /// Only weights that read well on gradients — no thin or light.
+    private static func fontWeight(for aff: Affirmation) -> Font.Weight {
+        let hash = abs(aff.id.hashValue >> 4)
+        let weights: [Font.Weight] = [.medium, .regular, .medium, .semibold, .regular]
+        return weights[hash % weights.count]
+    }
+
+    /// Subtle letter spacing tuned per design.
+    private var letterSpacing: CGFloat {
+        if let styleName = affirmation.fontStyle,
+           let _ = AffirmationFontStyle(rawValue: styleName) {
+            return 0.3
+        }
+        let design = Self.fontDesign(for: affirmation)
+        switch design {
+        case .serif: return 0.3
+        case .rounded: return 0.5
+        default: return 0.2
+        }
+    }
 
     var body: some View {
         ZStack {
-            // Background gradient
-            LinearGradient(
-                colors: gradientColors,
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
+            // Background: image or gradient
+            if let bgImage = backgroundImage {
+                Image(uiImage: bgImage)
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+            } else {
+                LinearGradient(
+                    colors: gradientColors,
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            }
 
             // Readability overlay
             ReadabilityOverlay()
@@ -28,18 +101,22 @@ struct AffirmationCardView: View {
                 Spacer()
 
                 Text(affirmation.text)
-                    .font(LumenTheme.Typography.affirmationLargeFont)
+                    .font(affirmationFont)
+                    .tracking(letterSpacing)
                     .foregroundStyle(.white)
                     .multilineTextAlignment(.center)
-                    .padding(.horizontal, LumenTheme.Spacing.xl)
-                    .shadow(color: .black.opacity(0.2), radius: 4, y: 2)
+                    .lineSpacing(6)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .minimumScaleFactor(0.5)
+                    .padding(.horizontal, LumenTheme.Spacing.xl + LumenTheme.Spacing.md)
+                    .shadow(color: .black.opacity(0.4), radius: 8, y: 3)
                     .accessibilityAddTraits(.isHeader)
 
                 Spacer()
 
                 // Action bar
                 actionBar
-                    .padding(.bottom, LumenTheme.Spacing.xxl + 20)
+                    .padding(.bottom, 120)
             }
         }
     }
@@ -50,21 +127,14 @@ struct AffirmationCardView: View {
         HStack(spacing: LumenTheme.Spacing.xl) {
             ActionButton(
                 icon: isFavorited ? "heart.fill" : "heart",
-                label: "Favorite",
+                label: "feed.favorite".localized,
                 isActive: isFavorited,
                 action: onFavorite
             )
 
             ActionButton(
-                icon: isPlayingTTS ? "pause.fill" : "play.fill",
-                label: isPlayingTTS ? "Pause" : "Listen",
-                isActive: isPlayingTTS,
-                action: onListen
-            )
-
-            ActionButton(
                 icon: "square.and.arrow.up",
-                label: "Share",
+                label: "feed.share".localized,
                 action: onShare
             )
         }

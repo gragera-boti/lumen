@@ -15,7 +15,7 @@ struct RemindersSettingsView: View {
             if let prefs = preferences {
                 Section {
                     Stepper(
-                        "Reminders per day: \(prefs.reminders.countPerDay)",
+                        "reminders.perDay".localized(with: prefs.reminders.countPerDay),
                         value: Binding(
                             get: { prefs.reminders.countPerDay },
                             set: {
@@ -27,29 +27,29 @@ struct RemindersSettingsView: View {
                     )
 
                     HStack {
-                        Text("Window start")
+                        Text("reminders.windowStart".localized)
                         Spacer()
                         Text(prefs.reminders.windowStart)
                             .foregroundStyle(.secondary)
                     }
 
                     HStack {
-                        Text("Window end")
+                        Text("reminders.windowEnd".localized)
                         Spacer()
                         Text(prefs.reminders.windowEnd)
                             .foregroundStyle(.secondary)
                     }
                 }
 
-                Section("Quiet Hours") {
+                Section {
                     HStack {
-                        Text("Quiet start")
+                        Text("reminders.quietStart".localized)
                         Spacer()
                         Text(prefs.reminders.quietStart)
                             .foregroundStyle(.secondary)
                     }
                     HStack {
-                        Text("Quiet end")
+                        Text("reminders.quietEnd".localized)
                         Spacer()
                         Text(prefs.reminders.quietEnd)
                             .foregroundStyle(.secondary)
@@ -57,7 +57,7 @@ struct RemindersSettingsView: View {
                 }
 
                 Section {
-                    Button("Send test notification") {
+                    Button("reminders.testButton".localized) {
                         Task {
                             try? await notificationService.scheduleReminders(
                                 settings: ReminderSettings(
@@ -77,26 +77,26 @@ struct RemindersSettingsView: View {
 
                 Section {
                     HStack {
-                        Text("Notification permission")
+                        Text("reminders.permission".localized)
                         Spacer()
                         switch notificationPermission {
                         case .granted:
-                            Text("Enabled")
+                            Text("reminders.enabled".localized)
                                 .foregroundStyle(.green)
                         case .denied:
-                            Text("Disabled")
+                            Text("reminders.disabled".localized)
                                 .foregroundStyle(.red)
                         case .unknown:
-                            Text("Not set")
+                            Text("reminders.notSet".localized)
                                 .foregroundStyle(.secondary)
                         }
                     }
                 }
             }
         }
-        .navigationTitle("Reminders")
-        .alert("Test sent!", isPresented: $showTestSent) {
-            Button("OK") {}
+        .navigationTitle("reminders.title".localized)
+        .alert("reminders.testSent".localized, isPresented: $showTestSent) {
+            Button("general.ok".localized) {}
         }
         .task {
             do {

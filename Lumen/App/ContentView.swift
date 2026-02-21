@@ -29,7 +29,7 @@ struct ContentView: View {
             get: { router.isShowingPaywall },
             set: { router.isShowingPaywall = $0 }
         )) {
-            PaywallView()
+            LumenPaywallView()
         }
         .sheet(isPresented: Binding(
             get: { router.isShowingCrisis },
@@ -54,7 +54,7 @@ struct ContentView: View {
                     .foregroundStyle(.white)
                     .symbolEffect(.pulse)
 
-                Text("Lumen")
+                Text("app.name".localized)
                     .font(.system(.largeTitle, design: .serif, weight: .bold))
                     .foregroundStyle(.white)
             }
@@ -76,7 +76,7 @@ struct ContentView: View {
                     }
             }
             .tabItem {
-                Label(Tab.forYou.rawValue, systemImage: Tab.forYou.iconName)
+                Label("tab.forYou".localized, systemImage: Tab.forYou.iconName)
             }
             .tag(Tab.forYou)
 
@@ -87,7 +87,7 @@ struct ContentView: View {
                     }
             }
             .tabItem {
-                Label(Tab.explore.rawValue, systemImage: Tab.explore.iconName)
+                Label("tab.explore".localized, systemImage: Tab.explore.iconName)
             }
             .tag(Tab.explore)
 
@@ -98,7 +98,7 @@ struct ContentView: View {
                     }
             }
             .tabItem {
-                Label(Tab.favorites.rawValue, systemImage: Tab.favorites.iconName)
+                Label("tab.favorites".localized, systemImage: Tab.favorites.iconName)
             }
             .tag(Tab.favorites)
 
@@ -109,11 +109,27 @@ struct ContentView: View {
                     }
             }
             .tabItem {
-                Label(Tab.settings.rawValue, systemImage: Tab.settings.iconName)
+                Label("tab.settings".localized, systemImage: Tab.settings.iconName)
             }
             .tag(Tab.settings)
         }
         .tint(LumenTheme.Colors.primary)
+        .background(Color.black)
+        .onAppear {
+            // Glass tab bar that floats over feed content
+            let tabAppearance = UITabBarAppearance()
+            tabAppearance.configureWithTransparentBackground()
+            tabAppearance.backgroundEffect = UIBlurEffect(style: .systemUltraThinMaterialDark)
+            UITabBar.appearance().standardAppearance = tabAppearance
+            UITabBar.appearance().scrollEdgeAppearance = tabAppearance
+
+            // Transparent navigation bar so feed extends edge-to-edge
+            let navAppearance = UINavigationBarAppearance()
+            navAppearance.configureWithTransparentBackground()
+            UINavigationBar.appearance().standardAppearance = navAppearance
+            UINavigationBar.appearance().scrollEdgeAppearance = navAppearance
+            UINavigationBar.appearance().compactAppearance = navAppearance
+        }
     }
 
     // MARK: - Destination Router
@@ -123,14 +139,12 @@ struct ContentView: View {
         switch destination {
         case .categoryFeed(let categoryId):
             CategoryFeedView(categoryId: categoryId, preferences: preferences, isPremium: isPremium)
-        case .affirmationDetail:
-            EmptyView()
+        case .affirmationDetail(let affirmationId):
+            AffirmationDetailView(affirmationId: affirmationId)
         case .reminders:
             RemindersSettingsView()
         case .themes:
             ThemesSettingsView()
-        case .voiceSettings:
-            VoiceSettingsView()
         case .contentFilterSettings:
             ContentFilterSettingsView()
         case .subscription:
@@ -141,6 +155,8 @@ struct ContentView: View {
             CrisisView()
         case .themeGenerator:
             ThemeGeneratorView()
+        case .themeGallery:
+            ThemeGalleryView()
         case .history:
             HistoryView()
         }
@@ -150,7 +166,7 @@ struct ContentView: View {
 
     private func bootstrap() async {
         do {
-            try await ContentService.shared.loadBundledContentIfNeeded(modelContext: modelContext)
+            try ContentService.shared.loadBundledContentIfNeeded(modelContext: modelContext)
         } catch {
             // Content load failed — continue with whatever is available
         }

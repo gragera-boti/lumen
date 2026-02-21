@@ -57,6 +57,14 @@
 "settings.voice" = "Voz";
 "settings.voiceSettings" = "Ajustes de voz";
 "settings.subscription" = "Suscripción";
+"subscription.upgrade.title" = "Hazte Pro en Lumen";
+"subscription.upgrade.subtitle" = "Desbloquea todas las categorías, temas ilimitados y más";
+"subscription.current_plan" = "Plan actual";
+"subscription.plan.premium" = "Premium";
+"subscription.plan.free" = "Gratis";
+"subscription.manage" = "Gestionar suscripción";
+"subscription.restore" = "Restaurar compras";
+"subscription.contact_support" = "Contactar soporte";
 "settings.manageSubscription" = "Gestionar suscripción";
 "settings.premium" = "Premium";
 "settings.dataPrivacy" = "Datos y privacidad";
@@ -143,6 +151,15 @@
 "custom.cancel" = "Cancelar";
 "custom.tooLong" = "Máximo 200 caracteres.";
 
+/* History */
+"history.title" = "Historial";
+"history.empty.title" = "Sin historial";
+"history.empty.description" = "Las afirmaciones que veas aparecerán aquí.";
+
+/* Settings (extra) */
+"settings.history" = "Historial";
+"settings.recentlyViewed" = "Vistos recientemente";
+
 /* General */
 "general.ok" = "OK";
 "general.cancel" = "Cancelar";
@@ -151,3 +168,21 @@
 "general.error" = "Error";
 "general.terms" = "Términos";
 "general.privacy" = "Privacidad";
+
+/* Mood */
+"mood.prompt" = "¿Cómo te sientes hoy?";
+"affirmation.notFound" = "Afirmación no encontrada";
+"share" = "Compartir";
+"favorites.add" = "Favorito";
+
+// Voice quality tiers
+"voice.quality.premium" = "Voces Premium";
+"voice.quality.premium.description" = "Máxima calidad — naturales y expresivas";
+"voice.quality.enhanced" = "Voces Mejoradas";
+"voice.quality.enhanced.description" = "Pueden requerir descarga en Ajustes → Accesibilidad → Contenido hablado";
+"voice.quality.default" = "Voces Estándar";
+"voice.speed.slow" = "Lento";
+"voice.speed.relaxed" = "Relajado";
+"voice.speed.normal" = "Normal";
+"voice.speed.brisk" = "Ágil";
+"voice.speed.fast" = "Rápido";

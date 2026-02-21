@@ -25,7 +25,6 @@ final class UserPreferences {
         includeSensitiveTopics: Bool = false,
         contentFilters: ContentFilters = .defaults,
         reminders: ReminderSettings = .defaults,
-        voice: VoiceSettings = .defaults,
         themeId: String? = nil,
         analyticsOptOut: Bool = false,
         hasCompletedOnboarding: Bool = false
@@ -37,7 +36,7 @@ final class UserPreferences {
         self.includeSensitiveTopics = includeSensitiveTopics
         self.contentFiltersData = (try? JSONEncoder().encode(contentFilters)) ?? Data()
         self.remindersData = (try? JSONEncoder().encode(reminders)) ?? Data()
-        self.voiceData = (try? JSONEncoder().encode(voice)) ?? Data()
+        self.voiceData = Data()
         self.themeId = themeId
         self.analyticsOptOut = analyticsOptOut
         self.hasCompletedOnboarding = hasCompletedOnboarding
@@ -54,8 +53,5 @@ final class UserPreferences {
         set { remindersData = (try? JSONEncoder().encode(newValue)) ?? Data() }
     }
 
-    var voice: VoiceSettings {
-        get { (try? JSONDecoder().decode(VoiceSettings.self, from: voiceData)) ?? .defaults }
-        set { voiceData = (try? JSONEncoder().encode(newValue)) ?? Data() }
-    }
+    // voiceData kept for schema compatibility (unused since listen feature removal)
 }

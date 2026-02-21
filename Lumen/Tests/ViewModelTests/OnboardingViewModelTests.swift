@@ -7,12 +7,13 @@ final class OnboardingViewModelTests: XCTestCase {
 
     // MARK: - Mocks
 
+    @MainActor
     private final class MockContentService: ContentServiceProtocol {
-        var categories: [Category] = []
+        var categories: [Lumen.Category] = []
 
-        func loadBundledContentIfNeeded(modelContext: ModelContext) async throws {}
+        func loadBundledContentIfNeeded(modelContext: ModelContext) throws {}
 
-        func fetchCategories(modelContext: ModelContext, locale: String) throws -> [Category] {
+        func fetchCategories(modelContext: ModelContext, locale: String) throws -> [Lumen.Category] {
             categories
         }
 
@@ -21,7 +22,7 @@ final class OnboardingViewModelTests: XCTestCase {
         }
     }
 
-    private final class MockPreferencesService: PreferencesServiceProtocol {
+    private final class MockPreferencesService: PreferencesServiceProtocol, @unchecked Sendable {
         var savedPreferences: UserPreferences?
 
         func getOrCreate(modelContext: ModelContext) throws -> UserPreferences {
@@ -34,7 +35,7 @@ final class OnboardingViewModelTests: XCTestCase {
         func save(modelContext: ModelContext) throws {}
     }
 
-    private final class MockNotificationService: NotificationServiceProtocol {
+    private final class MockNotificationService: NotificationServiceProtocol, @unchecked Sendable {
         var shouldGrant = true
 
         func requestPermission() async throws -> Bool { shouldGrant }

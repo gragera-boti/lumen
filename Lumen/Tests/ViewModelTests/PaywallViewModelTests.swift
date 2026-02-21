@@ -6,7 +6,7 @@ final class PaywallViewModelTests: XCTestCase {
 
     // MARK: - Mock
 
-    private final class MockEntitlementService: EntitlementServiceProtocol {
+    private final class MockEntitlementService: EntitlementServiceProtocol, @unchecked Sendable {
         var premium = false
         var products: [ProductInfo] = []
         var shouldThrow = false

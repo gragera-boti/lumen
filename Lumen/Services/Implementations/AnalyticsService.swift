@@ -6,7 +6,7 @@ import OSLog
 final class AnalyticsService: AnalyticsServiceProtocol, @unchecked Sendable {
     static let shared = AnalyticsService()
 
-    private let logger = Logger(subsystem: "com.lumen.app", category: "Analytics")
+    private let logger = Logger(subsystem: "com.gragera.lumen", category: "Analytics")
     private var isOptedOut = false
 
     func log(event: AnalyticsEvent) {

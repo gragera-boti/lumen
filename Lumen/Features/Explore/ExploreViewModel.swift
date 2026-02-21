@@ -5,19 +5,27 @@ import OSLog
 @MainActor @Observable
 final class ExploreViewModel {
     var categories: [Category] = []
+    var isPremium = false
     var isLoading = false
     var errorMessage: String?
 
     private let contentService: ContentServiceProtocol
-    private let logger = Logger(subsystem: "com.lumen.app", category: "Explore")
+    private let entitlementService: EntitlementServiceProtocol
+    private let logger = Logger(subsystem: "com.gragera.lumen", category: "Explore")
 
-    init(contentService: ContentServiceProtocol = ContentService.shared) {
+    init(
+        contentService: ContentServiceProtocol = ContentService.shared,
+        entitlementService: EntitlementServiceProtocol = EntitlementService.shared
+    ) {
         self.contentService = contentService
+        self.entitlementService = entitlementService
     }
 
-    func loadCategories(modelContext: ModelContext) {
+    func loadData(modelContext: ModelContext) async {
         isLoading = true
         defer { isLoading = false }
+
+        isPremium = await entitlementService.isPremium()
 
         do {
             categories = try contentService.fetchCategories(modelContext: modelContext, locale: "en-GB")

@@ -27,7 +27,7 @@ final class OnboardingViewModel {
     private let contentService: ContentServiceProtocol
     private let preferencesService: PreferencesServiceProtocol
     private let notificationService: NotificationServiceProtocol
-    private let logger = Logger(subsystem: "com.lumen.app", category: "Onboarding")
+    private let logger = Logger(subsystem: "com.gragera.lumen", category: "Onboarding")
 
     init(
         contentService: ContentServiceProtocol = ContentService.shared,

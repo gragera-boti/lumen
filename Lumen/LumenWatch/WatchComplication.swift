@@ -22,7 +22,7 @@ struct WatchComplicationProvider: TimelineProvider {
 
     private func loadEntry() -> WatchComplicationEntry? {
         guard let containerURL = FileManager.default.containerURL(
-            forSecurityApplicationGroupIdentifier: "group.com.lumen.app"
+            forSecurityApplicationGroupIdentifier: "group.com.gragera.lumen"
         ) else { return nil }
 
         let fileURL = containerURL.appendingPathComponent("widget_snapshot.json")

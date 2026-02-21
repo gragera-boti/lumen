@@ -57,6 +57,14 @@
 "settings.voice" = "Voice";
 "settings.voiceSettings" = "Voice Settings";
 "settings.subscription" = "Subscription";
+"subscription.upgrade.title" = "Upgrade to Lumen Pro";
+"subscription.upgrade.subtitle" = "Unlock all categories, unlimited themes, and more";
+"subscription.current_plan" = "Current plan";
+"subscription.plan.premium" = "Premium";
+"subscription.plan.free" = "Free";
+"subscription.manage" = "Manage Subscription";
+"subscription.restore" = "Restore Purchases";
+"subscription.contact_support" = "Contact Support";
 "settings.manageSubscription" = "Manage Subscription";
 "settings.premium" = "Premium";
 "settings.dataPrivacy" = "Data & Privacy";
@@ -143,6 +151,15 @@
 "custom.cancel" = "Cancel";
 "custom.tooLong" = "Keep it under 200 characters.";
 
+/* History */
+"history.title" = "History";
+"history.empty.title" = "No history yet";
+"history.empty.description" = "Affirmations you view will appear here.";
+
+/* Settings (extra) */
+"settings.history" = "History";
+"settings.recentlyViewed" = "Recently Viewed";
+
 /* General */
 "general.ok" = "OK";
 "general.cancel" = "Cancel";
@@ -151,3 +168,21 @@
 "general.error" = "Error";
 "general.terms" = "Terms";
 "general.privacy" = "Privacy";
+
+/* Mood */
+"mood.prompt" = "How are you feeling today?";
+"affirmation.notFound" = "Affirmation not found";
+"share" = "Share";
+"favorites.add" = "Favorite";
+
+// Voice quality tiers
+"voice.quality.premium" = "Premium Voices";
+"voice.quality.premium.description" = "Highest quality — natural and expressive";
+"voice.quality.enhanced" = "Enhanced Voices";
+"voice.quality.enhanced.description" = "May need to download in Settings → Accessibility → Spoken Content";
+"voice.quality.default" = "Standard Voices";
+"voice.speed.slow" = "Slow";
+"voice.speed.relaxed" = "Relaxed";
+"voice.speed.normal" = "Normal";
+"voice.speed.brisk" = "Brisk";
+"voice.speed.fast" = "Fast";

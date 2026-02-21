@@ -1,5 +1,29 @@
 # CHANGELOG
 
+## 2026-02-18 — Cleanup & Missing Pieces
+
+### Added
+- `GeneratorStyle` and `ColorFamily` enum declarations (were referenced but never defined)
+- `WidgetServiceProtocol` — protocol-based DI for widget service
+- `HistoryViewModelTests` — initial state + entry conformance tests
+- `CategoryFeedViewModelTests` — initial state, bounds checking, TTS toggle tests
+
+### Refactored
+- **Replaced ML Stable Diffusion pipeline with procedural generator** — no model downloads, instant results
+- Removed: `MLBackgroundService`, `MLBackgroundServiceProtocol`, device gating, model management UI
+- New: `BackgroundGeneratorService` with 6 pattern types (aurora, bokeh, mist, dunes, cosmos, minimal)
+- New: `ColorPalette` — 8 curated palettes (Warm Flame, Night Fade, Frozen Dreams, Rainy Day, Ocean Breeze, Golden Hour, Deep Forest, Moonlight)
+- New: `SeededRNG` for reproducible generation from a seed
+- Simplified `ThemeGeneratorView` — palette swatches, chip selectors, no download section
+- Simplified `ThemeGeneratorViewModel` — no model management, just generate + save
+
+### Fixed
+- `WidgetService` now conforms to `WidgetServiceProtocol`
+- All views now use `.localized` string keys (en + es) — zero hardcoded English strings remaining
+- Added missing `history.*`, `settings.history`, `settings.recentlyViewed` keys to both locales
+
+---
+
 ## 2025-07-17 — Core ML + Full Content + Tests + Watch + L10n
 
 ### Added (third pass — Core ML)

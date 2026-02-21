@@ -85,15 +85,4 @@ final class PreferencesServiceTests: XCTestCase {
         XCTAssertEqual(prefs.reminders.windowStart, "08:00")
     }
 
-    func test_voiceSettings_roundTrips() throws {
-        let prefs = try service.getOrCreate(modelContext: context)
-
-        var voice = prefs.voice
-        voice.rate = 1.3
-        voice.language = "es-ES"
-        prefs.voice = voice
-
-        XCTAssertEqual(prefs.voice.rate, 1.3)
-        XCTAssertEqual(prefs.voice.language, "es-ES")
-    }
 }

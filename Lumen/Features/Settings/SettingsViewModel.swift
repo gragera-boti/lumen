@@ -7,23 +7,31 @@ final class SettingsViewModel {
     var preferences: UserPreferences?
     var isPremium = false
     var errorMessage: String?
+    var isCloudSyncEnabled = false
+    var cloudSyncStatusText = ""
 
     private let preferencesService: PreferencesServiceProtocol
     private let entitlementService: EntitlementServiceProtocol
-    private let logger = Logger(subsystem: "com.lumen.app", category: "Settings")
+    private let cloudSyncService: CloudSyncServiceProtocol
+    private let logger = Logger(subsystem: "com.gragera.lumen", category: "Settings")
 
     init(
         preferencesService: PreferencesServiceProtocol = PreferencesService.shared,
-        entitlementService: EntitlementServiceProtocol = EntitlementService.shared
+        entitlementService: EntitlementServiceProtocol = EntitlementService.shared,
+        cloudSyncService: CloudSyncServiceProtocol = CloudSyncService.shared
     ) {
         self.preferencesService = preferencesService
         self.entitlementService = entitlementService
+        self.cloudSyncService = cloudSyncService
     }
 
     func load(modelContext: ModelContext) async {
         do {
             preferences = try preferencesService.getOrCreate(modelContext: modelContext)
             isPremium = await entitlementService.isPremium()
+            isCloudSyncEnabled = cloudSyncService.isSyncEnabled()
+            let status = await cloudSyncService.syncStatus()
+            cloudSyncStatusText = status.displayText
         } catch {
             logger.error("Settings load error: \(error.localizedDescription)")
             errorMessage = error.localizedDescription
@@ -49,6 +57,31 @@ final class SettingsViewModel {
         } catch {
             logger.error("Export error: \(error.localizedDescription)")
             return nil
+        }
+    }
+
+    func resetOnboarding(modelContext: ModelContext) {
+        do {
+            if let prefs = preferences {
+                prefs.hasCompletedOnboarding = false
+                prefs.selectedCategoryIds = []
+                prefs.updatedAt = .now
+                try preferencesService.save(modelContext: modelContext)
+                logger.info("Onboarding reset")
+            }
+        } catch {
+            logger.error("Reset onboarding error: \(error.localizedDescription)")
+            errorMessage = error.localizedDescription
+        }
+    }
+
+    func toggleCloudSync(_ enabled: Bool) {
+        cloudSyncService.setSyncEnabled(enabled)
+        isCloudSyncEnabled = enabled
+        if enabled {
+            cloudSyncStatusText = "iCloud sync enabled — syncs on next launch"
+        } else {
+            cloudSyncStatusText = CloudSyncStatus.disabled.displayText
         }
     }
 

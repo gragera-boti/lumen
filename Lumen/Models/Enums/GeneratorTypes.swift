@@ -1,45 +1,233 @@
-import Foundation
+import UIKit
 
-// MARK: - Background Generation Request
+// MARK: - Pattern styles
 
-struct BackgroundGenerationRequest: Sendable {
-    let styleId: GeneratorStyle
-    let colorFamily: ColorFamily
-    let mood: GeneratorMood
-    let detailLevel: Float
-    let seed: UInt32?
-    let outputSize: GeneratorOutputSize
+enum GeneratorStyle: String, CaseIterable, Identifiable, Sendable {
+    case aurora       // Flowing horizontal light bands
+    case bokeh        // Soft luminous floating circles
+    case mist         // Dreamy layered fog
+    case dunes        // Smooth rolling wave bands
+    case minimal      // Clean multi-stop gradient
+    case cosmos       // Deep space with nebula + stars
+    case geometric    // Tessellated polygons / crystal facets
+    case watercolor   // Soft bleeding paint washes
+    case stainedGlass // Bold angular shards with bright edges
+    case waves        // Concentric ripple rings
+    case prism        // Refracted light streaks / rainbow bars
+    case topography   // Contour-map elevation lines
 
-    init(
-        styleId: GeneratorStyle = .abstract,
-        colorFamily: ColorFamily = .warm,
-        mood: GeneratorMood = .calm,
-        detailLevel: Float = 0.5,
-        seed: UInt32? = nil,
-        outputSize: GeneratorOutputSize = .standard
-    ) {
-        self.styleId = styleId
-        self.colorFamily = colorFamily
-        self.mood = mood
-        self.detailLevel = detailLevel
-        self.seed = seed
-        self.outputSize = outputSize
+    var id: String { rawValue }
+
+    var displayName: String {
+        switch self {
+        case .aurora: "Aurora"
+        case .bokeh: "Bokeh"
+        case .mist: "Mist"
+        case .dunes: "Dunes"
+        case .minimal: "Minimal"
+        case .cosmos: "Cosmos"
+        case .geometric: "Geometric"
+        case .watercolor: "Watercolor"
+        case .stainedGlass: "Stained Glass"
+        case .waves: "Waves"
+        case .prism: "Prism"
+        case .topography: "Topography"
+        }
     }
-
-    /// Composed prompt from structured selections (no free-form text)
-    var prompt: String {
-        let style = styleId.promptFragment
-        let color = colorFamily.promptFragment
-        let moodText = mood.promptFragment
-        let detail = detailLevel < 0.33 ? "minimal" : detailLevel < 0.66 ? "medium detail" : "high detail"
-        return "\(style), \(color), \(moodText), \(detail), high quality, 4k, wallpaper"
-    }
-
-    /// Safety negative prompt — always applied
-    static let negativePrompt = "people, face, portrait, nude, violence, gore, weapon, blood, text, watermark, logo, explicit, nsfw, child, fingers, hands"
 }
 
-// MARK: - Generator Output
+// MARK: - Color palettes (curated for readability with white text)
+
+enum ColorPalette: String, CaseIterable, Identifiable, Sendable {
+    case warmFlame
+    case nightFade
+    case frozenDreams
+    case rainyDay
+    case oceanBreeze
+    case goldenHour
+    case deepForest
+    case moonlight
+    case cherry
+    case auroraGreen
+    case desert
+    case sakura
+    case electric
+    case slate
+
+    var id: String { rawValue }
+
+    var displayName: String {
+        switch self {
+        case .warmFlame: "Warm Flame"
+        case .nightFade: "Night Fade"
+        case .frozenDreams: "Frozen Dreams"
+        case .rainyDay: "Rainy Day"
+        case .oceanBreeze: "Ocean Breeze"
+        case .goldenHour: "Golden Hour"
+        case .deepForest: "Deep Forest"
+        case .moonlight: "Moonlight"
+        case .cherry: "Cherry"
+        case .auroraGreen: "Aurora Green"
+        case .desert: "Desert"
+        case .sakura: "Sakura"
+        case .electric: "Electric"
+        case .slate: "Slate"
+        }
+    }
+
+    /// Primary gradient stops (3 colors — rich, saturated, dark enough for white text)
+    var cgColors: [CGColor] {
+        switch self {
+        case .warmFlame:
+            [
+                UIColor(red: 0.75, green: 0.22, blue: 0.30, alpha: 1).cgColor,
+                UIColor(red: 0.85, green: 0.42, blue: 0.35, alpha: 1).cgColor,
+                UIColor(red: 0.60, green: 0.18, blue: 0.38, alpha: 1).cgColor,
+            ]
+        case .nightFade:
+            [
+                UIColor(red: 0.28, green: 0.15, blue: 0.55, alpha: 1).cgColor,
+                UIColor(red: 0.50, green: 0.25, blue: 0.65, alpha: 1).cgColor,
+                UIColor(red: 0.70, green: 0.30, blue: 0.55, alpha: 1).cgColor,
+            ]
+        case .frozenDreams:
+            [
+                UIColor(red: 0.35, green: 0.30, blue: 0.55, alpha: 1).cgColor,
+                UIColor(red: 0.50, green: 0.40, blue: 0.65, alpha: 1).cgColor,
+                UIColor(red: 0.30, green: 0.35, blue: 0.55, alpha: 1).cgColor,
+            ]
+        case .rainyDay:
+            [
+                UIColor(red: 0.20, green: 0.30, blue: 0.55, alpha: 1).cgColor,
+                UIColor(red: 0.35, green: 0.40, blue: 0.65, alpha: 1).cgColor,
+                UIColor(red: 0.25, green: 0.25, blue: 0.50, alpha: 1).cgColor,
+            ]
+        case .oceanBreeze:
+            [
+                UIColor(red: 0.05, green: 0.30, blue: 0.50, alpha: 1).cgColor,
+                UIColor(red: 0.10, green: 0.45, blue: 0.60, alpha: 1).cgColor,
+                UIColor(red: 0.08, green: 0.22, blue: 0.45, alpha: 1).cgColor,
+            ]
+        case .goldenHour:
+            [
+                UIColor(red: 0.70, green: 0.40, blue: 0.15, alpha: 1).cgColor,
+                UIColor(red: 0.80, green: 0.50, blue: 0.20, alpha: 1).cgColor,
+                UIColor(red: 0.55, green: 0.25, blue: 0.18, alpha: 1).cgColor,
+            ]
+        case .deepForest:
+            [
+                UIColor(red: 0.08, green: 0.30, blue: 0.22, alpha: 1).cgColor,
+                UIColor(red: 0.12, green: 0.42, blue: 0.30, alpha: 1).cgColor,
+                UIColor(red: 0.10, green: 0.25, blue: 0.28, alpha: 1).cgColor,
+            ]
+        case .moonlight:
+            [
+                UIColor(red: 0.08, green: 0.08, blue: 0.18, alpha: 1).cgColor,
+                UIColor(red: 0.14, green: 0.15, blue: 0.30, alpha: 1).cgColor,
+                UIColor(red: 0.20, green: 0.18, blue: 0.38, alpha: 1).cgColor,
+            ]
+        case .cherry:
+            [
+                UIColor(red: 0.55, green: 0.05, blue: 0.15, alpha: 1).cgColor,
+                UIColor(red: 0.75, green: 0.10, blue: 0.25, alpha: 1).cgColor,
+                UIColor(red: 0.40, green: 0.05, blue: 0.20, alpha: 1).cgColor,
+            ]
+        case .auroraGreen:
+            [
+                UIColor(red: 0.02, green: 0.18, blue: 0.15, alpha: 1).cgColor,
+                UIColor(red: 0.05, green: 0.50, blue: 0.40, alpha: 1).cgColor,
+                UIColor(red: 0.10, green: 0.30, blue: 0.45, alpha: 1).cgColor,
+            ]
+        case .desert:
+            [
+                UIColor(red: 0.60, green: 0.35, blue: 0.20, alpha: 1).cgColor,
+                UIColor(red: 0.50, green: 0.28, blue: 0.18, alpha: 1).cgColor,
+                UIColor(red: 0.35, green: 0.18, blue: 0.12, alpha: 1).cgColor,
+            ]
+        case .sakura:
+            [
+                UIColor(red: 0.60, green: 0.28, blue: 0.45, alpha: 1).cgColor,
+                UIColor(red: 0.75, green: 0.40, blue: 0.55, alpha: 1).cgColor,
+                UIColor(red: 0.50, green: 0.22, blue: 0.40, alpha: 1).cgColor,
+            ]
+        case .electric:
+            [
+                UIColor(red: 0.10, green: 0.05, blue: 0.30, alpha: 1).cgColor,
+                UIColor(red: 0.30, green: 0.10, blue: 0.60, alpha: 1).cgColor,
+                UIColor(red: 0.15, green: 0.40, blue: 0.65, alpha: 1).cgColor,
+            ]
+        case .slate:
+            [
+                UIColor(red: 0.18, green: 0.20, blue: 0.25, alpha: 1).cgColor,
+                UIColor(red: 0.28, green: 0.30, blue: 0.35, alpha: 1).cgColor,
+                UIColor(red: 0.15, green: 0.15, blue: 0.20, alpha: 1).cgColor,
+            ]
+        }
+    }
+
+    /// Accent color for overlays and pattern details
+    var accentCGColor: CGColor {
+        switch self {
+        case .warmFlame:    UIColor(red: 1.00, green: 0.70, blue: 0.55, alpha: 1).cgColor
+        case .nightFade:    UIColor(red: 0.80, green: 0.55, blue: 0.90, alpha: 1).cgColor
+        case .frozenDreams: UIColor(red: 0.70, green: 0.65, blue: 0.90, alpha: 1).cgColor
+        case .rainyDay:     UIColor(red: 0.55, green: 0.65, blue: 0.90, alpha: 1).cgColor
+        case .oceanBreeze:  UIColor(red: 0.30, green: 0.80, blue: 0.75, alpha: 1).cgColor
+        case .goldenHour:   UIColor(red: 1.00, green: 0.80, blue: 0.40, alpha: 1).cgColor
+        case .deepForest:   UIColor(red: 0.40, green: 0.80, blue: 0.55, alpha: 1).cgColor
+        case .moonlight:    UIColor(red: 0.45, green: 0.45, blue: 0.75, alpha: 1).cgColor
+        case .cherry:       UIColor(red: 1.00, green: 0.40, blue: 0.50, alpha: 1).cgColor
+        case .auroraGreen:  UIColor(red: 0.30, green: 0.90, blue: 0.70, alpha: 1).cgColor
+        case .desert:       UIColor(red: 0.90, green: 0.70, blue: 0.45, alpha: 1).cgColor
+        case .sakura:       UIColor(red: 1.00, green: 0.70, blue: 0.80, alpha: 1).cgColor
+        case .electric:     UIColor(red: 0.50, green: 0.30, blue: 1.00, alpha: 1).cgColor
+        case .slate:        UIColor(red: 0.55, green: 0.60, blue: 0.70, alpha: 1).cgColor
+        }
+    }
+}
+
+// MARK: - Mood
+
+enum GeneratorMood: String, CaseIterable, Identifiable, Sendable {
+    case calm
+    case hopeful
+    case focused
+    case energized
+    case dreamy
+
+    var id: String { rawValue }
+
+    var displayName: String { rawValue.capitalized }
+}
+
+// MARK: - Request
+
+struct BackgroundRequest: Sendable {
+    let style: GeneratorStyle
+    let palette: ColorPalette
+    let mood: GeneratorMood
+    let complexity: Float  // 0..1, controls density of decorative elements
+    let seed: UInt32?
+    let size: CGSize
+
+    init(
+        style: GeneratorStyle = .aurora,
+        palette: ColorPalette = .warmFlame,
+        mood: GeneratorMood = .calm,
+        complexity: Float = 0.5,
+        seed: UInt32? = nil,
+        size: CGSize = CGSize(width: 512, height: 512)
+    ) {
+        self.style = style
+        self.palette = palette
+        self.mood = mood
+        self.complexity = complexity
+        self.seed = seed
+        self.size = size
+    }
+}
+
+// MARK: - Output
 
 struct GeneratedBackground: Sendable {
     let themeId: String
@@ -49,87 +237,26 @@ struct GeneratedBackground: Sendable {
 }
 
 struct GenerationMetadata: Codable, Sendable {
-    let model: String
-    let styleId: String
+    let style: String
+    let palette: String
+    let mood: String
     let seed: UInt32
-    let steps: Int
-    let guidanceScale: Float
-    let size: Int
-    let prompt: String
+    let complexity: Float
+    let width: Int
+    let height: Int
     let durationMs: Int
 }
 
-// MARK: - Device capability
+// MARK: - Errors
 
-enum GeneratorCapability: Sendable {
-    case supported(tier: DeviceTier)
-    case unsupported(reason: String)
-}
+enum BackgroundGeneratorError: Error, LocalizedError {
+    case generationFailed(String)
+    case cancelled
 
-enum DeviceTier: Sendable {
-    case high    // A17+: steps=25, size=512
-    case mid     // A15-A16: steps=20, size=512
-    case low     // A14: steps=12, size=512
-
-    var steps: Int {
+    var errorDescription: String? {
         switch self {
-        case .high: 25
-        case .mid: 20
-        case .low: 12
-        }
-    }
-
-    var guidanceScale: Float {
-        7.0
-    }
-}
-
-enum GeneratorOutputSize: Sendable {
-    case standard  // 512×512
-    case large     // 768×768 (P2)
-
-    var pixels: Int {
-        switch self {
-        case .standard: 512
-        case .large: 768
-        }
-    }
-}
-
-// MARK: - Style definitions
-
-extension GeneratorStyle {
-    var promptFragment: String {
-        switch self {
-        case .abstract: "soft abstract watercolor, flowing shapes, dreamy atmosphere"
-        case .nature: "serene natural landscape, soft focus, gentle light"
-        case .mist: "ethereal mist, fog layers, atmospheric depth"
-        case .minimal: "clean minimal geometric, soft gradients, simple forms"
-        }
-    }
-}
-
-extension ColorFamily {
-    var promptFragment: String {
-        switch self {
-        case .warm: "warm palette, amber, peach, coral, golden"
-        case .cool: "cool palette, teal, ocean blue, lavender, mint"
-        case .mono: "monochrome, subtle grey tones, silver, charcoal"
-        }
-    }
-}
-
-// Rename Mood enum to avoid conflict with existing
-enum GeneratorMood: String, CaseIterable, Sendable {
-    case calm
-    case hopeful
-    case focused
-
-    var promptFragment: String {
-        switch self {
-        case .calm: "calm atmosphere, tranquil, peaceful, serene"
-        case .hopeful: "hopeful mood, sunrise feel, optimistic light"
-        case .focused: "focused energy, clear, structured, balanced"
+        case .generationFailed(let reason): "Generation failed: \(reason)"
+        case .cancelled: "Generation was cancelled."
         }
     }
 }

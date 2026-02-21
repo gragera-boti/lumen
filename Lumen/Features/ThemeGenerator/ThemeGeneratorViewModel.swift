@@ -5,117 +5,158 @@ import OSLog
 
 @MainActor @Observable
 final class ThemeGeneratorViewModel {
-    // MARK: - State
+    // MARK: - Shared state
 
-    var selectedStyle: GeneratorStyle = .abstract
-    var selectedColor: ColorFamily = .warm
-    var selectedMood: GeneratorMood = .calm
-    var detailLevel: Float = 0.5
+    enum GeneratorMode: String, CaseIterable, Identifiable {
+        case procedural = "Instant"
+        case ai = "AI ✨"
+
+        var id: String { rawValue }
+    }
+
+    /// Unified loading state — one source of truth
+    enum AILoadState: Equatable {
+        case idle
+        case downloading(progress: Double)
+        case loadingModel(phase: String, progress: Double)
+        case ready
+        case generating(promptName: String, step: Int, totalSteps: Int)
+        case failed(String)
+
+        var isWorking: Bool {
+            switch self {
+            case .downloading, .loadingModel, .generating: true
+            default: false
+            }
+        }
+
+        var statusText: String {
+            switch self {
+            case .idle: "Tap Load to download the AI model"
+            case .downloading(let p): "Downloading AI model… \(Int(p * 100))%"
+            case .loadingModel(let phase, _): phase
+            case .ready: "AI model ready"
+            case .generating(let name, let step, let total):
+                step > 0 ? "Generating \"\(name)\"… Step \(step)/\(total)" : "Generating \"\(name)\"…"
+            case .failed(let msg): msg
+            }
+        }
+
+        var progress: Double? {
+            switch self {
+            case .downloading(let p): p
+            case .loadingModel(_, let p): p
+            case .generating(_, let step, let total) where total > 0:
+                Double(step) / Double(total)
+            default: nil
+            }
+        }
+    }
+
+    var selectedMode: GeneratorMode = .procedural
 
     var isGenerating = false
-    var progress: Double = 0
     var generatedImage: UIImage?
-    var canGenerate = false
-    var capabilityMessage: String?
-    var isModelReady = false
-    var isDownloadingModel = false
-    var downloadProgress: Double = 0
-    var modelSizeText: String?
-    var errorMessage: String?
     var savedThemeId: String?
+    var isSaved = false
+    var errorMessage: String?
+    var showPaywallPrompt = false
+
+    // MARK: - Procedural state
+
+    var selectedStyle: GeneratorStyle = .aurora
+    var selectedPalette: ColorPalette = .warmFlame
+    var selectedMood: GeneratorMood = .calm
+    var complexity: Float = 0.5
+
+    // MARK: - AI state
+
+    var selectedPromptCategory: AIBackgroundPrompt.PromptCategory = .ethereal
+    var selectedPrompt: AIBackgroundPrompt?
+    var aiStepCount: Int = 10
+    var aiLoadState: AILoadState = .idle
+    var cachedAIBackgrounds: [GeneratedBackground] = []
+
+    var isModelReady: Bool { aiLoadState == .ready }
 
     // MARK: - Dependencies
 
-    private let mlService: MLBackgroundServiceProtocol
+    private let generator: BackgroundGeneratorProtocol
+    private let aiGenerator: AIBackgroundServiceProtocol
     private let analyticsService: AnalyticsServiceProtocol
-    private let logger = Logger(subsystem: "com.lumen.app", category: "ThemeGenerator")
+    private let preferencesService: PreferencesServiceProtocol
+    private let entitlementService: EntitlementServiceProtocol
+    private let logger = Logger(subsystem: "com.gragera.lumen", category: "ThemeGenerator")
+
+    /// Background task ID to keep model loading alive when app is backgrounded
+    private var backgroundTaskID: UIBackgroundTaskIdentifier = .invalid
 
     init(
-        mlService: MLBackgroundServiceProtocol = MLBackgroundService.shared,
-        analyticsService: AnalyticsServiceProtocol = AnalyticsService.shared
+        generator: BackgroundGeneratorProtocol = BackgroundGeneratorService.shared,
+        aiGenerator: AIBackgroundServiceProtocol = AIBackgroundService.shared,
+        analyticsService: AnalyticsServiceProtocol = AnalyticsService.shared,
+        preferencesService: PreferencesServiceProtocol = PreferencesService.shared,
+        entitlementService: EntitlementServiceProtocol = EntitlementService.shared
     ) {
-        self.mlService = mlService
+        self.generator = generator
+        self.aiGenerator = aiGenerator
         self.analyticsService = analyticsService
+        self.preferencesService = preferencesService
+        self.entitlementService = entitlementService
+    }
+
+    // MARK: - Lifecycle
+
+    func onAppear() async {
+        let ready = await aiGenerator.isModelReady()
+        if ready {
+            aiLoadState = .ready
+        }
+        cachedAIBackgrounds = await aiGenerator.cachedBackgrounds()
     }
 
     // MARK: - Actions
 
-    func checkDeviceCapability() async {
-        let capability = mlService.checkCapability()
-        switch capability {
-        case .supported:
-            canGenerate = true
-            capabilityMessage = nil
-        case .unsupported(let reason):
-            canGenerate = false
-            capabilityMessage = reason
-        }
-
-        isModelReady = await mlService.isModelReady()
-
-        if let bytes = await mlService.modelSizeBytes() {
-            modelSizeText = ByteCountFormatter.string(fromByteCount: Int64(bytes), countStyle: .file)
-        }
-    }
-
-    func downloadModel() async {
-        isDownloadingModel = true
-        downloadProgress = 0
-        defer { isDownloadingModel = false }
-
-        do {
-            try await mlService.downloadModel { [weak self] progress in
-                Task { @MainActor in
-                    self?.downloadProgress = progress
-                }
-            }
-            isModelReady = true
-            logger.info("Model downloaded successfully")
-        } catch {
-            logger.error("Model download failed: \(error.localizedDescription)")
-            errorMessage = error.localizedDescription
-        }
-    }
-
-    func deleteModel() async {
-        do {
-            try await mlService.deleteModel()
-            isModelReady = false
-            modelSizeText = nil
-            logger.info("Model deleted")
-        } catch {
-            errorMessage = error.localizedDescription
-        }
-    }
-
     func generate() async {
+        switch selectedMode {
+        case .procedural:
+            await generateProcedural()
+        case .ai:
+            await generateAI()
+        }
+    }
+
+    // MARK: - Procedural Generation
+
+    private func generateProcedural() async {
         isGenerating = true
-        progress = 0
         generatedImage = nil
         savedThemeId = nil
+        isSaved = false
         errorMessage = nil
 
         analyticsService.log(event: .backgroundGenerationStarted(style: selectedStyle.rawValue))
 
-        let request = BackgroundGenerationRequest(
-            styleId: selectedStyle,
-            colorFamily: selectedColor,
+        let request = BackgroundRequest(
+            style: selectedStyle,
+            palette: selectedPalette,
             mood: selectedMood,
-            detailLevel: detailLevel
+            complexity: complexity,
+            size: CGSize(width: 1080, height: 1920)
         )
 
         do {
-            let result = try await mlService.generate(request: request)
+            let result = try await generator.generate(request: request)
 
-            // Load the generated image for preview
-            if let imageData = try? Data(contentsOf: result.imagePath),
-               let image = UIImage(data: imageData) {
+            if let data = try? Data(contentsOf: result.imagePath),
+               let image = UIImage(data: data) {
                 generatedImage = image
+                savedThemeId = result.themeId
+            } else {
+                errorMessage = "Failed to load generated image"
             }
 
-            savedThemeId = result.themeId
             analyticsService.log(event: .backgroundGenerationCompleted(durationMs: result.metadata.durationMs))
-            logger.info("Generated theme: \(result.themeId)")
         } catch is CancellationError {
             analyticsService.log(event: .backgroundGenerationCancelled)
         } catch {
@@ -126,39 +167,243 @@ final class ThemeGeneratorViewModel {
         isGenerating = false
     }
 
-    func cancelGeneration() {
-        mlService.cancelGeneration()
+    // MARK: - AI Model Loading
+
+    func loadAIModel() async {
+        guard !aiLoadState.isWorking else { return }
+
+        beginBackgroundTask()
+        defer { endBackgroundTask() }
+
+        // Wire up download progress for ODR
+        await aiGenerator.setDownloadProgressHandler { [weak self] progress in
+            Task { @MainActor [weak self] in
+                self?.aiLoadState = .downloading(progress: progress)
+            }
+        }
+
+        // Wire up load phase progress
+        await aiGenerator.setLoadPhaseHandler { [weak self] phase, progress in
+            Task { @MainActor [weak self] in
+                self?.aiLoadState = .loadingModel(phase: phase, progress: progress)
+            }
+        }
+
+        aiLoadState = .loadingModel(phase: "Preparing…", progress: 0)
+
+        do {
+            try await aiGenerator.loadModel()
+            aiLoadState = .ready
+            logger.info("AI model loaded successfully")
+        } catch {
+            logger.error("AI model load failed: \(error)")
+            let desc = String(describing: error)
+            aiLoadState = .failed("Load failed: \(desc.prefix(150))")
+            errorMessage = "AI model error: \(desc.prefix(200))"
+        }
+
+        await aiGenerator.setDownloadProgressHandler(nil)
+        await aiGenerator.setLoadPhaseHandler(nil)
+    }
+
+    // MARK: - AI Generation
+
+    private func generateAI() async {
+        // AI backgrounds are premium-only
+        let isPremium = await entitlementService.isPremium()
+        if !isPremium {
+            showPaywallPrompt = true
+            return
+        }
+
+        if !isModelReady {
+            await loadAIModel()
+            guard isModelReady else { return }
+        }
+
+        let prompt = selectedPrompt ?? .random(category: selectedPromptCategory)
+
+        isGenerating = true
+        generatedImage = nil
+        savedThemeId = nil
+        isSaved = false
+        errorMessage = nil
+        aiLoadState = .generating(promptName: prompt.displayName, step: 0, totalSteps: aiStepCount)
+
+        beginBackgroundTask()
+        defer { endBackgroundTask() }
+
+        // Wire up step progress
+        await aiGenerator.setStepProgressHandler { [weak self] step, total in
+            Task { @MainActor [weak self] in
+                self?.aiLoadState = .generating(promptName: prompt.displayName, step: step, totalSteps: total)
+            }
+        }
+
+        let request = AIBackgroundRequest(
+            prompt: prompt,
+            stepCount: aiStepCount,
+            device: .current()
+        )
+
+        do {
+            let result = try await aiGenerator.generate(request: request)
+
+            if let data = try? Data(contentsOf: result.imagePath),
+               let image = UIImage(data: data) {
+                generatedImage = image
+                savedThemeId = result.themeId
+            } else {
+                errorMessage = "Failed to load generated image"
+            }
+
+            cachedAIBackgrounds = await aiGenerator.cachedBackgrounds()
+            logger.info("AI background generated: \(result.themeId)")
+        } catch is CancellationError {
+            logger.info("AI generation cancelled")
+        } catch {
+            logger.error("AI generation error: \(error)")
+            // Show the full error, not just localizedDescription (which can be vague)
+            let desc = String(describing: error)
+            errorMessage = "AI generation failed: \(desc.prefix(200))"
+        }
+
+        await aiGenerator.setStepProgressHandler(nil)
+        aiLoadState = .ready
         isGenerating = false
     }
+
+    func pregenerateAIBatch() async {
+        let isPremium = await entitlementService.isPremium()
+        if !isPremium {
+            showPaywallPrompt = true
+            return
+        }
+
+        if !isModelReady {
+            await loadAIModel()
+            guard isModelReady else { return }
+        }
+
+        isGenerating = true
+        aiLoadState = .generating(promptName: "batch", step: 0, totalSteps: 0)
+
+        beginBackgroundTask()
+        defer { endBackgroundTask() }
+
+        do {
+            let device = AIDeviceProfile.current()
+            let results = try await aiGenerator.pregenerate(count: 6, device: device)
+            cachedAIBackgrounds = await aiGenerator.cachedBackgrounds()
+            logger.info("Pre-generated \(results.count) AI backgrounds")
+        } catch {
+            logger.error("Batch generation error: \(error.localizedDescription)")
+            errorMessage = error.localizedDescription
+        }
+
+        aiLoadState = .ready
+        isGenerating = false
+    }
+
+    // MARK: - Cache Actions
+
+    func loadCachedBackground(_ bg: GeneratedBackground) {
+        if let data = try? Data(contentsOf: bg.imagePath),
+           let image = UIImage(data: data) {
+            generatedImage = image
+            savedThemeId = bg.themeId
+            isSaved = false
+        }
+    }
+
+    func deleteCachedBackground(_ bg: GeneratedBackground) async {
+        do {
+            try await aiGenerator.removeCached(themeId: bg.themeId)
+            cachedAIBackgrounds = await aiGenerator.cachedBackgrounds()
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+
+    // MARK: - Cancel
+
+    func cancelGeneration() {
+        generator.cancelGeneration()
+        aiGenerator.cancelGeneration()
+        isGenerating = false
+        if aiLoadState != .ready {
+            aiLoadState = .idle
+        }
+    }
+
+    // MARK: - Save
 
     func saveAsTheme(modelContext: ModelContext) {
         guard let themeId = savedThemeId else { return }
 
         do {
-            let metadata = GenerationMetadata(
-                model: "procedural",
-                styleId: selectedStyle.rawValue,
-                seed: 0,
-                steps: 0,
-                guidanceScale: 7.0,
-                size: 512,
-                prompt: "",
-                durationMs: 0
-            )
-            let metadataJSON = try JSONEncoder().encode(metadata)
+            let isAI = selectedMode == .ai
+            let metadataJSON: String
+
+            if isAI, let prompt = selectedPrompt {
+                let aiMeta = [
+                    "type": "ai",
+                    "prompt_id": prompt.id,
+                    "prompt_name": prompt.displayName,
+                    "category": prompt.category.rawValue,
+                ]
+                let data = try JSONEncoder().encode(aiMeta)
+                metadataJSON = String(data: data, encoding: .utf8) ?? "{}"
+            } else {
+                let metadata = GenerationMetadata(
+                    style: selectedStyle.rawValue,
+                    palette: selectedPalette.rawValue,
+                    mood: selectedMood.rawValue,
+                    seed: 0,
+                    complexity: complexity,
+                    width: 1080,
+                    height: 1920,
+                    durationMs: 0
+                )
+                let data = try JSONEncoder().encode(metadata)
+                metadataJSON = String(data: data, encoding: .utf8) ?? "{}"
+            }
+
+            let name = isAI
+                ? "AI: \(selectedPrompt?.displayName ?? selectedPromptCategory.displayName)"
+                : "\(selectedStyle.displayName) \(selectedPalette.displayName)"
 
             let theme = AppTheme(
                 id: themeId,
-                name: "\(selectedStyle.rawValue.capitalized) \(selectedColor.rawValue.capitalized)",
+                name: name,
                 type: .generatedImage,
-                isPremium: false,
-                dataJSON: String(data: metadataJSON, encoding: .utf8) ?? "{}"
+                isPremium: isAI,
+                dataJSON: metadataJSON,
+                isActive: true
             )
             modelContext.insert(theme)
             try modelContext.save()
-            logger.info("Theme saved: \(themeId)")
+
+            isSaved = true
+            logger.info("Theme saved to rotation: \(themeId)")
         } catch {
             errorMessage = "Couldn't save theme: \(error.localizedDescription)"
         }
     }
+
+    // MARK: - Background Task Protection
+
+    private func beginBackgroundTask() {
+        guard backgroundTaskID == .invalid else { return }
+        backgroundTaskID = UIApplication.shared.beginBackgroundTask(withName: "AIModelLoad") { [weak self] in
+            self?.endBackgroundTask()
+        }
+    }
+
+    private func endBackgroundTask() {
+        guard backgroundTaskID != .invalid else { return }
+        UIApplication.shared.endBackgroundTask(backgroundTaskID)
+        backgroundTaskID = .invalid
+    }
+
 }

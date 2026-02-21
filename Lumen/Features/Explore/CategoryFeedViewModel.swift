@@ -11,7 +11,6 @@ final class CategoryFeedViewModel {
     var currentIndex: Int = 0
     var categoryName: String = ""
     var isLoading = false
-    var isPlayingTTS = false
     var errorMessage: String?
 
     var currentCard: Affirmation? {
@@ -22,17 +21,14 @@ final class CategoryFeedViewModel {
     // MARK: - Dependencies
 
     private let favoriteService: FavoriteServiceProtocol
-    private let speechService: SpeechServiceProtocol
     private let shareService: ShareServiceProtocol
-    private let logger = Logger(subsystem: "com.lumen.app", category: "CategoryFeed")
+    private let logger = Logger(subsystem: "com.gragera.lumen", category: "CategoryFeed")
 
     init(
         favoriteService: FavoriteServiceProtocol = FavoriteService.shared,
-        speechService: SpeechServiceProtocol = SpeechService.shared,
         shareService: ShareServiceProtocol = ShareService.shared
     ) {
         self.favoriteService = favoriteService
-        self.speechService = speechService
         self.shareService = shareService
     }
 
@@ -91,17 +87,15 @@ final class CategoryFeedViewModel {
         }
     }
 
-    func toggleTTS(voice: VoiceSettings) {
-        guard let card = currentCard else { return }
-        if isPlayingTTS {
-            speechService.stop()
-            isPlayingTTS = false
-        } else {
-            isPlayingTTS = true
-            Task {
-                await speechService.speak(text: card.text, voice: voice)
-                isPlayingTTS = false
-            }
+    func swipeToNext() {
+        if currentIndex < cards.count - 1 {
+            currentIndex += 1
+        }
+    }
+
+    func swipeToPrevious() {
+        if currentIndex > 0 {
+            currentIndex -= 1
         }
     }
 

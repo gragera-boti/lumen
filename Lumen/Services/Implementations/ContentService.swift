@@ -2,11 +2,12 @@ import Foundation
 import SwiftData
 import OSLog
 
-final class ContentService: ContentServiceProtocol, @unchecked Sendable {
+@MainActor
+final class ContentService: ContentServiceProtocol {
     static let shared = ContentService()
-    private let logger = Logger(subsystem: "com.lumen.app", category: "ContentService")
+    private let logger = Logger(subsystem: "com.gragera.lumen", category: "ContentService")
 
-    func loadBundledContentIfNeeded(modelContext: ModelContext) async throws {
+    func loadBundledContentIfNeeded(modelContext: ModelContext) throws {
         let categoryDescriptor = FetchDescriptor<Category>()
         let existingCount = try modelContext.fetchCount(categoryDescriptor)
         guard existingCount == 0 else { return }

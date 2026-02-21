@@ -9,8 +9,17 @@ final class AppTheme {
     var type: ThemeType
     var isPremium: Bool
     var dataJSON: String
+    /// Whether this theme is in the active rotation shown in the feed.
+    /// Uses optional to allow lightweight migration from older schema.
+    var isActive: Bool?
     var createdAt: Date
     var updatedAt: Date
+
+    /// Whether this theme participates in feed rotation. Defaults to true for migrated rows.
+    var isInRotation: Bool {
+        get { isActive ?? true }
+        set { isActive = newValue }
+    }
 
     init(
         id: String,
@@ -18,6 +27,7 @@ final class AppTheme {
         type: ThemeType,
         isPremium: Bool = false,
         dataJSON: String = "{}",
+        isActive: Bool? = true,
         createdAt: Date = .now,
         updatedAt: Date = .now
     ) {
@@ -26,6 +36,7 @@ final class AppTheme {
         self.type = type
         self.isPremium = isPremium
         self.dataJSON = dataJSON
+        self.isActive = isActive
         self.createdAt = createdAt
         self.updatedAt = updatedAt
     }

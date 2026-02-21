@@ -14,15 +14,19 @@ struct ExploreView: View {
             ], spacing: LumenTheme.Spacing.md) {
                 ForEach(viewModel.categories, id: \.id) { category in
                     CategoryCardView(category: category) {
-                        router.navigate(to: .categoryFeed(categoryId: category.id), in: .explore)
+                        if category.isPremium && !viewModel.isPremium {
+                            router.isShowingPaywall = true
+                        } else {
+                            router.navigate(to: .categoryFeed(categoryId: category.id), in: .explore)
+                        }
                     }
                 }
             }
             .padding(LumenTheme.Spacing.md)
         }
-        .navigationTitle("Explore")
+        .navigationTitle("explore.title".localized)
         .task {
-            viewModel.loadCategories(modelContext: modelContext)
+            await viewModel.loadData(modelContext: modelContext)
         }
     }
 }

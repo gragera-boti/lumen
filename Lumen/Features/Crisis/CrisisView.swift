@@ -12,10 +12,10 @@ struct CrisisView: View {
                         .foregroundStyle(.red)
                         .padding(.top, LumenTheme.Spacing.xl)
 
-                    Text("You're not alone")
+                    Text("crisis.headline".localized)
                         .font(LumenTheme.Typography.headlineFont)
 
-                    Text("If you or someone you know is in crisis or feeling unsafe, please reach out for help.")
+                    Text("crisis.body".localized)
                         .font(.body)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
@@ -23,30 +23,30 @@ struct CrisisView: View {
 
                     VStack(spacing: LumenTheme.Spacing.md) {
                         crisisLink(
-                            title: "Emergency Services",
-                            subtitle: "Call your local emergency number (112, 911, 999)",
+                            title: "crisis.emergency".localized,
+                            subtitle: "crisis.emergencySubtitle".localized,
                             icon: "phone.fill",
                             color: .red
                         )
 
                         crisisLink(
-                            title: "Crisis Text Line",
-                            subtitle: "Text HOME to 741741 (US)",
+                            title: "crisis.textLine".localized,
+                            subtitle: "crisis.textLineSubtitle".localized,
                             icon: "message.fill",
                             color: .blue
                         )
 
                         crisisLink(
-                            title: "International Association for Suicide Prevention",
-                            subtitle: "Find a crisis centre near you",
+                            title: "crisis.iasp".localized,
+                            subtitle: "crisis.iaspSubtitle".localized,
                             icon: "globe",
                             color: .purple,
                             url: URL(string: "https://www.iasp.info/resources/Crisis_Centres/")
                         )
 
                         crisisLink(
-                            title: "Befrienders Worldwide",
-                            subtitle: "Emotional support worldwide",
+                            title: "crisis.befrienders".localized,
+                            subtitle: "crisis.befriendersSubtitle".localized,
                             icon: "person.2.fill",
                             color: .green,
                             url: URL(string: "https://www.befrienders.org")
@@ -56,7 +56,7 @@ struct CrisisView: View {
 
                     Spacer(minLength: LumenTheme.Spacing.xl)
 
-                    Button("I'm not in crisis") {
+                    Button("crisis.dismiss".localized) {
                         dismiss()
                     }
                     .font(.headline)
@@ -64,11 +64,11 @@ struct CrisisView: View {
                     .padding(.bottom, LumenTheme.Spacing.xxl)
                 }
             }
-            .navigationTitle("Get Help")
+            .navigationTitle("crisis.title".localized)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Close") { dismiss() }
+                    Button("general.close".localized) { dismiss() }
                 }
             }
         }

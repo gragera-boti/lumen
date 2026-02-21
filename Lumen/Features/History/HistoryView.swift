@@ -4,6 +4,7 @@ import SwiftData
 struct HistoryView: View {
     @State private var viewModel = HistoryViewModel()
     @Environment(\.modelContext) private var modelContext
+    @Environment(AppRouter.self) private var router
 
     var body: some View {
         Group {
@@ -15,41 +16,50 @@ struct HistoryView: View {
                 historyList
             }
         }
-        .navigationTitle("History")
+        .navigationTitle("history.title".localized)
         .task {
             viewModel.loadHistory(modelContext: modelContext)
         }
     }
 
     private var historyList: some View {
-        List(viewModel.entries) { entry in
-            VStack(alignment: .leading, spacing: 4) {
-                Text(entry.text)
-                    .font(.subheadline)
-                    .lineLimit(2)
+        List {
+            ForEach(viewModel.entries) { entry in
+                Button {
+                    router.navigate(to: .affirmationDetail(affirmationId: entry.affirmationId), in: .settings)
+                } label: {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(entry.text)
+                            .font(.subheadline)
+                            .foregroundStyle(.primary)
+                            .lineLimit(2)
 
-                HStack {
-                    Text(entry.seenAt, style: .relative)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                        HStack {
+                            Text(entry.seenAt, style: .relative)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
 
-                    Spacer()
+                            Spacer()
 
-                    Text(entry.source.rawValue.capitalized)
-                        .font(.caption2)
-                        .foregroundStyle(.tertiary)
+                            if !entry.categoryNames.isEmpty {
+                                Text(entry.categoryNames)
+                                    .font(.caption2)
+                                    .foregroundStyle(.tertiary)
+                            }
+                        }
+                    }
+                    .padding(.vertical, LumenTheme.Spacing.xs)
                 }
             }
-            .padding(.vertical, LumenTheme.Spacing.xs)
         }
         .listStyle(.plain)
     }
 
     private var emptyState: some View {
         ContentUnavailableView(
-            "No history yet",
+            "history.empty.title".localized,
             systemImage: "clock",
-            description: Text("Affirmations you view will appear here.")
+            description: Text("history.empty.description".localized)
         )
     }
 }

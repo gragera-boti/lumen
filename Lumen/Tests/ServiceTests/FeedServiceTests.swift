@@ -11,13 +11,14 @@ final class FeedServiceTests: XCTestCase {
     override func setUp() async throws {
         let schema = Schema([
             Affirmation.self,
-            Category.self,
+            Lumen.Category.self,
             Favorite.self,
             SeenEvent.self,
             Dislike.self,
             AppTheme.self,
             UserPreferences.self,
             EntitlementState.self,
+            MoodEntry.self,
         ])
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
         container = try ModelContainer(for: schema, configurations: [config])
@@ -31,8 +32,8 @@ final class FeedServiceTests: XCTestCase {
 
     // MARK: - Helpers
 
-    private func makeCategory(id: String = "cat_calm", name: String = "Calm") -> Category {
-        let cat = Category(id: id, name: name)
+    private func makeCategory(id: String = "cat_calm", name: String = "Calm") -> Lumen.Category {
+        let cat = Lumen.Category(id: id, name: name)
         context.insert(cat)
         return cat
     }
@@ -45,7 +46,7 @@ final class FeedServiceTests: XCTestCase {
         isAbsolute: Bool = false,
         isSensitive: Bool = false,
         isPremium: Bool = false,
-        category: Category
+        category: Lumen.Category
     ) -> Affirmation {
         let aff = Affirmation(
             id: id,
@@ -87,7 +88,7 @@ final class FeedServiceTests: XCTestCase {
         try context.save()
 
         let prefs = makePreferences()
-        let result = try service.nextAffirmation(preferences: prefs, isPremium: false, modelContext: context)
+        let result = try service.nextAffirmation(preferences: prefs, isPremium: false, mood: nil, modelContext: context)
 
         XCTAssertNotNil(result)
         XCTAssertEqual(result?.id, aff.id)
@@ -100,7 +101,7 @@ final class FeedServiceTests: XCTestCase {
         try context.save()
 
         let prefs = makePreferences(categoryIds: [cat1.id])
-        let result = try service.nextAffirmation(preferences: prefs, isPremium: false, modelContext: context)
+        let result = try service.nextAffirmation(preferences: prefs, isPremium: false, mood: nil, modelContext: context)
 
         XCTAssertNil(result)
     }
@@ -111,7 +112,7 @@ final class FeedServiceTests: XCTestCase {
         try context.save()
 
         let prefs = makePreferences(gentleMode: true)
-        let result = try service.nextAffirmation(preferences: prefs, isPremium: false, modelContext: context)
+        let result = try service.nextAffirmation(preferences: prefs, isPremium: false, mood: nil, modelContext: context)
 
         XCTAssertNil(result)
     }
@@ -122,7 +123,7 @@ final class FeedServiceTests: XCTestCase {
         try context.save()
 
         let prefs = makePreferences(gentleMode: true)
-        let result = try service.nextAffirmation(preferences: prefs, isPremium: false, modelContext: context)
+        let result = try service.nextAffirmation(preferences: prefs, isPremium: false, mood: nil, modelContext: context)
 
         XCTAssertNil(result)
     }
@@ -133,7 +134,7 @@ final class FeedServiceTests: XCTestCase {
         try context.save()
 
         let prefs = makePreferences(gentleMode: false)
-        let result = try service.nextAffirmation(preferences: prefs, isPremium: false, modelContext: context)
+        let result = try service.nextAffirmation(preferences: prefs, isPremium: false, mood: nil, modelContext: context)
 
         XCTAssertEqual(result?.id, aff.id)
     }
@@ -144,7 +145,7 @@ final class FeedServiceTests: XCTestCase {
         try context.save()
 
         let prefs = makePreferences(includeSensitive: false)
-        let result = try service.nextAffirmation(preferences: prefs, isPremium: false, modelContext: context)
+        let result = try service.nextAffirmation(preferences: prefs, isPremium: false, mood: nil, modelContext: context)
 
         XCTAssertNil(result)
     }
@@ -155,7 +156,7 @@ final class FeedServiceTests: XCTestCase {
         try context.save()
 
         let prefs = makePreferences(includeSensitive: true)
-        let result = try service.nextAffirmation(preferences: prefs, isPremium: false, modelContext: context)
+        let result = try service.nextAffirmation(preferences: prefs, isPremium: false, mood: nil, modelContext: context)
 
         XCTAssertEqual(result?.id, aff.id)
     }
@@ -166,7 +167,7 @@ final class FeedServiceTests: XCTestCase {
         try context.save()
 
         let prefs = makePreferences()
-        let result = try service.nextAffirmation(preferences: prefs, isPremium: false, modelContext: context)
+        let result = try service.nextAffirmation(preferences: prefs, isPremium: false, mood: nil, modelContext: context)
 
         XCTAssertNil(result)
     }
@@ -177,7 +178,7 @@ final class FeedServiceTests: XCTestCase {
         try context.save()
 
         let prefs = makePreferences()
-        let result = try service.nextAffirmation(preferences: prefs, isPremium: true, modelContext: context)
+        let result = try service.nextAffirmation(preferences: prefs, isPremium: true, mood: nil, modelContext: context)
 
         XCTAssertEqual(result?.id, aff.id)
     }
@@ -189,7 +190,7 @@ final class FeedServiceTests: XCTestCase {
 
         // Default content filters have spiritual = false
         let prefs = makePreferences()
-        let result = try service.nextAffirmation(preferences: prefs, isPremium: false, modelContext: context)
+        let result = try service.nextAffirmation(preferences: prefs, isPremium: false, mood: nil, modelContext: context)
 
         XCTAssertNil(result)
     }
@@ -204,15 +205,15 @@ final class FeedServiceTests: XCTestCase {
         try context.save()
 
         let prefs = makePreferences()
-        let result1 = try service.dailyAffirmation(preferences: prefs, isPremium: false, modelContext: context)
-        let result2 = try service.dailyAffirmation(preferences: prefs, isPremium: false, modelContext: context)
+        let result1 = try service.dailyAffirmation(preferences: prefs, isPremium: false, mood: nil, modelContext: context)
+        let result2 = try service.dailyAffirmation(preferences: prefs, isPremium: false, mood: nil, modelContext: context)
 
         XCTAssertEqual(result1?.id, result2?.id)
     }
 
     func test_dailyAffirmation_returnsNilWhenNoCandidates() throws {
         let prefs = makePreferences()
-        let result = try service.dailyAffirmation(preferences: prefs, isPremium: false, modelContext: context)
+        let result = try service.dailyAffirmation(preferences: prefs, isPremium: false, mood: nil, modelContext: context)
 
         XCTAssertNil(result)
     }

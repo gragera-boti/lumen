@@ -6,6 +6,10 @@ struct LumenApp: App {
     @State private var router = AppRouter()
     @State private var deepLinkHandler = DeepLinkHandler()
 
+    init() {
+        EntitlementService.shared.configure()
+    }
+
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             Affirmation.self,
@@ -16,10 +20,15 @@ struct LumenApp: App {
             AppTheme.self,
             UserPreferences.self,
             EntitlementState.self,
+            MoodEntry.self,
         ])
+
+        // CloudKit sync requires iCloud container entitlement in the provisioning profile.
+        // Once configured in ASC + Xcode, change .none → .automatic here.
         let config = ModelConfiguration(
             schema: schema,
-            isStoredInMemoryOnly: false
+            isStoredInMemoryOnly: false,
+            cloudKitDatabase: .none
         )
         do {
             return try ModelContainer(for: schema, configurations: [config])

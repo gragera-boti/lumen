@@ -52,11 +52,11 @@ enum AppDestination: Hashable {
     case affirmationDetail(affirmationId: String)
     case reminders
     case themes
-    case voiceSettings
     case contentFilterSettings
     case subscription
     case privacyData
     case crisis
     case themeGenerator
+    case themeGallery
     case history
 }

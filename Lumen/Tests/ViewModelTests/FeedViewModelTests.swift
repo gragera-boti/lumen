@@ -1,4 +1,5 @@
 import XCTest
+import SwiftUI
 import SwiftData
 @testable import Lumen
 
@@ -7,25 +8,29 @@ final class FeedViewModelTests: XCTestCase {
 
     // MARK: - Mocks
 
-    private final class MockFeedService: FeedServiceProtocol {
+    private final class MockFeedService: FeedServiceProtocol, @unchecked Sendable {
         var affirmations: [Affirmation] = []
         var dailyResult: Affirmation?
         var callCount = 0
 
-        func nextAffirmation(preferences: UserPreferences, isPremium: Bool, modelContext: ModelContext) throws -> Affirmation? {
+        func nextAffirmation(preferences: UserPreferences, isPremium: Bool, mood: Mood?, modelContext: ModelContext) throws -> Affirmation? {
             defer { callCount += 1 }
             guard callCount < affirmations.count else { return nil }
             return affirmations[callCount]
         }
 
-        func dailyAffirmation(preferences: UserPreferences, isPremium: Bool, modelContext: ModelContext) throws -> Affirmation? {
+        func dailyAffirmation(preferences: UserPreferences, isPremium: Bool, mood: Mood?, modelContext: ModelContext) throws -> Affirmation? {
             dailyResult
+        }
+
+        func loadBatch(count: Int, preferences: UserPreferences, isPremium: Bool, mood: Mood?, modelContext: ModelContext) throws -> (daily: Affirmation?, feed: [Affirmation]) {
+            (dailyResult, affirmations)
         }
 
         func recordSeen(affirmation: Affirmation, source: SeenSource, modelContext: ModelContext) throws {}
     }
 
-    private final class MockFavoriteService: FavoriteServiceProtocol {
+    private final class MockFavoriteService: FavoriteServiceProtocol, @unchecked Sendable {
         var toggleCalled = false
 
         func toggleFavorite(affirmation: Affirmation, modelContext: ModelContext) throws {
@@ -35,21 +40,7 @@ final class FeedViewModelTests: XCTestCase {
         func fetchFavorites(modelContext: ModelContext) throws -> [Affirmation] { [] }
     }
 
-    private final class MockSpeechService: SpeechServiceProtocol {
-        var isSpeaking = false
-        var speakCalled = false
-        var stopCalled = false
-
-        func speak(text: String, voice: VoiceSettings) async {
-            speakCalled = true
-        }
-
-        func stop() {
-            stopCalled = true
-        }
-    }
-
-    private final class MockShareService: ShareServiceProtocol {
+    private final class MockShareService: ShareServiceProtocol, @unchecked Sendable {
         @MainActor func renderShareImage(text: String, gradientColors: [SwiftUI.Color], size: CGSize, showWatermark: Bool) -> UIImage? {
             UIImage()
         }
@@ -61,7 +52,6 @@ final class FeedViewModelTests: XCTestCase {
         let vm = FeedViewModel()
         XCTAssertTrue(vm.cards.isEmpty)
         XCTAssertEqual(vm.currentIndex, 0)
-        XCTAssertFalse(vm.isPlayingTTS)
         XCTAssertFalse(vm.isLoading)
         XCTAssertNil(vm.errorMessage)
     }
