@@ -2,7 +2,8 @@ import Foundation
 import UserNotifications
 import OSLog
 
-struct NotificationService: NotificationServiceProtocol {
+@MainActor
+final class NotificationService: NotificationServiceProtocol {
     static let shared = NotificationService()
     private let logger = Logger(subsystem: "com.gragera.lumen", category: "NotificationService")
     private let center = UNUserNotificationCenter.current()

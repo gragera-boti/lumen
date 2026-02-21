@@ -135,7 +135,7 @@ final class ThemeGeneratorViewModel {
         isSaved = false
         errorMessage = nil
 
-        analyticsService.log(event: .backgroundGenerationStarted(style: selectedStyle.rawValue))
+        await analyticsService.log(event: .backgroundGenerationStarted(style: selectedStyle.rawValue))
 
         let request = BackgroundRequest(
             style: selectedStyle,
@@ -156,9 +156,9 @@ final class ThemeGeneratorViewModel {
                 errorMessage = "Failed to load generated image"
             }
 
-            analyticsService.log(event: .backgroundGenerationCompleted(durationMs: result.metadata.durationMs))
+            await analyticsService.log(event: .backgroundGenerationCompleted(durationMs: result.metadata.durationMs))
         } catch is CancellationError {
-            analyticsService.log(event: .backgroundGenerationCancelled)
+            await analyticsService.log(event: .backgroundGenerationCancelled)
         } catch {
             logger.error("Generation error: \(error.localizedDescription)")
             errorMessage = error.localizedDescription
@@ -327,9 +327,9 @@ final class ThemeGeneratorViewModel {
 
     // MARK: - Cancel
 
-    func cancelGeneration() {
-        generator.cancelGeneration()
-        aiGenerator.cancelGeneration()
+    func cancelGeneration() async {
+        await generator.cancelGeneration()
+        await aiGenerator.cancelGeneration()
         isGenerating = false
         if aiLoadState != .ready {
             aiLoadState = .idle

@@ -279,7 +279,7 @@ actor AIBackgroundService: AIBackgroundServiceProtocol {
         return try await task.value
     }
 
-    func cancelGeneration() {
+    func cancelGeneration() async {
         currentTask?.cancel()
         currentTask = nil
     }

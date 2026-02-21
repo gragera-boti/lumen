@@ -1,6 +1,7 @@
 import Foundation
 
 /// iCloud sync service — premium-only feature.
+@MainActor
 protocol CloudSyncServiceProtocol: Sendable {
     /// Whether iCloud sync is currently enabled by the user.
     /// - Returns: `true` if sync is enabled.

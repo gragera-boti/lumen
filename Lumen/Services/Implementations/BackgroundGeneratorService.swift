@@ -63,7 +63,7 @@ actor BackgroundGeneratorService: BackgroundGeneratorProtocol {
         return try await task.value
     }
 
-    func cancelGeneration() {
+    func cancelGeneration() async {
         currentTask?.cancel()
         currentTask = nil
     }

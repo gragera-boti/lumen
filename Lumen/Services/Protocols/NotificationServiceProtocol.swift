@@ -1,6 +1,7 @@
 import Foundation
 
 /// Service for managing local notification permissions and scheduling daily reminders.
+@MainActor
 protocol NotificationServiceProtocol: Sendable {
     /// Request notification authorization from the user.
     /// - Returns: `true` if permission was granted.

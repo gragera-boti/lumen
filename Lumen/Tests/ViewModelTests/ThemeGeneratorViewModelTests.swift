@@ -32,7 +32,7 @@ import Testing
             )
         }
 
-        func cancelGeneration() { cancelCalled = true }
+        func cancelGeneration() async { cancelCalled = true }
     }
 
     private final class MockAIGenerator: AIBackgroundServiceProtocol, @unchecked Sendable {
@@ -63,7 +63,7 @@ import Testing
                 )
             )
         }
-        func cancelGeneration() { cancelCalled = true }
+        func cancelGeneration() async { cancelCalled = true }
         func pregenerate(count: Int, device: AIDeviceProfile) async throws -> [GeneratedBackground] { [] }
         func cachedBackgrounds() async -> [GeneratedBackground] { [] }
         func removeCached(themeId: String) async throws {}
@@ -142,7 +142,7 @@ import Testing
         let ai = MockAIGenerator()
         let vm = ThemeGeneratorViewModel(generator: mock, aiGenerator: ai)
 
-        vm.cancelGeneration()
+        await vm.cancelGeneration()
 
         #expect(mock.cancelCalled)
         #expect(!vm.isGenerating)

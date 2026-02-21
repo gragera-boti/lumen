@@ -141,8 +141,8 @@ import Testing
     }
 
     @Test("cancelGeneration does not crash")
-    func cancelGeneration_doesNotCrash() {
-        service.cancelGeneration()
+    func cancelGeneration_doesNotCrash() async {
+        await service.cancelGeneration()
     }
 
     // MARK: - Color palettes
