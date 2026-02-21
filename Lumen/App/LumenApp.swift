@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import OSLog
 
 @main
 struct LumenApp: App {
@@ -32,7 +33,25 @@ struct LumenApp: App {
         do {
             return try ModelContainer(for: schema, configurations: [config])
         } catch {
-            fatalError("Could not create ModelContainer: \(error)")
+            // Migration failed — delete the store and retry with a fresh database
+            let logger = Logger(subsystem: "com.gragera.lumen", category: "Data")
+            logger.fault("ModelContainer creation failed: \(error.localizedDescription). Resetting store.")
+
+            let storeURL = config.url
+            let storePaths = [
+                storeURL,
+                storeURL.deletingPathExtension().appendingPathExtension("store-shm"),
+                storeURL.deletingPathExtension().appendingPathExtension("store-wal"),
+            ]
+            for path in storePaths {
+                try? FileManager.default.removeItem(at: path)
+            }
+
+            do {
+                return try ModelContainer(for: schema, configurations: [config])
+            } catch {
+                fatalError("Could not create ModelContainer after reset: \(error)")
+            }
         }
     }()
 

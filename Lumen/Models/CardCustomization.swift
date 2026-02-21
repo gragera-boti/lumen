@@ -29,6 +29,12 @@ final class CardCustomization {
     /// Font style override (`AffirmationFontStyle` raw value, `nil` = use default).
     var fontStyleOverride: String?
 
+    /// AI background prompt ID (from `AIBackgroundPrompt.library`), `nil` = use procedural.
+    var aiPromptId: String?
+
+    /// Whether this card uses an AI-generated background instead of procedural.
+    var usesAIBackground: Bool
+
     /// Custom text (only for user-owned affirmations, `nil` = use original).
     var customText: String?
 
@@ -44,6 +50,8 @@ final class CardCustomization {
         colorPalette: String? = nil,
         backgroundSeed: UInt32? = nil,
         fontStyleOverride: String? = nil,
+        aiPromptId: String? = nil,
+        usesAIBackground: Bool = false,
         customText: String? = nil
     ) {
         self.affirmationId = affirmationId
@@ -51,6 +59,8 @@ final class CardCustomization {
         self.colorPalette = colorPalette
         self.backgroundSeed = backgroundSeed
         self.fontStyleOverride = fontStyleOverride
+        self.aiPromptId = aiPromptId
+        self.usesAIBackground = usesAIBackground
         self.customText = customText
         self.createdAt = Date()
         self.updatedAt = Date()
