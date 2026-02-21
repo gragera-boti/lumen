@@ -1,14 +1,13 @@
-import XCTest
+import Testing
 import SwiftData
 @testable import Lumen
 
-@MainActor
-final class OnboardingViewModelTests: XCTestCase {
+@Suite("OnboardingViewModel Tests")
+@MainActor struct OnboardingViewModelTests {
 
     // MARK: - Mocks
 
-    @MainActor
-    private final class MockContentService: ContentServiceProtocol {
+    private final class MockContentService: ContentServiceProtocol, @unchecked Sendable {
         var categories: [Lumen.Category] = []
 
         func loadBundledContentIfNeeded(modelContext: ModelContext) throws {}
@@ -46,81 +45,88 @@ final class OnboardingViewModelTests: XCTestCase {
 
     // MARK: - Tests
 
-    func test_initialState_isWelcomeStep() {
+    @Test("initial state is welcome step")
+    func initialState_isWelcomeStep() {
         let vm = OnboardingViewModel()
-        XCTAssertEqual(vm.currentStep, .welcome)
-        XCTAssertTrue(vm.selectedCategoryIds.isEmpty)
-        XCTAssertEqual(vm.selectedTone, .gentle)
+        #expect(vm.currentStep == .welcome)
+        #expect(vm.selectedCategoryIds.isEmpty)
+        #expect(vm.selectedTone == .gentle)
     }
 
-    func test_advance_movesStepForward() {
+    @Test("advance moves step forward")
+    func advance_movesStepForward() {
         let vm = OnboardingViewModel()
 
         vm.advance()
-        XCTAssertEqual(vm.currentStep, .categories)
+        #expect(vm.currentStep == .categories)
 
         vm.advance()
-        XCTAssertEqual(vm.currentStep, .tone)
+        #expect(vm.currentStep == .tone)
 
         vm.advance()
-        XCTAssertEqual(vm.currentStep, .reminders)
+        #expect(vm.currentStep == .reminders)
 
         vm.advance()
-        XCTAssertEqual(vm.currentStep, .done)
+        #expect(vm.currentStep == .done)
     }
 
-    func test_goBack_movesStepBackward() {
+    @Test("goBack moves step backward")
+    func goBack_movesStepBackward() {
         let vm = OnboardingViewModel()
         vm.advance() // → categories
         vm.advance() // → tone
 
         vm.goBack()
-        XCTAssertEqual(vm.currentStep, .categories)
+        #expect(vm.currentStep == .categories)
 
         vm.goBack()
-        XCTAssertEqual(vm.currentStep, .welcome)
+        #expect(vm.currentStep == .welcome)
 
         vm.goBack()
-        XCTAssertEqual(vm.currentStep, .welcome) // stays at welcome
+        #expect(vm.currentStep == .welcome)
     }
 
-    func test_toggleCategory_addsAndRemoves() {
+    @Test("toggleCategory adds and removes")
+    func toggleCategory_addsAndRemoves() {
         let vm = OnboardingViewModel()
 
         vm.toggleCategory("cat_calm")
-        XCTAssertTrue(vm.selectedCategoryIds.contains("cat_calm"))
+        #expect(vm.selectedCategoryIds.contains("cat_calm"))
 
         vm.toggleCategory("cat_calm")
-        XCTAssertFalse(vm.selectedCategoryIds.contains("cat_calm"))
+        #expect(!vm.selectedCategoryIds.contains("cat_calm"))
     }
 
-    func test_canContinueFromCategories_requiresSelection() {
+    @Test("canContinueFromCategories requires selection")
+    func canContinueFromCategories_requiresSelection() {
         let vm = OnboardingViewModel()
 
-        XCTAssertFalse(vm.canContinueFromCategories)
+        #expect(!vm.canContinueFromCategories)
 
         vm.toggleCategory("cat_self_love")
-        XCTAssertTrue(vm.canContinueFromCategories)
+        #expect(vm.canContinueFromCategories)
     }
 
-    func test_requestNotificationPermission_granted() async {
+    @Test("requestNotificationPermission granted")
+    func requestNotificationPermission_granted() async {
         let mockNotification = MockNotificationService()
         mockNotification.shouldGrant = true
         let vm = OnboardingViewModel(notificationService: mockNotification)
 
         await vm.requestNotificationPermission()
 
-        XCTAssertEqual(vm.notificationPermission, .granted)
-        XCTAssertFalse(vm.isRequestingPermission)
+        #expect(vm.notificationPermission == .granted)
+        #expect(!vm.isRequestingPermission)
     }
 
-    func test_requestNotificationPermission_denied() async {
+    @Test("requestNotificationPermission denied")
+    func requestNotificationPermission_denied() async {
         let mockNotification = MockNotificationService()
         mockNotification.shouldGrant = false
         let vm = OnboardingViewModel(notificationService: mockNotification)
 
         await vm.requestNotificationPermission()
 
-        XCTAssertEqual(vm.notificationPermission, .denied)
+        #expect(vm.notificationPermission == .denied)
     }
 }

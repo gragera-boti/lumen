@@ -15,7 +15,7 @@ import OSLog
 /// - Generation runs on a background actor to avoid blocking UI
 /// - Cached backgrounds are stored in the app group container
 /// - Pre-generation batch runs silently in the background
-actor AIBackgroundService: @preconcurrency AIBackgroundServiceProtocol {
+actor AIBackgroundService: AIBackgroundServiceProtocol {
     static let shared = AIBackgroundService()
 
     private let logger = Logger(subsystem: "com.gragera.lumen", category: "AIBackground")

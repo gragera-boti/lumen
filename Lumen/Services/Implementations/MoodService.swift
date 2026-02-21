@@ -2,7 +2,7 @@ import Foundation
 import SwiftData
 import OSLog
 
-final class MoodService: MoodServiceProtocol, @unchecked Sendable {
+struct MoodService: MoodServiceProtocol {
     static let shared = MoodService()
     private let logger = Logger(subsystem: "com.gragera.lumen", category: "MoodService")
 

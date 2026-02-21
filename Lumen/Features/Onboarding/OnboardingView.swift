@@ -260,3 +260,10 @@ struct OnboardingView: View {
         }
     }
 }
+
+// MARK: - Preview
+
+#Preview {
+    OnboardingView(onComplete: {})
+        .modelContainer(for: [UserPreferences.self, Category.self], inMemory: true)
+}

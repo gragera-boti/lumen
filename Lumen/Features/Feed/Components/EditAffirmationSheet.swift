@@ -169,3 +169,17 @@ struct EditAffirmationSheet: View {
         }
     }
 }
+
+// MARK: - Preview
+
+#Preview {
+    EditAffirmationSheet(
+        affirmation: Affirmation(
+            id: "preview_edit",
+            text: "I embrace every new day with gratitude",
+            tone: .gentle,
+            source: .user
+        )
+    )
+    .modelContainer(for: Affirmation.self, inMemory: true)
+}

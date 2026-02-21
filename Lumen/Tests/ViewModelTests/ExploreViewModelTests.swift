@@ -1,12 +1,11 @@
-import XCTest
+import Testing
 import SwiftData
 @testable import Lumen
 
-@MainActor
-final class ExploreViewModelTests: XCTestCase {
+@Suite("ExploreViewModel Tests")
+@MainActor struct ExploreViewModelTests {
 
-    @MainActor
-    private final class MockContentService: ContentServiceProtocol {
+    private final class MockContentService: ContentServiceProtocol, @unchecked Sendable {
         var categories: [Lumen.Category] = []
         var shouldThrow = false
 
@@ -20,8 +19,7 @@ final class ExploreViewModelTests: XCTestCase {
         func fetchAffirmation(byId id: String, modelContext: ModelContext) throws -> Affirmation? { nil }
     }
 
-    @MainActor
-    private final class MockEntitlementService: EntitlementServiceProtocol {
+    private final class MockEntitlementService: EntitlementServiceProtocol, @unchecked Sendable {
         var premium = false
         func isPremium() async -> Bool { premium }
         func purchase(productId: String) async throws {}
@@ -29,11 +27,12 @@ final class ExploreViewModelTests: XCTestCase {
         func availableProducts() async throws -> [ProductInfo] { [] }
     }
 
-    func test_initialState() {
+    @Test("initial state")
+    func initialState() {
         let vm = ExploreViewModel()
-        XCTAssertTrue(vm.categories.isEmpty)
-        XCTAssertFalse(vm.isLoading)
-        XCTAssertFalse(vm.isPremium)
-        XCTAssertNil(vm.errorMessage)
+        #expect(vm.categories.isEmpty)
+        #expect(!vm.isLoading)
+        #expect(!vm.isPremium)
+        #expect(vm.errorMessage == nil)
     }
 }

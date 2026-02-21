@@ -31,3 +31,4 @@ Pods/
 
 # Secrets
 *.storekit
+Lumen/Resources/CoreMLStableDiffusion/

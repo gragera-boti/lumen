@@ -2,7 +2,7 @@ import Foundation
 import SwiftData
 import OSLog
 
-final class FeedService: FeedServiceProtocol, @unchecked Sendable {
+struct FeedService: FeedServiceProtocol {
     static let shared = FeedService()
     private let logger = Logger(subsystem: "com.gragera.lumen", category: "FeedService")
     private let recentLimit = 50

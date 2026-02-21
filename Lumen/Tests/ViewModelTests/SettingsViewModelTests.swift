@@ -1,9 +1,9 @@
-import XCTest
+import Testing
 import SwiftData
 @testable import Lumen
 
-@MainActor
-final class SettingsViewModelTests: XCTestCase {
+@Suite("SettingsViewModel Tests")
+@MainActor struct SettingsViewModelTests {
 
     private final class MockPreferencesService: PreferencesServiceProtocol, @unchecked Sendable {
         var prefs: UserPreferences?
@@ -33,10 +33,11 @@ final class SettingsViewModelTests: XCTestCase {
         func syncStatus() async -> CloudSyncStatus { .disabled }
     }
 
-    func test_initialState() {
+    @Test("initial state")
+    func initialState() {
         let vm = SettingsViewModel()
-        XCTAssertNil(vm.preferences)
-        XCTAssertFalse(vm.isPremium)
-        XCTAssertNil(vm.errorMessage)
+        #expect(vm.preferences == nil)
+        #expect(!vm.isPremium)
+        #expect(vm.errorMessage == nil)
     }
 }

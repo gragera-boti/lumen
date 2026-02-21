@@ -194,6 +194,7 @@ private struct ThemeCard: View {
                                 .fill(theme.isInRotation ? Color.green.opacity(0.15) : Color(.systemGray5))
                         )
                     }
+                    .accessibilityLabel(theme.isInRotation ? "Hide from rotation" : "Add to rotation")
 
                     Spacer()
 
@@ -205,6 +206,7 @@ private struct ThemeCard: View {
                             .padding(8)
                             .background(Circle().fill(Color(.systemGray5)))
                     }
+                    .accessibilityLabel("Delete background")
                 }
             }
             .padding(.top, 8)
@@ -244,4 +246,13 @@ private struct ThemeCard: View {
         }
         return gradient.swiftUIColors
     }
+}
+
+// MARK: - Preview
+
+#Preview {
+    NavigationStack {
+        ThemeGalleryView()
+    }
+    .modelContainer(for: AppTheme.self, inMemory: true)
 }

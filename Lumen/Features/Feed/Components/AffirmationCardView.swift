@@ -27,7 +27,6 @@ struct AffirmationCardView: View {
     /// Font selection — respects user-chosen font for custom affirmations,
     /// otherwise uses curated defaults (primarily New York serif).
     private var affirmationFont: Font {
-        // User-created affirmations with a custom font style
         if let styleName = affirmation.fontStyle,
            let style = AffirmationFontStyle(rawValue: styleName) {
             return style.cardFont(textLength: affirmation.text.count)
@@ -37,18 +36,12 @@ struct AffirmationCardView: View {
         let design = Self.fontDesign(for: affirmation)
         let weight = Self.fontWeight(for: affirmation)
 
-        if length < 40 {
-            return .system(size: 34, weight: weight, design: design)
-        } else if length < 80 {
-            return .system(size: 28, weight: weight, design: design)
-        } else if length < 140 {
-            return .system(size: 24, weight: weight, design: design)
-        } else {
-            return .system(size: 21, weight: weight, design: design)
-        }
+        if length < 40 { return .system(size: 34, weight: weight, design: design) }
+        else if length < 80 { return .system(size: 28, weight: weight, design: design) }
+        else if length < 140 { return .system(size: 24, weight: weight, design: design) }
+        else { return .system(size: 21, weight: weight, design: design) }
     }
 
-    /// 70% serif (New York), 20% rounded, 10% default.
     private static func fontDesign(for aff: Affirmation) -> Font.Design {
         let hash = abs(aff.id.hashValue)
         let roll = hash % 10
@@ -57,14 +50,12 @@ struct AffirmationCardView: View {
         return .default
     }
 
-    /// Only weights that read well on gradients — no thin or light.
     private static func fontWeight(for aff: Affirmation) -> Font.Weight {
         let hash = abs(aff.id.hashValue >> 4)
         let weights: [Font.Weight] = [.medium, .regular, .medium, .semibold, .regular]
         return weights[hash % weights.count]
     }
 
-    /// Subtle letter spacing tuned per design.
     private var letterSpacing: CGFloat {
         if let styleName = affirmation.fontStyle,
            let _ = AffirmationFontStyle(rawValue: styleName) {
@@ -80,7 +71,6 @@ struct AffirmationCardView: View {
 
     var body: some View {
         ZStack {
-            // Background: image or gradient
             if let bgImage = backgroundImage {
                 Image(uiImage: bgImage)
                     .resizable()
@@ -93,10 +83,8 @@ struct AffirmationCardView: View {
                 )
             }
 
-            // Readability overlay
             ReadabilityOverlay()
 
-            // Content
             VStack {
                 Spacer()
 
@@ -114,11 +102,12 @@ struct AffirmationCardView: View {
 
                 Spacer()
 
-                // Action bar
                 actionBar
                     .padding(.bottom, 120)
             }
         }
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("affirmation_card")
     }
 
     // MARK: - Action Bar
@@ -163,5 +152,40 @@ private struct ActionButton: View {
             .frame(minWidth: 60, minHeight: 44)
         }
         .accessibilityLabel(label)
+        .accessibilityHint(isActive ? "Currently active" : "Tap to activate")
     }
+}
+
+// MARK: - Preview
+
+#Preview("Affirmation Card") {
+    AffirmationCardView(
+        affirmation: Affirmation(
+            id: "preview_1",
+            text: "I am worthy of love and kindness",
+            tone: .gentle,
+            intensity: .low
+        ),
+        gradientColors: [.teal, .blue],
+        isFavorited: false,
+        onFavorite: {},
+        onShare: {}
+    )
+    .ignoresSafeArea()
+}
+
+#Preview("Favorited Card") {
+    AffirmationCardView(
+        affirmation: Affirmation(
+            id: "preview_2",
+            text: "Every step I take brings me closer to my goals",
+            tone: .energetic,
+            intensity: .medium
+        ),
+        gradientColors: [.orange, .pink],
+        isFavorited: true,
+        onFavorite: {},
+        onShare: {}
+    )
+    .ignoresSafeArea()
 }

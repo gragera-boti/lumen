@@ -3,7 +3,7 @@ import OSLog
 
 /// Local analytics service. Logs events to os_log and an optional local store.
 /// Pluggable: replace with Firebase, Amplitude, etc. by conforming to protocol.
-final class AnalyticsService: AnalyticsServiceProtocol, @unchecked Sendable {
+actor AnalyticsService: AnalyticsServiceProtocol {
     static let shared = AnalyticsService()
 
     private let logger = Logger(subsystem: "com.gragera.lumen", category: "Analytics")

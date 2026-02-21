@@ -37,6 +37,8 @@ struct CategoryFeedView: View {
                             .frame(width: 40, height: 40)
                             .background(.white.opacity(0.2), in: Circle())
                     }
+                    .accessibilityLabel("Go back")
+                    .accessibilityIdentifier("category_feed_back")
                     .padding(.leading, LumenTheme.Spacing.lg)
 
                     Spacer()
@@ -297,4 +299,15 @@ struct CategoryFeedView: View {
               let rootVC = window.rootViewController else { return }
         rootVC.present(activityVC, animated: true)
     }
+}
+
+// MARK: - Preview
+
+#Preview {
+    CategoryFeedView(
+        categoryId: "preview",
+        preferences: UserPreferences(),
+        isPremium: false
+    )
+    .modelContainer(for: [Affirmation.self, Category.self], inMemory: true)
 }

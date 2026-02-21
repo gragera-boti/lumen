@@ -2,7 +2,7 @@ import Foundation
 import RevenueCat
 import OSLog
 
-final class EntitlementService: EntitlementServiceProtocol, @unchecked Sendable {
+struct EntitlementService: EntitlementServiceProtocol {
     static let shared = EntitlementService()
 
     private let logger = Logger(subsystem: "com.gragera.lumen", category: "EntitlementService")

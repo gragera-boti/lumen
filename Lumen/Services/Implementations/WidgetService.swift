@@ -2,7 +2,7 @@ import Foundation
 import WidgetKit
 import OSLog
 
-final class WidgetService: WidgetServiceProtocol, @unchecked Sendable {
+struct WidgetService: WidgetServiceProtocol {
     static let shared = WidgetService()
     private let logger = Logger(subsystem: "com.gragera.lumen", category: "WidgetService")
 

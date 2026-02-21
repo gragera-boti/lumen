@@ -481,6 +481,7 @@ private struct CachedThumbnail: View {
 
     var body: some View {
         Button(action: onTap) {
+
             ZStack(alignment: .topTrailing) {
                 if let data = try? Data(contentsOf: background.thumbnailPath),
                    let image = UIImage(data: data) {
@@ -498,6 +499,7 @@ private struct CachedThumbnail: View {
                     .strokeBorder(Color.white.opacity(0.2), lineWidth: 1)
             )
         }
+        .accessibilityLabel("Cached AI background")
         .contextMenu {
             Button(role: .destructive) {
                 onDelete()
@@ -506,4 +508,14 @@ private struct CachedThumbnail: View {
             }
         }
     }
+}
+
+// MARK: - Preview
+
+#Preview {
+    NavigationStack {
+        ThemeGeneratorView()
+    }
+    .environment(AppRouter())
+    .modelContainer(for: AppTheme.self, inMemory: true)
 }

@@ -61,6 +61,7 @@ struct CrisisView: View {
                     }
                     .font(.headline)
                     .foregroundStyle(.secondary)
+                    .accessibilityIdentifier("crisis_dismiss")
                     .padding(.bottom, LumenTheme.Spacing.xxl)
                 }
             }
@@ -124,5 +125,13 @@ struct CrisisView: View {
             RoundedRectangle(cornerRadius: LumenTheme.Radii.md)
                 .fill(.ultraThinMaterial)
         )
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(title). \(subtitle)")
     }
+}
+
+// MARK: - Preview
+
+#Preview {
+    CrisisView()
 }

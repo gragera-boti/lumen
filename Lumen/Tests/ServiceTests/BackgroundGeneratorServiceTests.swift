@@ -1,13 +1,14 @@
-import XCTest
+import Testing
 @testable import Lumen
 
-@MainActor
-final class BackgroundGeneratorServiceTests: XCTestCase {
+@Suite("BackgroundGeneratorService Tests")
+@MainActor struct BackgroundGeneratorServiceTests {
     private let service = BackgroundGeneratorService.shared
 
     // MARK: - Generation
 
-    func test_generate_producesImage() async throws {
+    @Test("generate produces image")
+    func generate_producesImage() async throws {
         let request = BackgroundRequest(
             style: .aurora,
             palette: .oceanBreeze,
@@ -17,18 +18,19 @@ final class BackgroundGeneratorServiceTests: XCTestCase {
 
         let result = try await service.generate(request: request)
 
-        XCTAssertFalse(result.themeId.isEmpty)
-        XCTAssertTrue(FileManager.default.fileExists(atPath: result.imagePath.path))
-        XCTAssertTrue(FileManager.default.fileExists(atPath: result.thumbnailPath.path))
-        XCTAssertTrue(result.metadata.durationMs >= 0)
-        XCTAssertEqual(result.metadata.style, "aurora")
-        XCTAssertEqual(result.metadata.palette, "oceanBreeze")
+        #expect(!result.themeId.isEmpty)
+        #expect(FileManager.default.fileExists(atPath: result.imagePath.path))
+        #expect(FileManager.default.fileExists(atPath: result.thumbnailPath.path))
+        #expect(result.metadata.durationMs >= 0)
+        #expect(result.metadata.style == "aurora")
+        #expect(result.metadata.palette == "oceanBreeze")
 
         try? FileManager.default.removeItem(at: result.imagePath)
         try? FileManager.default.removeItem(at: result.thumbnailPath)
     }
 
-    func test_generate_allStyleCombinations() async throws {
+    @Test("generate all style combinations")
+    func generate_allStyleCombinations() async throws {
         for style in GeneratorStyle.allCases {
             let request = BackgroundRequest(
                 style: style,
@@ -38,7 +40,7 @@ final class BackgroundGeneratorServiceTests: XCTestCase {
             )
 
             let result = try await service.generate(request: request)
-            XCTAssertTrue(
+            #expect(
                 FileManager.default.fileExists(atPath: result.imagePath.path),
                 "Failed for style: \(style.rawValue)"
             )
@@ -48,7 +50,8 @@ final class BackgroundGeneratorServiceTests: XCTestCase {
         }
     }
 
-    func test_generate_allPalettes() async throws {
+    @Test("generate all palettes")
+    func generate_allPalettes() async throws {
         for palette in ColorPalette.allCases {
             let request = BackgroundRequest(
                 style: .bokeh,
@@ -58,7 +61,7 @@ final class BackgroundGeneratorServiceTests: XCTestCase {
             )
 
             let result = try await service.generate(request: request)
-            XCTAssertTrue(
+            #expect(
                 FileManager.default.fileExists(atPath: result.imagePath.path),
                 "Failed for palette: \(palette.rawValue)"
             )
@@ -68,7 +71,8 @@ final class BackgroundGeneratorServiceTests: XCTestCase {
         }
     }
 
-    func test_generate_allMoods() async throws {
+    @Test("generate all moods")
+    func generate_allMoods() async throws {
         for mood in GeneratorMood.allCases {
             let request = BackgroundRequest(
                 style: .mist,
@@ -78,7 +82,7 @@ final class BackgroundGeneratorServiceTests: XCTestCase {
             )
 
             let result = try await service.generate(request: request)
-            XCTAssertTrue(
+            #expect(
                 FileManager.default.fileExists(atPath: result.imagePath.path),
                 "Failed for mood: \(mood.rawValue)"
             )
@@ -88,7 +92,8 @@ final class BackgroundGeneratorServiceTests: XCTestCase {
         }
     }
 
-    func test_generate_newStyles() async throws {
+    @Test("generate new styles")
+    func generate_newStyles() async throws {
         let newStyles: [GeneratorStyle] = [.geometric, .watercolor, .stainedGlass, .waves, .prism, .topography]
 
         for style in newStyles {
@@ -100,18 +105,19 @@ final class BackgroundGeneratorServiceTests: XCTestCase {
             )
 
             let result = try await service.generate(request: request)
-            XCTAssertTrue(
+            #expect(
                 FileManager.default.fileExists(atPath: result.imagePath.path),
                 "Failed for new style: \(style.rawValue)"
             )
-            XCTAssertEqual(result.metadata.style, style.rawValue)
+            #expect(result.metadata.style == style.rawValue)
 
             try? FileManager.default.removeItem(at: result.imagePath)
             try? FileManager.default.removeItem(at: result.thumbnailPath)
         }
     }
 
-    func test_generate_seedReproducibility() async throws {
+    @Test("generate seed reproducibility")
+    func generate_seedReproducibility() async throws {
         let request = BackgroundRequest(
             style: .dunes,
             palette: .nightFade,
@@ -126,7 +132,7 @@ final class BackgroundGeneratorServiceTests: XCTestCase {
         let data1 = try Data(contentsOf: result1.imagePath)
         let data2 = try Data(contentsOf: result2.imagePath)
 
-        XCTAssertEqual(data1, data2, "Same seed should produce identical images")
+        #expect(data1 == data2, "Same seed should produce identical images")
 
         try? FileManager.default.removeItem(at: result1.imagePath)
         try? FileManager.default.removeItem(at: result1.thumbnailPath)
@@ -134,46 +140,52 @@ final class BackgroundGeneratorServiceTests: XCTestCase {
         try? FileManager.default.removeItem(at: result2.thumbnailPath)
     }
 
-    func test_cancelGeneration_doesNotCrash() {
+    @Test("cancelGeneration does not crash")
+    func cancelGeneration_doesNotCrash() {
         service.cancelGeneration()
     }
 
     // MARK: - Color palettes
 
-    func test_allPalettes_haveThreeColors() {
+    @Test("all palettes have three colors")
+    func allPalettes_haveThreeColors() {
         for palette in ColorPalette.allCases {
-            XCTAssertEqual(palette.cgColors.count, 3, "\(palette.rawValue) should have 3 colors")
+            #expect(palette.cgColors.count == 3, "\(palette.rawValue) should have 3 colors")
         }
     }
 
-    func test_allPalettes_haveAccentColor() {
+    @Test("all palettes have accent color")
+    func allPalettes_haveAccentColor() {
         for palette in ColorPalette.allCases {
-            XCTAssertNotNil(palette.accentCGColor, "\(palette.rawValue) should have accent")
+            #expect(palette.accentCGColor != nil, "\(palette.rawValue) should have accent")
         }
     }
 
-    func test_newPalettes_exist() {
+    @Test("new palettes exist")
+    func newPalettes_exist() {
         let newPalettes: [ColorPalette] = [.cherry, .auroraGreen, .desert, .sakura, .electric, .slate]
         for palette in newPalettes {
-            XCTAssertEqual(palette.cgColors.count, 3)
+            #expect(palette.cgColors.count == 3)
         }
     }
 
     // MARK: - Seeded RNG
 
-    func test_seededRNG_deterministic() {
+    @Test("seeded RNG is deterministic")
+    func seededRNG_deterministic() {
         var rng1 = SeededRNG(seed: 123)
         var rng2 = SeededRNG(seed: 123)
 
         for _ in 0..<100 {
-            XCTAssertEqual(rng1.next(), rng2.next())
+            #expect(rng1.next() == rng2.next())
         }
     }
 
-    func test_seededRNG_differentSeeds() {
+    @Test("seeded RNG different seeds produce different values")
+    func seededRNG_differentSeeds() {
         var rng1 = SeededRNG(seed: 1)
         var rng2 = SeededRNG(seed: 2)
 
-        XCTAssertNotEqual(rng1.next(), rng2.next())
+        #expect(rng1.next() != rng2.next())
     }
 }

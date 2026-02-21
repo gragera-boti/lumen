@@ -33,3 +33,13 @@ struct AnimatedGradientBackground: View {
         }
     }
 }
+
+// MARK: - Preview
+
+#Preview("Static Gradient") {
+    GradientBackground(colors: [.teal, .blue])
+}
+
+#Preview("Animated Gradient") {
+    AnimatedGradientBackground(colors: [.purple, .pink, .orange])
+}

@@ -42,8 +42,8 @@ struct AffirmationDetailView: View {
                     .foregroundStyle(.white)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, LumenTheme.Spacing.xl)
+                    .accessibilityAddTraits(.isHeader)
 
-                // Category tags
                 if !affirmation.categories.isEmpty {
                     HStack(spacing: LumenTheme.Spacing.xs) {
                         ForEach(affirmation.categories, id: \.id) { category in
@@ -59,7 +59,6 @@ struct AffirmationDetailView: View {
 
                 Spacer()
 
-                // Action buttons
                 HStack(spacing: LumenTheme.Spacing.xl) {
                     Button {
                         toggleFavorite(affirmation)
@@ -74,6 +73,8 @@ struct AffirmationDetailView: View {
                         .padding(.vertical, LumenTheme.Spacing.sm)
                         .background(.ultraThinMaterial, in: Capsule())
                     }
+                    .accessibilityLabel(isFavorited ? "Remove from favorites" : "Add to favorites")
+                    .accessibilityIdentifier("detail_favorite_button")
 
                     ShareLink(item: affirmation.text) {
                         Label("share".localized, systemImage: "square.and.arrow.up")
@@ -83,6 +84,7 @@ struct AffirmationDetailView: View {
                             .padding(.vertical, LumenTheme.Spacing.sm)
                             .background(.ultraThinMaterial, in: Capsule())
                     }
+                    .accessibilityLabel("Share affirmation")
                 }
                 .padding(.bottom, LumenTheme.Spacing.xxl)
             }
@@ -109,4 +111,13 @@ struct AffirmationDetailView: View {
         }
         try? modelContext.save()
     }
+}
+
+// MARK: - Preview
+
+#Preview {
+    NavigationStack {
+        AffirmationDetailView(affirmationId: "preview_1")
+    }
+    .modelContainer(for: [Affirmation.self, Favorite.self], inMemory: true)
 }

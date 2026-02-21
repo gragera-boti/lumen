@@ -350,3 +350,10 @@ struct CustomAffirmationSheet: View {
         "own", "being", "been", "was", "were", "their", "them", "they",
     ]
 }
+
+// MARK: - Preview
+
+#Preview {
+    CustomAffirmationSheet()
+        .modelContainer(for: [Affirmation.self, Favorite.self], inMemory: true)
+}

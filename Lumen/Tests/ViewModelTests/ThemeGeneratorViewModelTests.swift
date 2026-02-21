@@ -1,8 +1,8 @@
-import XCTest
+import Testing
 @testable import Lumen
 
-@MainActor
-final class ThemeGeneratorViewModelTests: XCTestCase {
+@Suite("ThemeGeneratorViewModel Tests")
+@MainActor struct ThemeGeneratorViewModelTests {
 
     // MARK: - Mocks
 
@@ -85,19 +85,21 @@ final class ThemeGeneratorViewModelTests: XCTestCase {
 
     // MARK: - Tests
 
-    func test_initialState() {
+    @Test("initial state")
+    func initialState() {
         let vm = ThemeGeneratorViewModel()
-        XCTAssertEqual(vm.selectedMode, .procedural)
-        XCTAssertEqual(vm.selectedStyle, .aurora)
-        XCTAssertEqual(vm.selectedPalette, .warmFlame)
-        XCTAssertEqual(vm.selectedMood, .calm)
-        XCTAssertFalse(vm.isGenerating)
-        XCTAssertNil(vm.generatedImage)
-        XCTAssertNil(vm.savedThemeId)
-        XCTAssertEqual(vm.aiLoadState, .idle)
+        #expect(vm.selectedMode == .procedural)
+        #expect(vm.selectedStyle == .aurora)
+        #expect(vm.selectedPalette == .warmFlame)
+        #expect(vm.selectedMood == .calm)
+        #expect(!vm.isGenerating)
+        #expect(vm.generatedImage == nil)
+        #expect(vm.savedThemeId == nil)
+        #expect(vm.aiLoadState == .idle)
     }
 
-    func test_proceduralGenerate_success() async {
+    @Test("procedural generate success")
+    func proceduralGenerate_success() async {
         let mock = MockGenerator()
         let ai = MockAIGenerator()
         let analytics = MockAnalytics()
@@ -109,14 +111,15 @@ final class ThemeGeneratorViewModelTests: XCTestCase {
 
         await vm.generate()
 
-        XCTAssertTrue(mock.generateCalled)
-        XCTAssertNotNil(vm.savedThemeId)
-        XCTAssertFalse(vm.isGenerating)
-        XCTAssertNil(vm.errorMessage)
-        XCTAssertEqual(analytics.events.count, 2)
+        #expect(mock.generateCalled)
+        #expect(vm.savedThemeId != nil)
+        #expect(!vm.isGenerating)
+        #expect(vm.errorMessage == nil)
+        #expect(analytics.events.count == 2)
     }
 
-    func test_proceduralGenerate_failure() async {
+    @Test("procedural generate failure")
+    func proceduralGenerate_failure() async {
         let mock = MockGenerator()
         mock.shouldThrow = true
         let ai = MockAIGenerator()
@@ -128,23 +131,25 @@ final class ThemeGeneratorViewModelTests: XCTestCase {
 
         await vm.generate()
 
-        XCTAssertNotNil(vm.errorMessage)
-        XCTAssertNil(vm.savedThemeId)
-        XCTAssertFalse(vm.isGenerating)
+        #expect(vm.errorMessage != nil)
+        #expect(vm.savedThemeId == nil)
+        #expect(!vm.isGenerating)
     }
 
-    func test_cancel_callsBothGenerators() {
+    @Test("cancel calls both generators")
+    func cancel_callsBothGenerators() {
         let mock = MockGenerator()
         let ai = MockAIGenerator()
         let vm = ThemeGeneratorViewModel(generator: mock, aiGenerator: ai)
 
         vm.cancelGeneration()
 
-        XCTAssertTrue(mock.cancelCalled)
-        XCTAssertFalse(vm.isGenerating)
+        #expect(mock.cancelCalled)
+        #expect(!vm.isGenerating)
     }
 
-    func test_aiMode_requiresPremium() async {
+    @Test("AI mode requires premium")
+    func aiMode_requiresPremium() async {
         let mock = MockGenerator()
         let ai = MockAIGenerator()
         let entitlement = MockEntitlementService()
@@ -157,28 +162,30 @@ final class ThemeGeneratorViewModelTests: XCTestCase {
 
         await vm.generate()
 
-        XCTAssertTrue(vm.showPaywallPrompt)
-        XCTAssertFalse(ai.generateCalled)
+        #expect(vm.showPaywallPrompt)
+        #expect(!ai.generateCalled)
     }
 
-    func test_promptLibrary_hasAllCategories() {
+    @Test("prompt library has all categories")
+    func promptLibrary_hasAllCategories() {
         let categories = Set(AIBackgroundPrompt.library.map(\.category))
-        XCTAssertEqual(categories.count, AIBackgroundPrompt.PromptCategory.allCases.count)
+        #expect(categories.count == AIBackgroundPrompt.PromptCategory.allCases.count)
     }
 
-    func test_promptLibrary_hasSufficientPrompts() {
-        // At least 6 per category
+    @Test("prompt library has sufficient prompts")
+    func promptLibrary_hasSufficientPrompts() {
         for category in AIBackgroundPrompt.PromptCategory.allCases {
             let count = AIBackgroundPrompt.library.filter { $0.category == category }.count
-            XCTAssertGreaterThanOrEqual(count, 6, "Category \(category.rawValue) needs at least 6 prompts")
+            #expect(count >= 6, "Category \(category.rawValue) needs at least 6 prompts")
         }
     }
 
-    func test_randomPrompt_returnsFromCorrectCategory() {
+    @Test("random prompt returns from correct category")
+    func randomPrompt_returnsFromCorrectCategory() {
         for _ in 0..<20 {
             let category = AIBackgroundPrompt.PromptCategory.allCases.randomElement()!
             let prompt = AIBackgroundPrompt.random(category: category)
-            XCTAssertEqual(prompt.category, category)
+            #expect(prompt.category == category)
         }
     }
 }

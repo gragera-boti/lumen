@@ -2,14 +2,20 @@ import Foundation
 
 /// iCloud sync service — premium-only feature.
 protocol CloudSyncServiceProtocol: Sendable {
-    /// Whether iCloud sync is enabled by the user.
+    /// Whether iCloud sync is currently enabled by the user.
+    /// - Returns: `true` if sync is enabled.
     func isSyncEnabled() -> Bool
 
-    /// Enable or disable iCloud sync. Requires premium.
+    /// Enable or disable iCloud sync. Posts a ``Notification.Name.cloudSyncToggled`` notification when enabled.
+    /// - Parameter enabled: `true` to enable sync; `false` to disable.
     func setSyncEnabled(_ enabled: Bool)
 
-    /// Current sync status description.
+    /// Query the current iCloud sync status.
+    /// - Returns: The current ``CloudSyncStatus``.
     func syncStatus() async -> CloudSyncStatus
+
+    /// Mark the current time as the last successful sync.
+    func markSynced()
 }
 
 enum CloudSyncStatus: Equatable {

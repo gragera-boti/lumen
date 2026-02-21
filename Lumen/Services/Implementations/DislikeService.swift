@@ -1,7 +1,7 @@
 import Foundation
 import SwiftData
 
-final class DislikeService: DislikeServiceProtocol, @unchecked Sendable {
+struct DislikeService: DislikeServiceProtocol {
     static let shared = DislikeService()
 
     func dislike(affirmation: Affirmation, reason: String?, modelContext: ModelContext) throws {

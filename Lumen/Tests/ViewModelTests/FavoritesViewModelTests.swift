@@ -1,9 +1,9 @@
-import XCTest
+import Testing
 import SwiftData
 @testable import Lumen
 
-@MainActor
-final class FavoritesViewModelTests: XCTestCase {
+@Suite("FavoritesViewModel Tests")
+@MainActor struct FavoritesViewModelTests {
 
     // MARK: - Mock
 
@@ -30,10 +30,11 @@ final class FavoritesViewModelTests: XCTestCase {
 
     // MARK: - Tests
 
-    func test_initialState() {
+    @Test("initial state")
+    func initialState() {
         let vm = FavoritesViewModel(widgetService: MockWidgetService())
-        XCTAssertTrue(vm.favorites.isEmpty)
-        XCTAssertFalse(vm.isLoading)
-        XCTAssertNil(vm.errorMessage)
+        #expect(vm.favorites.isEmpty)
+        #expect(!vm.isLoading)
+        #expect(vm.errorMessage == nil)
     }
 }

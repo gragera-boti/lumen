@@ -37,9 +37,12 @@ struct MoodCheckInView: View {
                             .frame(minWidth: 50)
                         }
                         .accessibilityLabel(mood.label)
+                        .accessibilityHint("Set your mood to \(mood.label)")
+                        .accessibilityIdentifier("mood_\(mood.rawValue)")
                     }
                 }
             }
+            .accessibilityIdentifier("mood_check_in")
             .padding(.vertical, LumenTheme.Spacing.lg)
             .padding(.horizontal, LumenTheme.Spacing.md)
             .background(
@@ -49,6 +52,17 @@ struct MoodCheckInView: View {
             )
             .padding(.horizontal, LumenTheme.Spacing.md)
             .transition(.move(edge: .top).combined(with: .opacity))
+        }
+    }
+}
+
+// MARK: - Preview
+
+#Preview {
+    ZStack {
+        Color.indigo.ignoresSafeArea()
+        MoodCheckInView { mood in
+            print("Selected: \(mood.label)")
         }
     }
 }

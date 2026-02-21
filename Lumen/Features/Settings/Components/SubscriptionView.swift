@@ -29,6 +29,8 @@ struct SubscriptionView: View {
                         }
                         .padding(.vertical, 4)
                     }
+                    .accessibilityLabel("Upgrade to Premium")
+                    .accessibilityIdentifier("subscription_upgrade_button")
                 }
             }
 
@@ -75,4 +77,13 @@ struct SubscriptionView: View {
             isPremium = await EntitlementService.shared.isPremium()
         }
     }
+}
+
+// MARK: - Preview
+
+#Preview {
+    NavigationStack {
+        SubscriptionView()
+    }
+    .environment(AppRouter())
 }

@@ -162,6 +162,7 @@ struct SettingsView: View {
             } label: {
                 Label("settings.deleteAll".localized, systemImage: "trash.fill")
             }
+            .accessibilityHint("Permanently deletes all app data")
         }
     }
 
@@ -187,4 +188,14 @@ struct SettingsView: View {
             }
         }
     }
+}
+
+// MARK: - Preview
+
+#Preview {
+    NavigationStack {
+        SettingsView()
+    }
+    .environment(AppRouter())
+    .modelContainer(for: [UserPreferences.self, AppTheme.self], inMemory: true)
 }

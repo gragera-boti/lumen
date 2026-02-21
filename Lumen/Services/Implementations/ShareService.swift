@@ -1,6 +1,6 @@
 import SwiftUI
 
-final class ShareService: ShareServiceProtocol, @unchecked Sendable {
+struct ShareService: ShareServiceProtocol {
     static let shared = ShareService()
 
     @MainActor func renderShareImage(

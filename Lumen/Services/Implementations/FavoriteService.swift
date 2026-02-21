@@ -1,7 +1,7 @@
 import Foundation
 import SwiftData
 
-final class FavoriteService: FavoriteServiceProtocol, @unchecked Sendable {
+struct FavoriteService: FavoriteServiceProtocol {
     static let shared = FavoriteService()
 
     func toggleFavorite(affirmation: Affirmation, modelContext: ModelContext) throws {

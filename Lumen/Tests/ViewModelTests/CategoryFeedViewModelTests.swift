@@ -1,10 +1,10 @@
-import XCTest
+import Testing
 import SwiftUI
 import SwiftData
 @testable import Lumen
 
-@MainActor
-final class CategoryFeedViewModelTests: XCTestCase {
+@Suite("CategoryFeedViewModel Tests")
+@MainActor struct CategoryFeedViewModelTests {
 
     // MARK: - Mocks
 
@@ -24,17 +24,19 @@ final class CategoryFeedViewModelTests: XCTestCase {
 
     // MARK: - Tests
 
-    func test_initialState() {
+    @Test("initial state")
+    func initialState() {
         let vm = CategoryFeedViewModel()
-        XCTAssertTrue(vm.cards.isEmpty)
-        XCTAssertEqual(vm.currentIndex, 0)
-        XCTAssertNil(vm.currentCard)
-        XCTAssertFalse(vm.isLoading)
+        #expect(vm.cards.isEmpty)
+        #expect(vm.currentIndex == 0)
+        #expect(vm.currentCard == nil)
+        #expect(!vm.isLoading)
     }
 
-    func test_currentCard_outOfBounds_returnsNil() {
+    @Test("currentCard out of bounds returns nil")
+    func currentCard_outOfBounds_returnsNil() {
         let vm = CategoryFeedViewModel()
         vm.currentIndex = 5
-        XCTAssertNil(vm.currentCard)
+        #expect(vm.currentCard == nil)
     }
 }

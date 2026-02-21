@@ -30,3 +30,13 @@ struct ExploreView: View {
         }
     }
 }
+
+// MARK: - Preview
+
+#Preview {
+    NavigationStack {
+        ExploreView()
+    }
+    .environment(AppRouter())
+    .modelContainer(for: [Category.self, Affirmation.self], inMemory: true)
+}

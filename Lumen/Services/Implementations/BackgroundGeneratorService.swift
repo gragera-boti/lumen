@@ -12,7 +12,7 @@ import OSLog
 ///
 /// 12 distinct styles × 14 palettes × 5 moods = 840 unique combinations.
 /// Runs entirely on-device, instant results, no model downloads.
-final class BackgroundGeneratorService: BackgroundGeneratorProtocol, @unchecked Sendable {
+actor BackgroundGeneratorService: BackgroundGeneratorProtocol {
     static let shared = BackgroundGeneratorService()
 
     private let logger = Logger(subsystem: "com.gragera.lumen", category: "BackgroundGenerator")
@@ -1016,7 +1016,7 @@ final class BackgroundGeneratorService: BackgroundGeneratorProtocol, @unchecked 
 
 // MARK: - Seeded RNG for reproducible generation
 
-struct SeededRNG: RandomNumberGenerator, @unchecked Sendable {
+struct SeededRNG: RandomNumberGenerator, Sendable {
     private var state: UInt64
 
     init(seed: UInt64) {

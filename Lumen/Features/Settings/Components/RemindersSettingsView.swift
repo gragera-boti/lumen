@@ -111,3 +111,12 @@ struct RemindersSettingsView: View {
         try? preferencesService.save(modelContext: modelContext)
     }
 }
+
+// MARK: - Preview
+
+#Preview {
+    NavigationStack {
+        RemindersSettingsView()
+    }
+    .modelContainer(for: UserPreferences.self, inMemory: true)
+}

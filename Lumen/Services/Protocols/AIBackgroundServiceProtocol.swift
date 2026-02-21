@@ -28,7 +28,7 @@ protocol AIBackgroundServiceProtocol: Sendable {
     func generate(request: AIBackgroundRequest) async throws -> GeneratedBackground
 
     /// Cancel any in-progress generation.
-    func cancelGeneration()
+    func cancelGeneration() async
 
     /// Pre-generate a batch of backgrounds and cache them for instant access.
     func pregenerate(count: Int, device: AIDeviceProfile) async throws -> [GeneratedBackground]

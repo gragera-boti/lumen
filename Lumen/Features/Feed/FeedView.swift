@@ -15,6 +15,8 @@ struct FeedView: View {
     let preferences: UserPreferences
     let isPremium: Bool
 
+    // MARK: - Body
+
     var body: some View {
         ZStack {
             if viewModel.isLoading {
@@ -26,63 +28,13 @@ struct FeedView: View {
                 cardContent
             }
 
-            // Floating top bar + mood check-in
-            VStack(spacing: 0) {
-                HStack {
-                    if let mood = viewModel.currentMood, !viewModel.needsMoodCheckIn {
-                        Button {
-                            withAnimation(.spring(response: 0.35)) {
-                                viewModel.needsMoodCheckIn = true
-                            }
-                        } label: {
-                            Text(mood.emoji)
-                                .font(.title2)
-                                .frame(width: 40, height: 40)
-                                .background(.white.opacity(0.2), in: Circle())
-                        }
-                        .padding(.leading, LumenTheme.Spacing.lg)
-                    }
-
-                    Spacer()
-
-                    Button {
-                        showCustomAffirmation = true
-                    } label: {
-                        Image(systemName: "plus")
-                            .font(.body.weight(.semibold))
-                            .foregroundStyle(.white)
-                            .frame(width: 40, height: 40)
-                            .background(.white.opacity(0.2), in: Circle())
-                    }
-                    .accessibilityLabel("feed.createCustom".localized)
-                    .padding(.trailing, LumenTheme.Spacing.lg)
-                }
-                .padding(.top, 54)
-
-                if viewModel.needsMoodCheckIn {
-                    MoodCheckInView { mood in
-                        Task {
-                            await viewModel.recordMood(
-                                mood,
-                                preferences: preferences,
-                                isPremium: isPremium,
-                                modelContext: modelContext
-                            )
-                        }
-                    }
-                    .padding(.top, LumenTheme.Spacing.md)
-                    .transition(.move(edge: .top).combined(with: .opacity))
-                }
-
-                Spacer()
-            }
+            topBarOverlay
         }
         .navigationBarHidden(true)
         .toolbar(.hidden, for: .navigationBar)
         .toolbarBackground(.hidden, for: .tabBar)
         .ignoresSafeArea()
         .sheet(isPresented: $showCustomAffirmation, onDismiss: {
-            // Insert newly created affirmation right after current card
             viewModel.insertLatestUserAffirmation(modelContext: modelContext)
         }) {
             CustomAffirmationSheet()
@@ -95,86 +47,75 @@ struct FeedView: View {
             )
             updateWidget()
         }
-        // Auto-advance disabled — user navigates via tap or swipe
     }
 
-    // MARK: - Card content with crossfade
+    // MARK: - Top Bar Overlay
+
+    private var topBarOverlay: some View {
+        VStack(spacing: 0) {
+            HStack {
+                if let mood = viewModel.currentMood, !viewModel.needsMoodCheckIn {
+                    Button {
+                        withAnimation(.spring(response: 0.35)) {
+                            viewModel.needsMoodCheckIn = true
+                        }
+                    } label: {
+                        Text(mood.emoji)
+                            .font(.title2)
+                            .frame(width: 40, height: 40)
+                            .background(.white.opacity(0.2), in: Circle())
+                    }
+                    .accessibilityLabel("Change mood")
+                    .accessibilityHint("Opens mood check-in")
+                    .padding(.leading, LumenTheme.Spacing.lg)
+                }
+
+                Spacer()
+
+                Button {
+                    showCustomAffirmation = true
+                } label: {
+                    Image(systemName: "plus")
+                        .font(.body.weight(.semibold))
+                        .foregroundStyle(.white)
+                        .frame(width: 40, height: 40)
+                        .background(.white.opacity(0.2), in: Circle())
+                }
+                .accessibilityLabel("feed.createCustom".localized)
+                .accessibilityHint("Create your own affirmation")
+                .accessibilityIdentifier("feed_create_button")
+                .padding(.trailing, LumenTheme.Spacing.lg)
+            }
+            .padding(.top, 54)
+
+            if viewModel.needsMoodCheckIn {
+                MoodCheckInView { mood in
+                    Task {
+                        await viewModel.recordMood(
+                            mood,
+                            preferences: preferences,
+                            isPremium: isPremium,
+                            modelContext: modelContext
+                        )
+                    }
+                }
+                .padding(.top, LumenTheme.Spacing.md)
+                .transition(.move(edge: .top).combined(with: .opacity))
+            }
+
+            Spacer()
+        }
+    }
+
+    // MARK: - Card Content
 
     private var cardContent: some View {
         GeometryReader { geo in
             ZStack {
-                // Background layer — clipped to screen bounds to prevent layout overflow
-                if let current = currentAffirmation {
-                    if let bgImage = viewModel.backgroundImage(for: current) {
-                        Image(uiImage: bgImage)
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                            .frame(width: geo.size.width, height: geo.size.height)
-                            .clipped()
-                            .opacity(backgroundOpacity)
-                            .animation(.easeInOut(duration: 1.0), value: viewModel.currentIndex)
-                    } else {
-                        LinearGradient(
-                            colors: gradientColors(for: current),
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                        .animation(.easeInOut(duration: 1.0), value: viewModel.currentIndex)
-                    }
-                }
-
+                cardBackground(geo: geo)
                 ReadabilityOverlay()
-
-                // Text + action bar
-                if let current = currentAffirmation {
-                    VStack {
-                        Spacer()
-
-                        Text(current.text)
-                            .font(affirmationFont(for: current))
-                            .tracking(letterSpacing(for: current))
-                            .foregroundStyle(.white)
-                            .multilineTextAlignment(.center)
-                            .lineSpacing(8)
-                            .fixedSize(horizontal: false, vertical: true)
-                            .minimumScaleFactor(0.5)
-                            .padding(.horizontal, 32)
-                            .shadow(color: .black.opacity(0.4), radius: 8, y: 3)
-                            .opacity(textOpacity)
-
-                        Spacer()
-
-                        actionBar
-                            .padding(.bottom, 120)
-                            .opacity(textOpacity)
-                    }
-                    .frame(width: geo.size.width)
-                }
-
-                // Tap zones: left half = previous, right half = next
-                // Stops above the action bar area so buttons remain tappable
-                VStack(spacing: 0) {
-                    HStack(spacing: 0) {
-                        Color.clear
-                            .contentShape(Rectangle())
-                            .onTapGesture {
-                                guard !isTransitioning else { return }
-                                crossfadeToPrevious()
-                            }
-
-                        Color.clear
-                            .contentShape(Rectangle())
-                            .onTapGesture {
-                                guard !isTransitioning else { return }
-                                crossfadeToNext()
-                            }
-                    }
-
-                    // Reserve space for action bar + tab bar so taps pass through
-                    Color.clear
-                        .frame(height: 180)
-                        .allowsHitTesting(false)
-                }
+                cardTextAndActions(geo: geo)
+                cardTapZones
             }
         }
         .ignoresSafeArea()
@@ -191,35 +132,105 @@ struct FeedView: View {
         )
     }
 
-    // MARK: - Crossfade transitions
+    @ViewBuilder
+    private func cardBackground(geo: GeometryProxy) -> some View {
+        if let current = currentAffirmation {
+            if let bgImage = viewModel.backgroundImage(for: current) {
+                Image(uiImage: bgImage)
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: geo.size.width, height: geo.size.height)
+                    .clipped()
+                    .opacity(backgroundOpacity)
+                    .animation(.easeInOut(duration: 1.0), value: viewModel.currentIndex)
+            } else {
+                LinearGradient(
+                    colors: gradientColors(for: current),
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                .animation(.easeInOut(duration: 1.0), value: viewModel.currentIndex)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func cardTextAndActions(geo: GeometryProxy) -> some View {
+        if let current = currentAffirmation {
+            VStack {
+                Spacer()
+
+                Text(current.text)
+                    .font(affirmationFont(for: current))
+                    .tracking(letterSpacing(for: current))
+                    .foregroundStyle(.white)
+                    .multilineTextAlignment(.center)
+                    .lineSpacing(8)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .minimumScaleFactor(0.5)
+                    .padding(.horizontal, 32)
+                    .shadow(color: .black.opacity(0.4), radius: 8, y: 3)
+                    .opacity(textOpacity)
+                    .accessibilityAddTraits(.isHeader)
+
+                Spacer()
+
+                actionBar
+                    .padding(.bottom, 120)
+                    .opacity(textOpacity)
+            }
+            .frame(width: geo.size.width)
+        }
+    }
+
+    private var cardTapZones: some View {
+        VStack(spacing: 0) {
+            HStack(spacing: 0) {
+                Color.clear
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        guard !isTransitioning else { return }
+                        crossfadeToPrevious()
+                    }
+                    .accessibilityLabel("Previous affirmation")
+
+                Color.clear
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        guard !isTransitioning else { return }
+                        crossfadeToNext()
+                    }
+                    .accessibilityLabel("Next affirmation")
+            }
+
+            Color.clear
+                .frame(height: 180)
+                .allowsHitTesting(false)
+        }
+    }
+
+    // MARK: - Crossfade Transitions
 
     private func crossfadeToNext() {
         guard viewModel.currentIndex < viewModel.cards.count - 1 else { return }
-        performCrossfade {
-            viewModel.swipeToNext()
-        }
+        performCrossfade { viewModel.swipeToNext() }
     }
 
     private func crossfadeToPrevious() {
         guard viewModel.currentIndex > 0 else { return }
-        performCrossfade {
-            viewModel.swipeToPrevious()
-        }
+        performCrossfade { viewModel.swipeToPrevious() }
     }
 
     private func performCrossfade(indexChange: @escaping () -> Void) {
         isTransitioning = true
 
-        // Phase 1: Fade out
         withAnimation(.easeInOut(duration: 0.5)) {
             textOpacity = 0
             backgroundOpacity = 0.3
         }
 
-        // Phase 2: Switch card, fade in
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             indexChange()
-
             viewModel.recordSeen(modelContext: modelContext)
             viewModel.loadMoreIfNeeded(
                 preferences: preferences,
@@ -235,59 +246,6 @@ struct FeedView: View {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
                 isTransitioning = false
             }
-        }
-    }
-
-    // MARK: - Typography
-
-    /// Font selection — respects user-chosen font for custom affirmations.
-    private func affirmationFont(for affirmation: Affirmation) -> Font {
-        if let styleName = affirmation.fontStyle,
-           let style = AffirmationFontStyle(rawValue: styleName) {
-            return style.cardFont(textLength: affirmation.text.count)
-        }
-
-        let length = affirmation.text.count
-        let design = fontDesign(for: affirmation)
-        let weight = fontWeight(for: affirmation)
-
-        if length < 40 {
-            return .system(size: 34, weight: weight, design: design)
-        } else if length < 80 {
-            return .system(size: 28, weight: weight, design: design)
-        } else if length < 140 {
-            return .system(size: 24, weight: weight, design: design)
-        } else {
-            return .system(size: 21, weight: weight, design: design)
-        }
-    }
-
-    /// Predominantly serif (New York) — the standard for wellness/meditation apps.
-    /// Occasional rounded for short, punchy quotes.
-    private func fontDesign(for affirmation: Affirmation) -> Font.Design {
-        let hash = abs(affirmation.id.hashValue)
-        // 70% serif, 20% rounded, 10% default
-        let roll = hash % 10
-        if roll < 7 { return .serif }
-        if roll < 9 { return .rounded }
-        return .default
-    }
-
-    /// Weights that read well on busy/gradient backgrounds.
-    /// No thin or light — they disappear.
-    private func fontWeight(for affirmation: Affirmation) -> Font.Weight {
-        let hash = abs(affirmation.id.hashValue >> 4)
-        let weights: [Font.Weight] = [.medium, .regular, .medium, .semibold, .regular]
-        return weights[hash % weights.count]
-    }
-
-    /// Subtle letter spacing for elegance.
-    private func letterSpacing(for affirmation: Affirmation) -> CGFloat {
-        let design = fontDesign(for: affirmation)
-        switch design {
-        case .serif: return 0.3
-        case .rounded: return 0.5
-        default: return 0.2
         }
     }
 
@@ -329,12 +287,7 @@ struct FeedView: View {
         .accessibilityLabel(label)
     }
 
-    // MARK: - Helpers
-
-    private var currentAffirmation: Affirmation? {
-        guard viewModel.currentIndex >= 0, viewModel.currentIndex < viewModel.cards.count else { return nil }
-        return viewModel.cards[viewModel.currentIndex]
-    }
+    // MARK: - Empty State
 
     private var emptyState: some View {
         ContentUnavailableView(
@@ -342,6 +295,52 @@ struct FeedView: View {
             systemImage: "slider.horizontal.3",
             description: Text("feed.empty.description".localized)
         )
+    }
+
+    // MARK: - Typography
+
+    private func affirmationFont(for affirmation: Affirmation) -> Font {
+        if let styleName = affirmation.fontStyle,
+           let style = AffirmationFontStyle(rawValue: styleName) {
+            return style.cardFont(textLength: affirmation.text.count)
+        }
+
+        let length = affirmation.text.count
+        let design = fontDesign(for: affirmation)
+        let weight = fontWeight(for: affirmation)
+
+        if length < 40 { return .system(size: 34, weight: weight, design: design) }
+        else if length < 80 { return .system(size: 28, weight: weight, design: design) }
+        else if length < 140 { return .system(size: 24, weight: weight, design: design) }
+        else { return .system(size: 21, weight: weight, design: design) }
+    }
+
+    private func fontDesign(for affirmation: Affirmation) -> Font.Design {
+        let roll = abs(affirmation.id.hashValue) % 10
+        if roll < 7 { return .serif }
+        if roll < 9 { return .rounded }
+        return .default
+    }
+
+    private func fontWeight(for affirmation: Affirmation) -> Font.Weight {
+        let hash = abs(affirmation.id.hashValue >> 4)
+        let weights: [Font.Weight] = [.medium, .regular, .medium, .semibold, .regular]
+        return weights[hash % weights.count]
+    }
+
+    private func letterSpacing(for affirmation: Affirmation) -> CGFloat {
+        switch fontDesign(for: affirmation) {
+        case .serif: return 0.3
+        case .rounded: return 0.5
+        default: return 0.2
+        }
+    }
+
+    // MARK: - Helpers
+
+    private var currentAffirmation: Affirmation? {
+        guard viewModel.currentIndex >= 0, viewModel.currentIndex < viewModel.cards.count else { return nil }
+        return viewModel.cards[viewModel.currentIndex]
     }
 
     private func gradientColors(for affirmation: Affirmation) -> [Color] {
@@ -352,12 +351,9 @@ struct FeedView: View {
     private func gradientHexColors(for affirmation: Affirmation) -> [String] {
         let index = abs(affirmation.id.hashValue) % LumenTheme.Colors.gradients.count
         let colorSets: [[String]] = [
-            ["#1B998B", "#3B5998"],
-            ["#E8A87C", "#C38D9E"],
-            ["#7FBBCA", "#A688B5"],
-            ["#7EC8A0", "#3B5998"],
-            ["#F4D06F", "#E8A87C"],
-            ["#C38D9E", "#7FBBCA"],
+            ["#1B998B", "#3B5998"], ["#E8A87C", "#C38D9E"],
+            ["#7FBBCA", "#A688B5"], ["#7EC8A0", "#3B5998"],
+            ["#F4D06F", "#E8A87C"], ["#C38D9E", "#7FBBCA"],
         ]
         return colorSets[index]
     }
@@ -372,13 +368,20 @@ struct FeedView: View {
     }
 
     private func presentShareSheet(image: UIImage) {
-        let activityVC = UIActivityViewController(
-            activityItems: [image],
-            applicationActivities: nil
-        )
+        let activityVC = UIActivityViewController(activityItems: [image], applicationActivities: nil)
         guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
               let window = windowScene.windows.first,
               let rootVC = window.rootViewController else { return }
         rootVC.present(activityVC, animated: true)
     }
+}
+
+// MARK: - Preview
+
+#Preview {
+    FeedView(
+        preferences: UserPreferences(),
+        isPremium: false
+    )
+    .environment(AppRouter())
 }

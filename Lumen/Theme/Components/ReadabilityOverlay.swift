@@ -16,3 +16,16 @@ struct ReadabilityOverlay: View {
         )
     }
 }
+
+// MARK: - Preview
+
+#Preview {
+    ZStack {
+        LinearGradient(colors: [.teal, .blue], startPoint: .topLeading, endPoint: .bottomTrailing)
+        ReadabilityOverlay()
+        Text("Readable text")
+            .font(.title)
+            .foregroundStyle(.white)
+    }
+    .ignoresSafeArea()
+}

@@ -140,3 +140,13 @@ private struct ThemeThumbnail: View {
         return gradient.swiftUIColors
     }
 }
+
+// MARK: - Preview
+
+#Preview {
+    NavigationStack {
+        ThemesSettingsView()
+    }
+    .environment(AppRouter())
+    .modelContainer(for: AppTheme.self, inMemory: true)
+}

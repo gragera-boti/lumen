@@ -65,7 +65,7 @@ struct SlideshowView: View {
                     }
                 }
         )
-        .onAppear {
+        .task {
             startTimer()
             scheduleIdleHide()
         }
@@ -105,6 +105,8 @@ struct SlideshowView: View {
                         .symbolRenderingMode(.palette)
                         .foregroundStyle(.white, .white.opacity(0.3))
                 }
+                .accessibilityLabel("Close slideshow")
+                .accessibilityIdentifier("slideshow_close")
                 .padding(LumenTheme.Spacing.lg)
             }
 
@@ -119,6 +121,7 @@ struct SlideshowView: View {
                         .font(.title3)
                         .foregroundStyle(.white.opacity(0.7))
                 }
+                .accessibilityLabel("Previous")
 
                 // Progress indicator
                 HStack(spacing: 4) {
@@ -142,6 +145,7 @@ struct SlideshowView: View {
                         .font(.title3)
                         .foregroundStyle(.white.opacity(0.7))
                 }
+                .accessibilityLabel("Next")
             }
             .padding(.bottom, 8)
 
@@ -214,4 +218,14 @@ struct SlideshowView: View {
             }
         }
     }
+}
+
+// MARK: - Preview
+
+#Preview {
+    SlideshowView(affirmations: [
+        Affirmation(id: "s1", text: "I am enough, just as I am"),
+        Affirmation(id: "s2", text: "Today I choose joy and peace"),
+        Affirmation(id: "s3", text: "My potential is limitless"),
+    ])
 }

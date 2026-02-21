@@ -1,7 +1,7 @@
 import Foundation
 import SwiftData
 
-final class PreferencesService: PreferencesServiceProtocol, @unchecked Sendable {
+struct PreferencesService: PreferencesServiceProtocol {
     static let shared = PreferencesService()
 
     func getOrCreate(modelContext: ModelContext) throws -> UserPreferences {

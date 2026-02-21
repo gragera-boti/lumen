@@ -18,6 +18,8 @@ struct PrimaryButton: View {
                 )
         }
         .disabled(isDisabled)
+        .accessibilityLabel(title)
+        .accessibilityAddTraits(.isButton)
     }
 }
 
@@ -38,4 +40,15 @@ struct SecondaryButton: View {
                 )
         }
     }
+}
+
+// MARK: - Preview
+
+#Preview("Primary Button") {
+    VStack(spacing: 16) {
+        PrimaryButton(title: "Continue", action: {})
+        PrimaryButton(title: "Disabled", action: {}, isDisabled: true)
+        SecondaryButton(title: "Maybe Later", action: {})
+    }
+    .padding()
 }

@@ -1,8 +1,8 @@
-import XCTest
+import Testing
 @testable import Lumen
 
-@MainActor
-final class PaywallViewModelTests: XCTestCase {
+@Suite("PaywallViewModel Tests")
+@MainActor struct PaywallViewModelTests {
 
     // MARK: - Mock
 
@@ -33,16 +33,18 @@ final class PaywallViewModelTests: XCTestCase {
 
     // MARK: - Tests
 
-    func test_initialState() {
+    @Test("initial state")
+    func initialState() {
         let vm = PaywallViewModel()
-        XCTAssertTrue(vm.products.isEmpty)
-        XCTAssertFalse(vm.isLoading)
-        XCTAssertFalse(vm.isPurchasing)
-        XCTAssertFalse(vm.purchaseSuccess)
-        XCTAssertNil(vm.errorMessage)
+        #expect(vm.products.isEmpty)
+        #expect(!vm.isLoading)
+        #expect(!vm.isPurchasing)
+        #expect(!vm.purchaseSuccess)
+        #expect(vm.errorMessage == nil)
     }
 
-    func test_loadProducts_populatesList() async {
+    @Test("loadProducts populates list")
+    func loadProducts_populatesList() async {
         let mock = MockEntitlementService()
         mock.products = [
             ProductInfo(id: "monthly", displayName: "Monthly", displayPrice: "$4.99", isSubscription: true, trialDuration: "7 days"),
@@ -51,34 +53,37 @@ final class PaywallViewModelTests: XCTestCase {
 
         await vm.loadProducts()
 
-        XCTAssertEqual(vm.products.count, 1)
-        XCTAssertEqual(vm.products.first?.displayPrice, "$4.99")
-        XCTAssertFalse(vm.isLoading)
+        #expect(vm.products.count == 1)
+        #expect(vm.products.first?.displayPrice == "$4.99")
+        #expect(!vm.isLoading)
     }
 
-    func test_loadProducts_setsErrorOnFailure() async {
+    @Test("loadProducts sets error on failure")
+    func loadProducts_setsErrorOnFailure() async {
         let mock = MockEntitlementService()
         mock.shouldThrow = true
         let vm = PaywallViewModel(entitlementService: mock)
 
         await vm.loadProducts()
 
-        XCTAssertTrue(vm.products.isEmpty)
-        XCTAssertNotNil(vm.errorMessage)
+        #expect(vm.products.isEmpty)
+        #expect(vm.errorMessage != nil)
     }
 
-    func test_purchase_setsPurchaseSuccess() async {
+    @Test("purchase sets purchase success")
+    func purchase_setsPurchaseSuccess() async {
         let mock = MockEntitlementService()
         let product = ProductInfo(id: "monthly", displayName: "Monthly", displayPrice: "$4.99", isSubscription: true, trialDuration: nil)
         let vm = PaywallViewModel(entitlementService: mock)
 
         await vm.purchase(product)
 
-        XCTAssertTrue(mock.purchaseCalled)
-        XCTAssertTrue(vm.purchaseSuccess)
+        #expect(mock.purchaseCalled)
+        #expect(vm.purchaseSuccess)
     }
 
-    func test_purchase_setsErrorOnFailure() async {
+    @Test("purchase sets error on failure")
+    func purchase_setsErrorOnFailure() async {
         let mock = MockEntitlementService()
         mock.shouldThrow = true
         let product = ProductInfo(id: "monthly", displayName: "Monthly", displayPrice: "$4.99", isSubscription: true, trialDuration: nil)
@@ -86,18 +91,19 @@ final class PaywallViewModelTests: XCTestCase {
 
         await vm.purchase(product)
 
-        XCTAssertFalse(vm.purchaseSuccess)
-        XCTAssertNotNil(vm.errorMessage)
+        #expect(!vm.purchaseSuccess)
+        #expect(vm.errorMessage != nil)
     }
 
-    func test_restore_callsService() async {
+    @Test("restore calls service")
+    func restore_callsService() async {
         let mock = MockEntitlementService()
         mock.premium = true
         let vm = PaywallViewModel(entitlementService: mock)
 
         await vm.restore()
 
-        XCTAssertTrue(mock.restoreCalled)
-        XCTAssertTrue(vm.purchaseSuccess)
+        #expect(mock.restoreCalled)
+        #expect(vm.purchaseSuccess)
     }
 }

@@ -1,10 +1,10 @@
-import XCTest
+import Testing
 import SwiftUI
 import SwiftData
 @testable import Lumen
 
-@MainActor
-final class FeedViewModelTests: XCTestCase {
+@Suite("FeedViewModel Tests")
+@MainActor struct FeedViewModelTests {
 
     // MARK: - Mocks
 
@@ -48,37 +48,40 @@ final class FeedViewModelTests: XCTestCase {
 
     // MARK: - Tests
 
-    func test_initialState() {
+    @Test("initial state")
+    func initialState() {
         let vm = FeedViewModel()
-        XCTAssertTrue(vm.cards.isEmpty)
-        XCTAssertEqual(vm.currentIndex, 0)
-        XCTAssertFalse(vm.isLoading)
-        XCTAssertNil(vm.errorMessage)
+        #expect(vm.cards.isEmpty)
+        #expect(vm.currentIndex == 0)
+        #expect(!vm.isLoading)
+        #expect(vm.errorMessage == nil)
     }
 
-    func test_swipeToNext_incrementsIndex() {
+    @Test("swipeToNext increments index")
+    func swipeToNext_incrementsIndex() {
         let vm = FeedViewModel()
-        // Simulate cards loaded
         let a1 = Affirmation(id: "a1", text: "First")
         let a2 = Affirmation(id: "a2", text: "Second")
         vm.cards = [a1, a2]
         vm.currentIndex = 0
 
         vm.swipeToNext()
-        XCTAssertEqual(vm.currentIndex, 1)
+        #expect(vm.currentIndex == 1)
     }
 
-    func test_swipeToNext_doesNotExceedBounds() {
+    @Test("swipeToNext does not exceed bounds")
+    func swipeToNext_doesNotExceedBounds() {
         let vm = FeedViewModel()
         let a1 = Affirmation(id: "a1", text: "Only one")
         vm.cards = [a1]
         vm.currentIndex = 0
 
         vm.swipeToNext()
-        XCTAssertEqual(vm.currentIndex, 0)
+        #expect(vm.currentIndex == 0)
     }
 
-    func test_swipeToPrevious_decrementsIndex() {
+    @Test("swipeToPrevious decrements index")
+    func swipeToPrevious_decrementsIndex() {
         let vm = FeedViewModel()
         vm.cards = [
             Affirmation(id: "a1", text: "First"),
@@ -87,30 +90,33 @@ final class FeedViewModelTests: XCTestCase {
         vm.currentIndex = 1
 
         vm.swipeToPrevious()
-        XCTAssertEqual(vm.currentIndex, 0)
+        #expect(vm.currentIndex == 0)
     }
 
-    func test_swipeToPrevious_doesNotGoBelowZero() {
+    @Test("swipeToPrevious does not go below zero")
+    func swipeToPrevious_doesNotGoBelowZero() {
         let vm = FeedViewModel()
         vm.cards = [Affirmation(id: "a1", text: "First")]
         vm.currentIndex = 0
 
         vm.swipeToPrevious()
-        XCTAssertEqual(vm.currentIndex, 0)
+        #expect(vm.currentIndex == 0)
     }
 
-    func test_currentCard_returnsCorrectCard() {
+    @Test("currentCard returns correct card")
+    func currentCard_returnsCorrectCard() {
         let vm = FeedViewModel()
         let a1 = Affirmation(id: "a1", text: "First")
         let a2 = Affirmation(id: "a2", text: "Second")
         vm.cards = [a1, a2]
         vm.currentIndex = 1
 
-        XCTAssertEqual(vm.currentCard?.id, "a2")
+        #expect(vm.currentCard?.id == "a2")
     }
 
-    func test_currentCard_returnsNilWhenEmpty() {
+    @Test("currentCard returns nil when empty")
+    func currentCard_returnsNilWhenEmpty() {
         let vm = FeedViewModel()
-        XCTAssertNil(vm.currentCard)
+        #expect(vm.currentCard == nil)
     }
 }

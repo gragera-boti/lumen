@@ -37,6 +37,8 @@ struct CategoryCardView: View {
             )
         }
         .accessibilityLabel("\(category.name): \(category.categoryDescription)")
+        .accessibilityHint(category.isPremium ? "Premium category" : "Tap to explore")
+        .accessibilityIdentifier("category_card_\(category.id)")
     }
 
     private var gradientForCategory: some ShapeStyle {
@@ -44,4 +46,20 @@ struct CategoryCardView: View {
         let colors = LumenTheme.Colors.gradients[index]
         return LinearGradient(colors: colors, startPoint: .topLeading, endPoint: .bottomTrailing)
     }
+}
+
+// MARK: - Preview
+
+#Preview {
+    CategoryCardView(
+        category: Category(
+            id: "self-love",
+            name: "Self Love",
+            categoryDescription: "Embrace who you are",
+            icon: "heart.fill"
+        ),
+        action: {}
+    )
+    .frame(width: 180)
+    .padding()
 }

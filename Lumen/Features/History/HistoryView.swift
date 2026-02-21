@@ -63,3 +63,13 @@ struct HistoryView: View {
         )
     }
 }
+
+// MARK: - Preview
+
+#Preview {
+    NavigationStack {
+        HistoryView()
+    }
+    .environment(AppRouter())
+    .modelContainer(for: [SeenEvent.self, Affirmation.self], inMemory: true)
+}

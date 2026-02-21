@@ -1,14 +1,14 @@
-import XCTest
+import Testing
 import SwiftData
 @testable import Lumen
 
-@MainActor
-final class FavoriteServiceTests: XCTestCase {
-    private var container: ModelContainer!
-    private var context: ModelContext!
+@Suite("FavoriteService Tests")
+@MainActor struct FavoriteServiceTests {
+    private var container: ModelContainer
+    private var context: ModelContext
     private let service = FavoriteService.shared
 
-    override func setUp() async throws {
+    init() throws {
         let schema = Schema([
             Affirmation.self, Category.self, Favorite.self,
             SeenEvent.self, Dislike.self, AppTheme.self,
@@ -19,25 +19,22 @@ final class FavoriteServiceTests: XCTestCase {
         context = ModelContext(container)
     }
 
-    override func tearDown() {
-        container = nil
-        context = nil
-    }
-
     // MARK: - toggleFavorite
 
-    func test_toggleFavorite_createsFavorite() throws {
+    @Test("toggleFavorite creates favorite")
+    func toggleFavorite_createsFavorite() throws {
         let aff = Affirmation(id: "aff_1", text: "Test")
         context.insert(aff)
         try context.save()
 
         try service.toggleFavorite(affirmation: aff, modelContext: context)
 
-        XCTAssertNotNil(aff.favorite)
-        XCTAssertTrue(aff.isFavorited)
+        #expect(aff.favorite != nil)
+        #expect(aff.isFavorited)
     }
 
-    func test_toggleFavorite_removesFavorite() throws {
+    @Test("toggleFavorite removes favorite")
+    func toggleFavorite_removesFavorite() throws {
         let aff = Affirmation(id: "aff_1", text: "Test")
         context.insert(aff)
         let fav = Favorite(affirmation: aff)
@@ -46,30 +43,33 @@ final class FavoriteServiceTests: XCTestCase {
 
         try service.toggleFavorite(affirmation: aff, modelContext: context)
 
-        XCTAssertNil(aff.favorite)
-        XCTAssertFalse(aff.isFavorited)
+        #expect(aff.favorite == nil)
+        #expect(!aff.isFavorited)
     }
 
-    func test_toggleFavorite_doubleToggleRestoresOriginal() throws {
+    @Test("toggleFavorite double toggle restores original")
+    func toggleFavorite_doubleToggleRestoresOriginal() throws {
         let aff = Affirmation(id: "aff_1", text: "Test")
         context.insert(aff)
         try context.save()
 
         try service.toggleFavorite(affirmation: aff, modelContext: context)
-        XCTAssertTrue(aff.isFavorited)
+        #expect(aff.isFavorited)
 
         try service.toggleFavorite(affirmation: aff, modelContext: context)
-        XCTAssertFalse(aff.isFavorited)
+        #expect(!aff.isFavorited)
     }
 
     // MARK: - fetchFavorites
 
-    func test_fetchFavorites_returnsEmpty() throws {
+    @Test("fetchFavorites returns empty")
+    func fetchFavorites_returnsEmpty() throws {
         let result = try service.fetchFavorites(modelContext: context)
-        XCTAssertTrue(result.isEmpty)
+        #expect(result.isEmpty)
     }
 
-    func test_fetchFavorites_returnsFavoritedAffirmations() throws {
+    @Test("fetchFavorites returns favorited affirmations")
+    func fetchFavorites_returnsFavoritedAffirmations() throws {
         let aff1 = Affirmation(id: "aff_1", text: "First")
         let aff2 = Affirmation(id: "aff_2", text: "Second")
         context.insert(aff1)
@@ -80,11 +80,12 @@ final class FavoriteServiceTests: XCTestCase {
         try context.save()
 
         let result = try service.fetchFavorites(modelContext: context)
-        XCTAssertEqual(result.count, 1)
-        XCTAssertEqual(result.first?.id, "aff_1")
+        #expect(result.count == 1)
+        #expect(result.first?.id == "aff_1")
     }
 
-    func test_fetchFavorites_orderedByMostRecent() throws {
+    @Test("fetchFavorites ordered by most recent")
+    func fetchFavorites_orderedByMostRecent() throws {
         let aff1 = Affirmation(id: "aff_1", text: "First")
         let aff2 = Affirmation(id: "aff_2", text: "Second")
         context.insert(aff1)
@@ -97,7 +98,7 @@ final class FavoriteServiceTests: XCTestCase {
         try context.save()
 
         let result = try service.fetchFavorites(modelContext: context)
-        XCTAssertEqual(result.count, 2)
-        XCTAssertEqual(result.first?.id, "aff_2") // most recent
+        #expect(result.count == 2)
+        #expect(result.first?.id == "aff_2")
     }
 }

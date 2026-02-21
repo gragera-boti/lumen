@@ -30,6 +30,8 @@ struct FavoritesView: View {
                         Image(systemName: "play.rectangle.fill")
                     }
                     .accessibilityLabel("Slideshow")
+                    .accessibilityHint("Play all favorites as a slideshow")
+                    .accessibilityIdentifier("favorites_slideshow_button")
                 }
             }
         }
@@ -203,4 +205,14 @@ struct FavoriteRow: View {
         let index = abs(affirmation.id.hashValue) % LumenTheme.Colors.gradients.count
         return LumenTheme.Colors.gradients[index]
     }
+}
+
+// MARK: - Preview
+
+#Preview {
+    NavigationStack {
+        FavoritesView()
+    }
+    .environment(AppRouter())
+    .modelContainer(for: [Affirmation.self, Favorite.self], inMemory: true)
 }

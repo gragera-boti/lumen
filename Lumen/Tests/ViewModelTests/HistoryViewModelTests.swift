@@ -1,23 +1,20 @@
-import XCTest
+import Testing
 @testable import Lumen
 
-@MainActor
-final class HistoryViewModelTests: XCTestCase {
+@Suite("HistoryViewModel Tests")
+@MainActor struct HistoryViewModelTests {
 
-    func test_initialState() {
+    @Test("initial state")
+    func initialState() {
         let vm = HistoryViewModel()
-        XCTAssertTrue(vm.entries.isEmpty)
-        XCTAssertFalse(vm.isLoading)
-        XCTAssertNil(vm.errorMessage)
+        #expect(vm.entries.isEmpty)
+        #expect(!vm.isLoading)
+        #expect(vm.errorMessage == nil)
     }
 
-    // Note: loadHistory requires a real ModelContext with SeenEvent data.
-    // Integration tests would cover that path. Here we verify the ViewModel's
-    // default state and that HistoryEntry correctly exposes Identifiable conformance.
-
-    func test_historyEntry_isIdentifiable() {
-        // Ensure the nested type compiles and conforms to Identifiable
+    @Test("HistoryEntry is Identifiable")
+    func historyEntry_isIdentifiable() {
         let entryType = HistoryViewModel.HistoryEntry.self
-        XCTAssertTrue(entryType == entryType) // type check compiles
+        #expect(entryType == entryType)
     }
 }

@@ -14,3 +14,9 @@ struct LumenPaywallView: View {
             }
     }
 }
+
+// MARK: - Preview
+
+#Preview {
+    LumenPaywallView()
+}

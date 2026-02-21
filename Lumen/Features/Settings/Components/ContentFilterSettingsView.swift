@@ -64,3 +64,12 @@ struct ContentFilterSettingsView: View {
         try? preferencesService.save(modelContext: modelContext)
     }
 }
+
+// MARK: - Preview
+
+#Preview {
+    NavigationStack {
+        ContentFilterSettingsView()
+    }
+    .modelContainer(for: UserPreferences.self, inMemory: true)
+}

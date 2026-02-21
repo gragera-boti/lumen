@@ -2,7 +2,7 @@ import Foundation
 import CloudKit
 import OSLog
 
-final class CloudSyncService: CloudSyncServiceProtocol, @unchecked Sendable {
+struct CloudSyncService: CloudSyncServiceProtocol {
     static let shared = CloudSyncService()
 
     private let logger = Logger(subsystem: "com.gragera.lumen", category: "CloudSync")

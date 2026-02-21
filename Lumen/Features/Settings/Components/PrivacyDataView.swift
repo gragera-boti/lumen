@@ -65,3 +65,12 @@ struct PrivacyDataView: View {
         try? preferencesService.save(modelContext: modelContext)
     }
 }
+
+// MARK: - Preview
+
+#Preview {
+    NavigationStack {
+        PrivacyDataView()
+    }
+    .modelContainer(for: UserPreferences.self, inMemory: true)
+}

@@ -3,8 +3,13 @@ import Foundation
 /// Analytics event logging with privacy-first defaults.
 /// Never logs custom affirmation text or sensitive personal data.
 protocol AnalyticsServiceProtocol: Sendable {
-    func log(event: AnalyticsEvent)
-    func setOptOut(_ optOut: Bool)
+    /// Log an analytics event. Respects the user's opt-out preference.
+    /// - Parameter event: The analytics event to record.
+    func log(event: AnalyticsEvent) async
+
+    /// Set whether the user has opted out of analytics collection.
+    /// - Parameter optOut: `true` to disable all event logging; `false` to re-enable.
+    func setOptOut(_ optOut: Bool) async
 }
 
 enum AnalyticsEvent: Sendable {

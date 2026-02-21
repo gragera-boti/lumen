@@ -1,14 +1,14 @@
-import XCTest
+import Testing
 import SwiftData
 @testable import Lumen
 
-@MainActor
-final class ContentServiceTests: XCTestCase {
-    private var container: ModelContainer!
-    private var context: ModelContext!
+@Suite("ContentService Tests")
+@MainActor struct ContentServiceTests {
+    private var container: ModelContainer
+    private var context: ModelContext
     private let service = ContentService.shared
 
-    override func setUp() async throws {
+    init() throws {
         let schema = Schema([
             Affirmation.self, Category.self, Favorite.self,
             SeenEvent.self, Dislike.self, AppTheme.self,
@@ -19,19 +19,16 @@ final class ContentServiceTests: XCTestCase {
         context = ModelContext(container)
     }
 
-    override func tearDown() {
-        container = nil
-        context = nil
-    }
-
     // MARK: - fetchCategories
 
-    func test_fetchCategories_returnsEmpty_whenNoData() throws {
+    @Test("fetchCategories returns empty when no data")
+    func fetchCategories_returnsEmpty_whenNoData() throws {
         let result = try service.fetchCategories(modelContext: context, locale: "en-GB")
-        XCTAssertTrue(result.isEmpty)
+        #expect(result.isEmpty)
     }
 
-    func test_fetchCategories_returnsSortedByOrder() throws {
+    @Test("fetchCategories returns sorted by order")
+    func fetchCategories_returnsSortedByOrder() throws {
         let cat1 = Category(id: "c1", name: "B Category", sortOrder: 2)
         let cat2 = Category(id: "c2", name: "A Category", sortOrder: 1)
         context.insert(cat1)
@@ -39,11 +36,12 @@ final class ContentServiceTests: XCTestCase {
         try context.save()
 
         let result = try service.fetchCategories(modelContext: context, locale: "en-GB")
-        XCTAssertEqual(result.count, 2)
-        XCTAssertEqual(result.first?.id, "c2") // lower sortOrder first
+        #expect(result.count == 2)
+        #expect(result.first?.id == "c2")
     }
 
-    func test_fetchCategories_filtersLocale() throws {
+    @Test("fetchCategories filters by locale")
+    func fetchCategories_filtersLocale() throws {
         let catEN = Category(id: "c1", locale: "en-GB", name: "English")
         let catES = Category(id: "c2", locale: "es-ES", name: "Spanish")
         context.insert(catEN)
@@ -51,24 +49,26 @@ final class ContentServiceTests: XCTestCase {
         try context.save()
 
         let result = try service.fetchCategories(modelContext: context, locale: "en-GB")
-        XCTAssertEqual(result.count, 1)
-        XCTAssertEqual(result.first?.name, "English")
+        #expect(result.count == 1)
+        #expect(result.first?.name == "English")
     }
 
     // MARK: - fetchAffirmation
 
-    func test_fetchAffirmation_findsById() throws {
+    @Test("fetchAffirmation finds by ID")
+    func fetchAffirmation_findsById() throws {
         let aff = Affirmation(id: "test_123", text: "Hello world")
         context.insert(aff)
         try context.save()
 
         let result = try service.fetchAffirmation(byId: "test_123", modelContext: context)
-        XCTAssertNotNil(result)
-        XCTAssertEqual(result?.text, "Hello world")
+        #expect(result != nil)
+        #expect(result?.text == "Hello world")
     }
 
-    func test_fetchAffirmation_returnsNilForMissingId() throws {
+    @Test("fetchAffirmation returns nil for missing ID")
+    func fetchAffirmation_returnsNilForMissingId() throws {
         let result = try service.fetchAffirmation(byId: "nonexistent", modelContext: context)
-        XCTAssertNil(result)
+        #expect(result == nil)
     }
 }
