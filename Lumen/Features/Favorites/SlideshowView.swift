@@ -4,8 +4,11 @@ import SwiftData
 struct SlideshowView: View {
     let affirmations: [Affirmation]
     var customizations: [String: CardCustomization] = [:]
+    var onFavoriteToggle: ((Affirmation) -> Void)?
+    var onEdit: ((Affirmation) -> Void)?
 
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var modelContext
     @State private var currentIndex = 0
     @State private var opacity: Double = 1.0
     @State private var timer: Timer?
@@ -99,8 +102,14 @@ struct SlideshowView: View {
 
     // MARK: - Controls
 
+    private var currentAffirmation: Affirmation? {
+        guard !affirmations.isEmpty, currentIndex < affirmations.count else { return nil }
+        return affirmations[currentIndex]
+    }
+
     private var controlsOverlay: some View {
         VStack {
+            // Top bar: close button
             HStack {
                 Spacer()
                 Button {
@@ -118,7 +127,11 @@ struct SlideshowView: View {
 
             Spacer()
 
-            // Progress dots + pause indicator
+            // Action bar (matching Feed/CategoryFeed)
+            actionBar
+                .padding(.bottom, LumenTheme.Spacing.md)
+
+            // Progress dots + navigation
             HStack(spacing: LumenTheme.Spacing.md) {
                 Button {
                     goBack()
@@ -129,7 +142,6 @@ struct SlideshowView: View {
                 }
                 .accessibilityLabel("Previous")
 
-                // Progress indicator
                 HStack(spacing: 4) {
                     ForEach(0..<min(affirmations.count, 20), id: \.self) { i in
                         Capsule()
@@ -155,7 +167,6 @@ struct SlideshowView: View {
             }
             .padding(.bottom, 8)
 
-            // Pause badge
             if isPaused {
                 Text("Paused — tap to resume")
                     .font(.caption)
@@ -165,6 +176,65 @@ struct SlideshowView: View {
                 Color.clear.frame(height: 30)
             }
         }
+    }
+
+    // MARK: - Action Bar
+
+    private var actionBar: some View {
+        HStack(spacing: LumenTheme.Spacing.xl) {
+            slideshowButton(
+                icon: currentAffirmation?.isFavorited == true ? "heart.fill" : "heart",
+                label: "feed.favorite".localized,
+                isActive: currentAffirmation?.isFavorited == true
+            ) {
+                if let aff = currentAffirmation {
+                    onFavoriteToggle?(aff)
+                }
+            }
+
+            slideshowButton(
+                icon: "paintbrush",
+                label: "feed.edit".localized
+            ) {
+                if let aff = currentAffirmation {
+                    onEdit?(aff)
+                }
+            }
+
+            slideshowButton(
+                icon: "square.and.arrow.up",
+                label: "feed.share".localized
+            ) {
+                if let aff = currentAffirmation {
+                    shareAffirmation(aff)
+                }
+            }
+        }
+    }
+
+    private func slideshowButton(icon: String, label: String, isActive: Bool = false, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            VStack(spacing: LumenTheme.Spacing.xs) {
+                Image(systemName: icon)
+                    .font(.title2)
+                    .symbolEffect(.bounce, value: isActive)
+                Text(label)
+                    .font(.caption2)
+            }
+            .foregroundStyle(.white)
+            .frame(minWidth: 60, minHeight: 44)
+        }
+        .accessibilityLabel(label)
+    }
+
+    private func shareAffirmation(_ affirmation: Affirmation) {
+        let custom = customizations[affirmation.id]
+        let text = (custom?.customText?.isEmpty == false) ? custom!.customText! : affirmation.text
+        let activityVC = UIActivityViewController(activityItems: [text], applicationActivities: nil)
+        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+              let window = windowScene.windows.first,
+              let rootVC = window.rootViewController else { return }
+        rootVC.present(activityVC, animated: true)
     }
 
     // MARK: - Timer

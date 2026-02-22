@@ -63,6 +63,16 @@ final class FavoritesViewModel {
         widgetService.updateFavoritesWidget(favorites: entries)
     }
 
+    func toggleFavorite(_ affirmation: Affirmation, modelContext: ModelContext) {
+        do {
+            try favoriteService.toggleFavorite(affirmation: affirmation, modelContext: modelContext)
+            loadFavorites(modelContext: modelContext)
+        } catch {
+            logger.error("Failed to toggle favorite: \(error.localizedDescription)")
+            errorMessage = error.localizedDescription
+        }
+    }
+
     func removeFavorite(_ affirmation: Affirmation, modelContext: ModelContext) {
         do {
             try favoriteService.toggleFavorite(affirmation: affirmation, modelContext: modelContext)

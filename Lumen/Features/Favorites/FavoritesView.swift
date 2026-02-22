@@ -39,7 +39,13 @@ struct FavoritesView: View {
         .fullScreenCover(isPresented: $showSlideshow) {
             SlideshowView(
                 affirmations: viewModel.allFavorites,
-                customizations: viewModel.customizations
+                customizations: viewModel.customizations,
+                onFavoriteToggle: { affirmation in
+                    viewModel.toggleFavorite(affirmation, modelContext: modelContext)
+                },
+                onEdit: { affirmation in
+                    editingCardAffirmation = affirmation
+                }
             )
         }
         .sheet(item: $editingAffirmation) { affirmation in
