@@ -78,48 +78,54 @@ struct AffirmationDetailView: View {
                 Spacer()
 
                 HStack(spacing: LumenTheme.Spacing.xl) {
-                    Button {
+                    detailButton(
+                        icon: isFavorited ? "heart.fill" : "heart",
+                        label: "feed.favorite".localized,
+                        isActive: isFavorited
+                    ) {
                         toggleFavorite(affirmation)
-                    } label: {
-                        Label(
-                            isFavorited ? "favorites.remove".localized : "favorites.add".localized,
-                            systemImage: isFavorited ? "heart.fill" : "heart"
-                        )
-                        .font(.body)
-                        .foregroundStyle(.white)
-                        .padding(.horizontal, LumenTheme.Spacing.lg)
-                        .padding(.vertical, LumenTheme.Spacing.sm)
-                        .background(.ultraThinMaterial, in: Capsule())
                     }
-                    .accessibilityLabel(isFavorited ? "Remove from favorites" : "Add to favorites")
-                    .accessibilityIdentifier("detail_favorite_button")
 
-                    Button {
+                    detailButton(
+                        icon: "paintbrush",
+                        label: "feed.edit".localized
+                    ) {
                         editingAffirmation = affirmation
-                    } label: {
-                        Label("Edit", systemImage: "paintbrush")
-                            .font(.body)
-                            .foregroundStyle(.white)
-                            .padding(.horizontal, LumenTheme.Spacing.lg)
-                            .padding(.vertical, LumenTheme.Spacing.sm)
-                            .background(.ultraThinMaterial, in: Capsule())
                     }
-                    .accessibilityLabel("Customize card")
-                    .accessibilityIdentifier("detail_edit_button")
 
-                    ShareLink(item: displayText) {
-                        Label("share".localized, systemImage: "square.and.arrow.up")
-                            .font(.body)
-                            .foregroundStyle(.white)
-                            .padding(.horizontal, LumenTheme.Spacing.lg)
-                            .padding(.vertical, LumenTheme.Spacing.sm)
-                            .background(.ultraThinMaterial, in: Capsule())
+                    detailButton(
+                        icon: "square.and.arrow.up",
+                        label: "feed.share".localized
+                    ) {
+                        shareText(displayText)
                     }
-                    .accessibilityLabel("Share affirmation")
                 }
-                .padding(.bottom, LumenTheme.Spacing.xxl)
+                .padding(.bottom, 120)
             }
         }
+    }
+
+    private func detailButton(icon: String, label: String, isActive: Bool = false, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            VStack(spacing: LumenTheme.Spacing.xs) {
+                Image(systemName: icon)
+                    .font(.title2)
+                    .symbolEffect(.bounce, value: isActive)
+                Text(label)
+                    .font(.caption2)
+            }
+            .foregroundStyle(.white)
+            .frame(minWidth: 60, minHeight: 44)
+        }
+        .accessibilityLabel(label)
+    }
+
+    private func shareText(_ text: String) {
+        let activityVC = UIActivityViewController(activityItems: [text], applicationActivities: nil)
+        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+              let window = windowScene.windows.first,
+              let rootVC = window.rootViewController else { return }
+        rootVC.present(activityVC, animated: true)
     }
 
     private func detailFont(for affirmation: Affirmation) -> Font {
