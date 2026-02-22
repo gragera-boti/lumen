@@ -10,24 +10,35 @@ struct ExploreView: View {
     private var preferences: UserPreferences? { allPreferences.first }
 
     var body: some View {
-        ScrollView {
-            LazyVGrid(columns: [
-                GridItem(.flexible()),
-                GridItem(.flexible()),
-            ], spacing: LumenTheme.Spacing.md) {
-                ForEach(viewModel.categories, id: \.id) { category in
-                    CategoryCardView(category: category) {
-                        if category.isPremium && !viewModel.isPremium {
-                            router.isShowingPaywall = true
-                        } else {
-                            router.navigate(to: .categoryFeed(categoryId: category.id), in: .explore)
+        ZStack {
+            // Ambient dark background
+            LinearGradient(
+                colors: [LumenTheme.Colors.ambientDark, LumenTheme.Colors.ambientMid],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .ignoresSafeArea()
+
+            ScrollView {
+                LazyVGrid(columns: [
+                    GridItem(.flexible()),
+                    GridItem(.flexible()),
+                ], spacing: LumenTheme.Spacing.md) {
+                    ForEach(viewModel.categories, id: \.id) { category in
+                        CategoryCardView(category: category) {
+                            if category.isPremium && !viewModel.isPremium {
+                                router.isShowingPaywall = true
+                            } else {
+                                router.navigate(to: .categoryFeed(categoryId: category.id), in: .explore)
+                            }
                         }
                     }
                 }
+                .padding(LumenTheme.Spacing.md)
             }
-            .padding(LumenTheme.Spacing.md)
         }
         .navigationTitle("explore.title".localized)
+        .toolbarColorScheme(.dark, for: .navigationBar)
         .task(id: preferences?.includeSensitiveTopics) {
             await viewModel.loadData(modelContext: modelContext)
         }
@@ -41,5 +52,5 @@ struct ExploreView: View {
         ExploreView()
     }
     .environment(AppRouter())
-    .modelContainer(for: [Category.self, Affirmation.self], inMemory: true)
+    .modelContainer(for: [Category.self, Affirmation.self, UserPreferences.self], inMemory: true)
 }

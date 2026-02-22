@@ -12,16 +12,28 @@ struct FavoritesView: View {
     @Environment(AppRouter.self) private var router
 
     var body: some View {
-        Group {
-            if viewModel.isLoading {
-                ProgressView()
-            } else if viewModel.userCreated.isEmpty && viewModel.curatedFavorites.isEmpty {
-                emptyState
-            } else {
-                favoritesList
+        ZStack {
+            // Ambient dark background
+            LinearGradient(
+                colors: [LumenTheme.Colors.ambientDark, LumenTheme.Colors.ambientMid],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .ignoresSafeArea()
+
+            Group {
+                if viewModel.isLoading {
+                    ProgressView()
+                        .tint(.white)
+                } else if viewModel.userCreated.isEmpty && viewModel.curatedFavorites.isEmpty {
+                    emptyState
+                } else {
+                    favoritesList
+                }
             }
         }
         .navigationTitle("favorites.title".localized)
+        .toolbarColorScheme(.dark, for: .navigationBar)
         .toolbar {
             if !viewModel.allFavorites.isEmpty {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -29,6 +41,7 @@ struct FavoritesView: View {
                         showSlideshow = true
                     } label: {
                         Image(systemName: "play.rectangle.fill")
+                            .foregroundStyle(.white)
                     }
                     .accessibilityLabel("Slideshow")
                     .accessibilityHint("Play all favorites as a slideshow")
@@ -71,106 +84,104 @@ struct FavoritesView: View {
         }
     }
 
+    // MARK: - Favorites List
+
     private var favoritesList: some View {
-        List {
-            // My Affirmations section
-            if !viewModel.userCreated.isEmpty {
-                Section {
-                    ForEach(viewModel.userCreated, id: \.id) { affirmation in
-                        FavoriteRow(affirmation: affirmation, isUserCreated: true, displayText: viewModel.customizations[affirmation.id]?.customText)
-                            .contentShape(Rectangle())
-                            .onTapGesture {
-                                router.navigate(to: .affirmationDetail(affirmationId: affirmation.id), in: .favorites)
-                            }
-                            .contextMenu {
-                                Button {
-                                    editingAffirmation = affirmation
-                                } label: {
-                                    Label("Edit", systemImage: "pencil")
-                                }
+        ScrollView {
+            VStack(spacing: LumenTheme.Spacing.lg) {
+                // My Affirmations section
+                if !viewModel.userCreated.isEmpty {
+                    favoritesSection(
+                        title: "My Affirmations",
+                        icon: "person.fill",
+                        affirmations: viewModel.userCreated,
+                        isUserCreated: true
+                    )
+                }
 
-                                Button {
-                                    editingCardAffirmation = affirmation
-                                } label: {
-                                    Label("Customize Card", systemImage: "paintbrush")
-                                }
-
-                                Button(role: .destructive) {
-                                    affirmationToDelete = affirmation
-                                    showDeleteConfirm = true
-                                } label: {
-                                    Label("Delete", systemImage: "trash")
-                                }
-                            }
-                            .swipeActions(edge: .trailing) {
-                                Button(role: .destructive) {
-                                    affirmationToDelete = affirmation
-                                    showDeleteConfirm = true
-                                } label: {
-                                    Label("Delete", systemImage: "trash")
-                                }
-
-                                Button {
-                                    editingAffirmation = affirmation
-                                } label: {
-                                    Label("Edit", systemImage: "pencil")
-                                }
-                                .tint(.blue)
-                            }
-                    }
-                } header: {
-                    HStack(spacing: 6) {
-                        Image(systemName: "person.fill")
-                            .font(.caption2)
-                        Text("My Affirmations")
-                    }
+                // Curated favorites section
+                if !viewModel.curatedFavorites.isEmpty {
+                    favoritesSection(
+                        title: viewModel.userCreated.isEmpty ? nil : "Favorites",
+                        icon: "heart.fill",
+                        affirmations: viewModel.curatedFavorites,
+                        isUserCreated: false
+                    )
                 }
             }
+            .padding(.horizontal, LumenTheme.Spacing.md)
+            .padding(.top, LumenTheme.Spacing.sm)
+            .padding(.bottom, LumenTheme.Spacing.xxl)
+        }
+    }
 
-            // Curated favorites section
-            if !viewModel.curatedFavorites.isEmpty {
-                Section {
-                    ForEach(viewModel.curatedFavorites, id: \.id) { affirmation in
-                        FavoriteRow(affirmation: affirmation, isUserCreated: false, displayText: viewModel.customizations[affirmation.id]?.customText)
-                            .contentShape(Rectangle())
-                            .onTapGesture {
-                                router.navigate(to: .affirmationDetail(affirmationId: affirmation.id), in: .favorites)
-                            }
-                            .contextMenu {
-                                Button {
-                                    editingCardAffirmation = affirmation
-                                } label: {
-                                    Label("Customize Card", systemImage: "paintbrush")
-                                }
-                            }
-                            .swipeActions(edge: .trailing) {
-                                Button(role: .destructive) {
-                                    viewModel.removeFavorite(affirmation, modelContext: modelContext)
-                                } label: {
-                                    Label("favorites.remove".localized, systemImage: "heart.slash")
-                                }
-                            }
+    @ViewBuilder
+    private func favoritesSection(title: String?, icon: String, affirmations: [Affirmation], isUserCreated: Bool) -> some View {
+        VStack(alignment: .leading, spacing: LumenTheme.Spacing.sm) {
+            if let title {
+                HStack(spacing: 6) {
+                    Image(systemName: icon)
+                        .font(.caption2)
+                    Text(title)
+                        .font(.caption.weight(.semibold))
+                }
+                .foregroundStyle(.white.opacity(0.5))
+                .textCase(.uppercase)
+                .padding(.leading, LumenTheme.Spacing.sm)
+            }
+
+            VStack(spacing: LumenTheme.Spacing.sm) {
+                ForEach(affirmations, id: \.id) { affirmation in
+                    FavoriteRow(
+                        affirmation: affirmation,
+                        isUserCreated: isUserCreated,
+                        displayText: viewModel.customizations[affirmation.id]?.customText
+                    )
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        router.navigate(to: .affirmationDetail(affirmationId: affirmation.id), in: .favorites)
                     }
-                } header: {
-                    if !viewModel.userCreated.isEmpty {
-                        HStack(spacing: 6) {
-                            Image(systemName: "heart.fill")
-                                .font(.caption2)
-                            Text("Favorites")
+                    .contextMenu {
+                        if isUserCreated {
+                            Button {
+                                editingAffirmation = affirmation
+                            } label: {
+                                Label("Edit", systemImage: "pencil")
+                            }
+                        }
+
+                        Button {
+                            editingCardAffirmation = affirmation
+                        } label: {
+                            Label("Customize Card", systemImage: "paintbrush")
+                        }
+
+                        Button(role: .destructive) {
+                            if isUserCreated {
+                                affirmationToDelete = affirmation
+                                showDeleteConfirm = true
+                            } else {
+                                viewModel.removeFavorite(affirmation, modelContext: modelContext)
+                            }
+                        } label: {
+                            Label(isUserCreated ? "Delete" : "Remove", systemImage: isUserCreated ? "trash" : "heart.slash")
                         }
                     }
                 }
             }
         }
-        .listStyle(.plain)
     }
 
+    // MARK: - Empty State
+
     private var emptyState: some View {
-        ContentUnavailableView(
-            "favorites.empty.title".localized,
-            systemImage: "heart",
-            description: Text("favorites.empty.description".localized)
-        )
+        ContentUnavailableView {
+            Label("favorites.empty.title".localized, systemImage: "heart")
+                .foregroundStyle(.white.opacity(0.6))
+        } description: {
+            Text("favorites.empty.description".localized)
+                .foregroundStyle(.white.opacity(0.4))
+        }
     }
 }
 
@@ -181,9 +192,14 @@ struct FavoriteRow: View {
     var isUserCreated: Bool = false
     var displayText: String?
 
+    private var gradientColors: [Color] {
+        let index = abs(affirmation.id.hashValue) % LumenTheme.Colors.gradients.count
+        return LumenTheme.Colors.gradients[index]
+    }
+
     var body: some View {
         HStack(spacing: LumenTheme.Spacing.md) {
-            // Mini gradient thumbnail
+            // Gradient accent strip
             RoundedRectangle(cornerRadius: LumenTheme.Radii.sm)
                 .fill(
                     LinearGradient(
@@ -192,17 +208,18 @@ struct FavoriteRow: View {
                         endPoint: .bottomTrailing
                     )
                 )
-                .frame(width: 48, height: 48)
+                .frame(width: 44, height: 44)
                 .overlay {
                     Image(systemName: isUserCreated ? "pencil.line" : "heart.fill")
                         .foregroundStyle(.white)
                         .font(.caption)
                 }
 
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: 3) {
                 HStack(spacing: 6) {
                     Text(displayText ?? affirmation.text)
                         .font(.subheadline)
+                        .foregroundStyle(.white)
                         .lineLimit(2)
 
                     if isUserCreated {
@@ -218,21 +235,30 @@ struct FavoriteRow: View {
                 if !affirmation.categories.isEmpty {
                     Text(affirmation.categories.map(\.name).joined(separator: ", "))
                         .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(.white.opacity(0.45))
                 } else if isUserCreated, let fontStyle = affirmation.fontStyle,
                           let style = AffirmationFontStyle(rawValue: fontStyle) {
                     Text(style.displayName + " style")
                         .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(.white.opacity(0.45))
                 }
             }
-        }
-        .padding(.vertical, LumenTheme.Spacing.xs)
-    }
 
-    private var gradientColors: [Color] {
-        let index = abs(affirmation.id.hashValue) % LumenTheme.Colors.gradients.count
-        return LumenTheme.Colors.gradients[index]
+            Spacer()
+
+            Image(systemName: "chevron.right")
+                .font(.caption)
+                .foregroundStyle(.white.opacity(0.25))
+        }
+        .padding(LumenTheme.Spacing.md)
+        .background(
+            RoundedRectangle(cornerRadius: LumenTheme.Radii.md)
+                .fill(LumenTheme.Colors.glassBackground)
+                .overlay(
+                    RoundedRectangle(cornerRadius: LumenTheme.Radii.md)
+                        .strokeBorder(LumenTheme.Colors.glassBorder, lineWidth: 0.5)
+                )
+        )
     }
 }
 
@@ -243,5 +269,5 @@ struct FavoriteRow: View {
         FavoritesView()
     }
     .environment(AppRouter())
-    .modelContainer(for: [Affirmation.self, Favorite.self], inMemory: true)
+    .modelContainer(for: [Affirmation.self, Favorite.self, CardCustomization.self, UserPreferences.self], inMemory: true)
 }

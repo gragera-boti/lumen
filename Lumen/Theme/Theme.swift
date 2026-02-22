@@ -13,6 +13,15 @@ enum LumenTheme {
         static let softPurple = Color(hex: "#A688B5")
         static let mintGreen = Color(hex: "#7EC8A0")
 
+        // Ambient dark backgrounds for immersive screens
+        static let ambientDark = Color(hex: "#0A0E1A")
+        static let ambientMid = Color(hex: "#131B2E")
+        static let ambientLight = Color(hex: "#1C2541")
+
+        // Glass card surface
+        static let glassBackground = Color.white.opacity(0.08)
+        static let glassBorder = Color.white.opacity(0.12)
+
         static let gradients: [[Color]] = [
             [Color(hex: "#1B998B"), Color(hex: "#3B5998")],
             [Color(hex: "#E8A87C"), Color(hex: "#C38D9E")],
