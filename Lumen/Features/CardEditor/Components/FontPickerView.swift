@@ -64,7 +64,7 @@ private struct FontCell: View {
 #Preview {
     ZStack {
         Color(.systemGroupedBackground).ignoresSafeArea()
-        FontPickerView(selection: .constant(.serif))
+        FontPickerView(selection: .constant(.playfair))
             .padding()
     }
 }

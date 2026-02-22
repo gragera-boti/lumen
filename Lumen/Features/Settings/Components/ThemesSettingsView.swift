@@ -72,6 +72,7 @@ struct ThemesSettingsView: View {
             }
             .padding(.vertical, LumenTheme.Spacing.md)
         }
+        .ambientBackground()
         .navigationTitle("settings.themes".localized)
     }
 }

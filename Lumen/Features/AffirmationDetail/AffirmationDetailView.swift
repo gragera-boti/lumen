@@ -48,8 +48,24 @@ struct AffirmationDetailView: View {
             : affirmation.text
 
         ZStack {
-            LinearGradient(colors: colors, startPoint: .topLeading, endPoint: .bottomTrailing)
+            if let cachedPath = customization?.cachedImagePath,
+               let image = UIImage(contentsOfFile: CardEditorViewModel.customizationImagesDir.appendingPathComponent(cachedPath).path) {
+                Image(uiImage: image)
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .ignoresSafeArea()
+            } else if let paletteRaw = customization?.colorPalette,
+                      let palette = ColorPalette(rawValue: paletteRaw) {
+                LinearGradient(
+                    colors: palette.cgColors.map { Color(cgColor: $0) },
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
                 .ignoresSafeArea()
+            } else {
+                LinearGradient(colors: colors, startPoint: .topLeading, endPoint: .bottomTrailing)
+                    .ignoresSafeArea()
+            }
 
             ReadabilityOverlay()
                 .ignoresSafeArea()
@@ -132,10 +148,10 @@ struct AffirmationDetailView: View {
 
     private func detailFont(for affirmation: Affirmation) -> Font {
         if let overrideName = customization?.fontStyleOverride,
-           let style = AffirmationFontStyle(rawValue: overrideName) {
+           let style = AffirmationFontStyle.from( overrideName) {
             return style.cardFont(textLength: affirmation.text.count)
         }
-        return .system(.title2, design: .serif, weight: .medium)
+        return .custom("PlayfairDisplayRoman-Bold", size: 34)
     }
 
     private func loadAffirmation() {

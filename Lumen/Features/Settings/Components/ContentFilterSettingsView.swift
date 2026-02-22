@@ -41,6 +41,7 @@ struct ContentFilterSettingsView: View {
                 }
             }
         }
+        .ambientBackground()
         .navigationTitle("filters.title".localized)
         .task {
             preferences = try? preferencesService.getOrCreate(modelContext: modelContext)

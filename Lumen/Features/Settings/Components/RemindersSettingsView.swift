@@ -94,6 +94,7 @@ struct RemindersSettingsView: View {
                 }
             }
         }
+        .ambientBackground()
         .navigationTitle("reminders.title".localized)
         .alert("reminders.testSent".localized, isPresented: $showTestSent) {
             Button("general.ok".localized) {}

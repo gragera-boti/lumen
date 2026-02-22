@@ -42,53 +42,50 @@ struct AffirmationCardView: View {
     private var affirmationFont: Font {
         // Customization font override takes priority
         if let overrideName = customization?.fontStyleOverride,
-           let style = AffirmationFontStyle(rawValue: overrideName) {
+           let style = AffirmationFontStyle.from( overrideName) {
             return style.cardFont(textLength: displayText.count)
         }
 
         if let styleName = affirmation.fontStyle,
-           let style = AffirmationFontStyle(rawValue: styleName) {
+           let style = AffirmationFontStyle.from( styleName) {
             return style.cardFont(textLength: displayText.count)
         }
 
         let length = displayText.count
-        let design = Self.fontDesign(for: affirmation)
-        let weight = Self.fontWeight(for: affirmation)
-
-        if length < 40 { return .system(size: 34, weight: weight, design: design) }
-        else if length < 80 { return .system(size: 28, weight: weight, design: design) }
-        else if length < 140 { return .system(size: 24, weight: weight, design: design) }
-        else { return .system(size: 21, weight: weight, design: design) }
+        let style = Self.randomFontStyle(for: affirmation)
+        return style.cardFont(textLength: length)
     }
 
-    private static func fontDesign(for aff: Affirmation) -> Font.Design {
-        let hash = abs(aff.id.hashValue)
-        let roll = hash % 10
-        if roll < 7 { return .serif }
-        if roll < 9 { return .rounded }
-        return .default
-    }
-
-    private static func fontWeight(for aff: Affirmation) -> Font.Weight {
-        let hash = abs(aff.id.hashValue >> 4)
-        let weights: [Font.Weight] = [.medium, .regular, .medium, .semibold, .regular]
-        return weights[hash % weights.count]
+    private static func randomFontStyle(for affirmation: Affirmation) -> AffirmationFontStyle {
+        let roll = abs(affirmation.id.hashValue) % 10
+        switch roll {
+        case 0...3: return .playfair
+        case 4...5: return .cormorant
+        case 6: return .zilla
+        case 7: return .abril
+        case 8: return .rounded
+        default: return .josefin
+        }
     }
 
     private var letterSpacing: CGFloat {
         if let overrideName = customization?.fontStyleOverride,
-           let _ = AffirmationFontStyle(rawValue: overrideName) {
-            return 0.3
+           let style = AffirmationFontStyle.from(overrideName) {
+            return Self.spacingForStyle(style)
         }
         if let styleName = affirmation.fontStyle,
-           let _ = AffirmationFontStyle(rawValue: styleName) {
-            return 0.3
+           let style = AffirmationFontStyle.from(styleName) {
+            return Self.spacingForStyle(style)
         }
-        let design = Self.fontDesign(for: affirmation)
-        switch design {
-        case .serif: return 0.3
-        case .rounded: return 0.5
-        default: return 0.2
+        return Self.spacingForStyle(Self.randomFontStyle(for: affirmation))
+    }
+
+    private static func spacingForStyle(_ style: AffirmationFontStyle) -> CGFloat {
+        switch style {
+        case .josefin: return 1.5
+        case .abril, .playfair: return 0.3
+        case .zilla: return 0.2
+        default: return 0.5
         }
     }
 

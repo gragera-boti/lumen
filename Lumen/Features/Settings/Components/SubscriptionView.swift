@@ -64,6 +64,7 @@ struct SubscriptionView: View {
                 Link("subscription.contact_support".localized, destination: URL(string: "mailto:alberto.gragera@gmail.com")!)
             }
         }
+        .ambientBackground()
         .navigationTitle("settings.subscription".localized)
         .sheet(isPresented: $showPaywall) {
             PaywallView()

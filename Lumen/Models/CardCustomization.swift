@@ -35,6 +35,9 @@ final class CardCustomization {
     /// Whether this card uses an AI-generated background instead of procedural.
     var usesAIBackground: Bool
 
+    /// Path to a cached background image (relative to app documents), if any.
+    var cachedImagePath: String?
+
     /// Custom text (only for user-owned affirmations, `nil` = use original).
     var customText: String?
 

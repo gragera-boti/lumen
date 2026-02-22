@@ -233,6 +233,16 @@ final class FeedViewModel {
 
     /// Regenerate a procedural background from a card's customization.
     private func regenerateBackground(for affirmationId: String, customization: CardCustomization) async {
+        // Check for a cached image first (from AI or procedural saves)
+        if let cachedPath = customization.cachedImagePath {
+            let fullPath = CardEditorViewModel.customizationImagesDir.appendingPathComponent(cachedPath)
+            if let image = UIImage(contentsOfFile: fullPath.path) {
+                cardBackgrounds[affirmationId] = image
+                return
+            }
+        }
+
+        // Fallback: regenerate procedurally
         guard let styleRaw = customization.backgroundStyle,
               let style = GeneratorStyle(rawValue: styleRaw),
               let paletteRaw = customization.colorPalette,

@@ -24,6 +24,7 @@ struct ThemeGalleryView: View {
                 themeList
             }
         }
+        .ambientBackground()
         .navigationTitle("My Backgrounds")
         .confirmationDialog(
             "Delete this background?",

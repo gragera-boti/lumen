@@ -325,7 +325,7 @@ struct FeedView: View {
 
     private func customizedFont(for affirmation: Affirmation, customization: CardCustomization?) -> Font {
         if let overrideName = customization?.fontStyleOverride,
-           let style = AffirmationFontStyle(rawValue: overrideName) {
+           let style = AffirmationFontStyle.from( overrideName) {
             return style.cardFont(textLength: affirmation.text.count)
         }
         return affirmationFont(for: affirmation)
@@ -333,38 +333,36 @@ struct FeedView: View {
 
     private func affirmationFont(for affirmation: Affirmation) -> Font {
         if let styleName = affirmation.fontStyle,
-           let style = AffirmationFontStyle(rawValue: styleName) {
+           let style = AffirmationFontStyle.from( styleName) {
             return style.cardFont(textLength: affirmation.text.count)
         }
 
-        let length = affirmation.text.count
-        let design = fontDesign(for: affirmation)
-        let weight = fontWeight(for: affirmation)
-
-        if length < 40 { return .system(size: 34, weight: weight, design: design) }
-        else if length < 80 { return .system(size: 28, weight: weight, design: design) }
-        else if length < 140 { return .system(size: 24, weight: weight, design: design) }
-        else { return .system(size: 21, weight: weight, design: design) }
+        // Randomly assign one of the custom font styles for variety
+        let style = randomFontStyle(for: affirmation)
+        return style.cardFont(textLength: affirmation.text.count)
     }
 
-    private func fontDesign(for affirmation: Affirmation) -> Font.Design {
+    /// Deterministically pick a font style based on the affirmation's ID hash.
+    /// Weighted toward the more versatile styles.
+    private func randomFontStyle(for affirmation: Affirmation) -> AffirmationFontStyle {
         let roll = abs(affirmation.id.hashValue) % 10
-        if roll < 7 { return .serif }
-        if roll < 9 { return .rounded }
-        return .default
-    }
-
-    private func fontWeight(for affirmation: Affirmation) -> Font.Weight {
-        let hash = abs(affirmation.id.hashValue >> 4)
-        let weights: [Font.Weight] = [.medium, .regular, .medium, .semibold, .regular]
-        return weights[hash % weights.count]
+        switch roll {
+        case 0...3: return .playfair    // 40% — the signature font
+        case 4...5: return .cormorant   // 20% — refined
+        case 6: return .zilla           // 10% — slab
+        case 7: return .abril           // 10% — display
+        case 8: return .rounded         // 10% — soft
+        default: return .josefin        // 10% — minimal
+        }
     }
 
     private func letterSpacing(for affirmation: Affirmation) -> CGFloat {
-        switch fontDesign(for: affirmation) {
-        case .serif: return 0.3
-        case .rounded: return 0.5
-        default: return 0.2
+        let style = randomFontStyle(for: affirmation)
+        switch style {
+        case .josefin: return 1.5
+        case .abril, .playfair: return 0.3
+        case .zilla: return 0.2
+        default: return 0.5
         }
     }
 

@@ -65,6 +65,7 @@ struct CrisisView: View {
                     .padding(.bottom, LumenTheme.Spacing.xxl)
                 }
             }
+            .ambientBackground()
             .navigationTitle("crisis.title".localized)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
