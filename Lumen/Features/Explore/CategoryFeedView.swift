@@ -68,7 +68,7 @@ struct CategoryFeedView: View {
         .toolbar(.hidden, for: .navigationBar)
         .toolbarBackground(.hidden, for: .tabBar)
         .ignoresSafeArea()
-        .task {
+        .task(id: "\(preferences.includeSensitiveTopics)-\(preferences.gentleMode)") {
             viewModel.loadCategory(
                 categoryId: categoryId,
                 preferences: preferences,

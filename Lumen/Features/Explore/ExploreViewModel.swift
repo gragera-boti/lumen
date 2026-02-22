@@ -28,7 +28,17 @@ final class ExploreViewModel {
         isPremium = await entitlementService.isPremium()
 
         do {
-            categories = try contentService.fetchCategories(modelContext: modelContext, locale: "en-GB")
+            let allCategories = try contentService.fetchCategories(modelContext: modelContext, locale: "en-GB")
+
+            // Load current preferences to check sensitive content filter
+            let prefsDescriptor = FetchDescriptor<UserPreferences>()
+            let prefs = try? modelContext.fetch(prefsDescriptor).first
+            let includeSensitive = prefs?.includeSensitiveTopics ?? false
+
+            categories = allCategories.filter { category in
+                if category.isSensitive && !includeSensitive { return false }
+                return true
+            }
         } catch {
             logger.error("Failed to load categories: \(error.localizedDescription)")
             errorMessage = error.localizedDescription

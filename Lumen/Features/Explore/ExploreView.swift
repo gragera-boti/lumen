@@ -5,6 +5,9 @@ struct ExploreView: View {
     @State private var viewModel = ExploreViewModel()
     @Environment(\.modelContext) private var modelContext
     @Environment(AppRouter.self) private var router
+    @Query private var allPreferences: [UserPreferences]
+
+    private var preferences: UserPreferences? { allPreferences.first }
 
     var body: some View {
         ScrollView {
@@ -25,7 +28,7 @@ struct ExploreView: View {
             .padding(LumenTheme.Spacing.md)
         }
         .navigationTitle("explore.title".localized)
-        .task {
+        .task(id: preferences?.includeSensitiveTopics) {
             await viewModel.loadData(modelContext: modelContext)
         }
     }
