@@ -50,10 +50,14 @@ struct AffirmationDetailView: View {
         ZStack {
             if let cachedPath = customization?.cachedImagePath,
                let image = UIImage(contentsOfFile: CardEditorViewModel.customizationImagesDir.appendingPathComponent(cachedPath).path) {
-                Image(uiImage: image)
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-                    .ignoresSafeArea()
+                GeometryReader { geo in
+                    Image(uiImage: image)
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: geo.size.width, height: geo.size.height)
+                        .clipped()
+                }
+                .ignoresSafeArea()
             } else if let paletteRaw = customization?.colorPalette,
                       let palette = ColorPalette(rawValue: paletteRaw) {
                 LinearGradient(

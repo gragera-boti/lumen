@@ -92,9 +92,13 @@ struct AffirmationCardView: View {
     var body: some View {
         ZStack {
             if let bgImage = backgroundImage {
-                Image(uiImage: bgImage)
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
+                GeometryReader { geo in
+                    Image(uiImage: bgImage)
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: geo.size.width, height: geo.size.height)
+                        .clipped()
+                }
             } else {
                 LinearGradient(
                     colors: gradientColors,

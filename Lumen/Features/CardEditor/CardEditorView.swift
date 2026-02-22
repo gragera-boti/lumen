@@ -70,6 +70,8 @@ struct CardEditorView: View {
                 Image(uiImage: image)
                     .resizable()
                     .aspectRatio(contentMode: .fill)
+                    .frame(maxWidth: .infinity, maxHeight: 260)
+                    .clipped()
             } else {
                 LinearGradient(
                     colors: viewModel.selectedPalette.cgColors.map { Color(cgColor: $0) },

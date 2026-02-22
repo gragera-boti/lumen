@@ -274,7 +274,7 @@ final class CardEditorViewModel {
             mood: .calm,
             complexity: 0.5,
             seed: backgroundSeed,
-            size: CGSize(width: 512, height: 512)
+            size: CGSize(width: 1080, height: 1920)
         )
 
         do {
