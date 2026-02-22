@@ -102,7 +102,7 @@ struct CardEditorView: View {
         if let style = viewModel.selectedFontStyle {
             return style.cardFont(textLength: viewModel.customText.count)
         }
-        return Font.system(size: 26, weight: .medium, design: .serif)
+        return Font.custom("PlayfairDisplayRoman-Bold", size: 34)
     }
 
     // MARK: - Background Mode Selector

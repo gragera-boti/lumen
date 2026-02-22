@@ -79,7 +79,7 @@ struct ThemeGeneratorView: View {
             ReadabilityOverlay(opacity: 0.2)
 
             Text("I can take one small step today.")
-                .font(.system(.title3, design: .serif, weight: .medium))
+                .font(.custom("PlayfairDisplayRoman-SemiBold", size: 28))
                 .foregroundStyle(.white)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, LumenTheme.Spacing.xl)

@@ -45,6 +45,19 @@
 	<array>
 		<string>com.gragera.lumen.refresh</string>
 	</array>
+	<key>UIAppFonts</key>
+	<array>
+		<string>PlayfairDisplay.ttf</string>
+		<string>CormorantGaramond-SemiBold.ttf</string>
+		<string>CormorantGaramond-Bold.ttf</string>
+		<string>Caveat.ttf</string>
+		<string>DancingScript.ttf</string>
+		<string>AbrilFatface-Regular.ttf</string>
+		<string>JosefinSans.ttf</string>
+		<string>ZillaSlab-SemiBold.ttf</string>
+		<string>ZillaSlab-Bold.ttf</string>
+		<string>Righteous-Regular.ttf</string>
+	</array>
 	<key>UILaunchScreen</key>
 	<dict/>
 	<key>UISupportedInterfaceOrientations</key>

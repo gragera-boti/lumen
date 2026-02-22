@@ -227,7 +227,7 @@ struct FavoriteRow: View {
                         .font(.caption)
                         .foregroundStyle(.white.opacity(0.45))
                 } else if isUserCreated, let fontStyle = affirmation.fontStyle,
-                          let style = AffirmationFontStyle(rawValue: fontStyle) {
+                          let style = AffirmationFontStyle.from( fontStyle) {
                     Text(style.displayName + " style")
                         .font(.caption)
                         .foregroundStyle(.white.opacity(0.45))

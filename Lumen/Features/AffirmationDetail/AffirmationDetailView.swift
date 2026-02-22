@@ -148,10 +148,10 @@ struct AffirmationDetailView: View {
 
     private func detailFont(for affirmation: Affirmation) -> Font {
         if let overrideName = customization?.fontStyleOverride,
-           let style = AffirmationFontStyle(rawValue: overrideName) {
+           let style = AffirmationFontStyle.from( overrideName) {
             return style.cardFont(textLength: affirmation.text.count)
         }
-        return .system(.title2, design: .serif, weight: .medium)
+        return .custom("PlayfairDisplayRoman-Bold", size: 34)
     }
 
     private func loadAffirmation() {

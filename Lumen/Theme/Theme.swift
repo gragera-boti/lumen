@@ -35,8 +35,8 @@ enum LumenTheme {
     // MARK: - Typography
 
     enum Typography {
-        static let affirmationFont = Font.system(.title, design: .serif, weight: .medium)
-        static let affirmationLargeFont = Font.system(.largeTitle, design: .serif, weight: .medium)
+        static let affirmationFont = Font.custom("PlayfairDisplayRoman-SemiBold", size: 34)
+        static let affirmationLargeFont = Font.custom("PlayfairDisplayRoman-Bold", size: 42)
         static let headlineFont = Font.system(.title2, weight: .bold)
         static let bodyFont = Font.system(.body)
         static let captionFont = Font.system(.caption)

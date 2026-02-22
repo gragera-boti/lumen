@@ -33,7 +33,7 @@ struct SlideshowView: View {
                     ? custom!.customText!
                     : aff.text
                 Text(displayText)
-                    .font(.system(.title, design: .serif, weight: .medium))
+                    .font(.custom("PlayfairDisplayRoman-Bold", size: 36))
                     .foregroundStyle(.white)
                     .multilineTextAlignment(.center)
                     .lineSpacing(6)

@@ -17,7 +17,7 @@ struct EditAffirmationSheet: View {
     init(affirmation: Affirmation) {
         self.affirmation = affirmation
         _text = State(initialValue: affirmation.text)
-        let style = affirmation.fontStyle.flatMap { AffirmationFontStyle(rawValue: $0) } ?? .serif
+        let style = affirmation.fontStyle.flatMap { AffirmationFontStyle.from( $0) } ?? .playfair
         _selectedFont = State(initialValue: style)
     }
 

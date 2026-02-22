@@ -7,7 +7,7 @@ struct CustomAffirmationSheet: View {
     @Environment(\.dismiss) private var dismiss
 
     @State private var text = ""
-    @State private var selectedFont: AffirmationFontStyle = .serif
+    @State private var selectedFont: AffirmationFontStyle = .playfair
     @State private var errorMessage: String?
     @State private var suggestions: [String] = []
     @State private var isLoadingSuggestions = true
