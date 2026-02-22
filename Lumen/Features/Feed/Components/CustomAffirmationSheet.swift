@@ -37,7 +37,7 @@ struct CustomAffirmationSheet: View {
                 .padding(.top, LumenTheme.Spacing.sm)
                 .padding(.bottom, 100)
             }
-            .background(Color(.systemGroupedBackground))
+            .ambientBackground()
             .navigationTitle("Create Affirmation")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

@@ -130,6 +130,7 @@
 		D913F64593324E16309F3F5A /* CategoryFeedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 847BB2A49CE49C26DFEE6021 /* CategoryFeedView.swift */; };
 		DCFC4380A72F5BECE700730B /* MoodService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 144F450B8952902480DE3FA6 /* MoodService.swift */; };
 		DD66B64A36318BA8E3CC8E72 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1CDFC7ADFD0F4B0093EB83C /* OnboardingView.swift */; };
+		DEB37D2D66D10DD7A75A7A66 /* AmbientBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E19293A66545189C362BAEA /* AmbientBackground.swift */; };
 		DF1FE89236C0751C6B27DFBA /* HistoryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DC368DEF0428EADF228A41F /* HistoryViewModel.swift */; };
 		DF351698CF0D5685B6E31460 /* CardCustomizationServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B47DD4ACB217925D05C669A7 /* CardCustomizationServiceTests.swift */; };
 		DFCDE89314BBF187E959D46B /* AffirmationFontStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 871CFEC8819FC1243E96B0EA /* AffirmationFontStyle.swift */; };
@@ -195,6 +196,7 @@
 		090B354C7CCBE3E602CB150F /* PrimaryButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrimaryButton.swift; sourceTree = "<group>"; };
 		0A7B6C17DF6F52A4AA9BB9A6 /* CustomizationRefreshTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomizationRefreshTests.swift; sourceTree = "<group>"; };
 		0DC368DEF0428EADF228A41F /* HistoryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryViewModel.swift; sourceTree = "<group>"; };
+		0E19293A66545189C362BAEA /* AmbientBackground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AmbientBackground.swift; sourceTree = "<group>"; };
 		1019A08A853B631B97646448 /* CardCustomizationServiceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardCustomizationServiceProtocol.swift; sourceTree = "<group>"; };
 		144F450B8952902480DE3FA6 /* MoodService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoodService.swift; sourceTree = "<group>"; };
 		166B33AE77B5641DB389A44A /* Logger+Lumen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Logger+Lumen.swift"; sourceTree = "<group>"; };
@@ -505,6 +507,7 @@
 		475FCB01D800EC38EFE5B7BD /* Components */ = {
 			isa = PBXGroup;
 			children = (
+				0E19293A66545189C362BAEA /* AmbientBackground.swift */,
 				39CFEAD5D7C38FA185D57A68 /* GradientBackground.swift */,
 				090B354C7CCBE3E602CB150F /* PrimaryButton.swift */,
 				C0B5EE50D577AE1C62E4B353 /* ReadabilityOverlay.swift */,
@@ -953,6 +956,7 @@
 				68A28EDDFDF2F46EA2AC795C /* AffirmationDetailView.swift in Sources */,
 				DFCDE89314BBF187E959D46B /* AffirmationFontStyle.swift in Sources */,
 				10B2793B81277534538DD2DA /* AffirmationSource.swift in Sources */,
+				DEB37D2D66D10DD7A75A7A66 /* AmbientBackground.swift in Sources */,
 				3B506D7B63DC77C668510DC3 /* AnalyticsService.swift in Sources */,
 				393D3A1AE5CFCD3A70BEF030 /* AnalyticsServiceProtocol.swift in Sources */,
 				3CED8D617B79CAEDF9BF4D30 /* AppRouter.swift in Sources */,

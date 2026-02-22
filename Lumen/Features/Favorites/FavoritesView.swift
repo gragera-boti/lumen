@@ -12,28 +12,18 @@ struct FavoritesView: View {
     @Environment(AppRouter.self) private var router
 
     var body: some View {
-        ZStack {
-            // Ambient dark background
-            LinearGradient(
-                colors: [LumenTheme.Colors.ambientDark, LumenTheme.Colors.ambientMid],
-                startPoint: .top,
-                endPoint: .bottom
-            )
-            .ignoresSafeArea()
-
-            Group {
-                if viewModel.isLoading {
-                    ProgressView()
-                        .tint(.white)
-                } else if viewModel.userCreated.isEmpty && viewModel.curatedFavorites.isEmpty {
-                    emptyState
-                } else {
-                    favoritesList
-                }
+        Group {
+            if viewModel.isLoading {
+                ProgressView()
+                    .tint(.white)
+            } else if viewModel.userCreated.isEmpty && viewModel.curatedFavorites.isEmpty {
+                emptyState
+            } else {
+                favoritesList
             }
         }
+        .ambientBackground()
         .navigationTitle("favorites.title".localized)
-        .toolbarColorScheme(.dark, for: .navigationBar)
         .toolbar {
             if !viewModel.allFavorites.isEmpty {
                 ToolbarItem(placement: .topBarTrailing) {

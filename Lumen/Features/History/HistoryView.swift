@@ -19,6 +19,7 @@ struct HistoryView: View {
                 historyList
             }
         }
+        .ambientBackground()
         .navigationTitle("history.title".localized)
         .task {
             viewModel.loadHistory(modelContext: modelContext)

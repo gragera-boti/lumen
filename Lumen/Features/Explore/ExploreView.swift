@@ -10,16 +10,7 @@ struct ExploreView: View {
     private var preferences: UserPreferences? { allPreferences.first }
 
     var body: some View {
-        ZStack {
-            // Ambient dark background
-            LinearGradient(
-                colors: [LumenTheme.Colors.ambientDark, LumenTheme.Colors.ambientMid],
-                startPoint: .top,
-                endPoint: .bottom
-            )
-            .ignoresSafeArea()
-
-            ScrollView {
+        ScrollView {
                 LazyVGrid(columns: [
                     GridItem(.flexible()),
                     GridItem(.flexible()),
@@ -35,10 +26,9 @@ struct ExploreView: View {
                     }
                 }
                 .padding(LumenTheme.Spacing.md)
-            }
         }
+        .ambientBackground()
         .navigationTitle("explore.title".localized)
-        .toolbarColorScheme(.dark, for: .navigationBar)
         .task(id: preferences?.includeSensitiveTopics) {
             await viewModel.loadData(modelContext: modelContext)
         }

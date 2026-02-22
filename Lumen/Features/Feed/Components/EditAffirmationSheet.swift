@@ -33,7 +33,7 @@ struct EditAffirmationSheet: View {
                 .padding(.top, LumenTheme.Spacing.sm)
                 .padding(.bottom, 100)
             }
-            .background(Color(.systemGroupedBackground))
+            .ambientBackground()
             .navigationTitle("Edit Affirmation")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

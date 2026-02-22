@@ -20,6 +20,7 @@ struct SettingsView: View {
                 developerSection
             }
         }
+        .ambientBackground()
         .navigationTitle("settings.title".localized)
         .task {
             await viewModel.load(modelContext: modelContext)

@@ -59,6 +59,7 @@ struct LumenApp: App {
         WindowGroup {
             ContentView()
                 .environment(router)
+                .preferredColorScheme(.dark)
                 .onOpenURL { url in
                     deepLinkHandler.handle(url: url, router: router)
                 }

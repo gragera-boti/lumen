@@ -30,6 +30,7 @@ struct ThemeGeneratorView: View {
             .padding(.top, LumenTheme.Spacing.sm)
             .padding(.bottom, 100)
         }
+        .ambientBackground()
         .navigationTitle("generator.title".localized)
         .alert("general.error".localized, isPresented: Binding(
             get: { viewModel.errorMessage != nil },

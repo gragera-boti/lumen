@@ -38,7 +38,7 @@ struct CardEditorView: View {
                 .padding(.top, LumenTheme.Spacing.sm)
                 .padding(.bottom, 40)
             }
-            .background(Color(.systemGroupedBackground))
+            .ambientBackground()
             .navigationTitle("Customize Card")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
