@@ -77,7 +77,7 @@ struct FavoritesView: View {
             if !viewModel.userCreated.isEmpty {
                 Section {
                     ForEach(viewModel.userCreated, id: \.id) { affirmation in
-                        FavoriteRow(affirmation: affirmation, isUserCreated: true)
+                        FavoriteRow(affirmation: affirmation, isUserCreated: true, displayText: viewModel.customizations[affirmation.id]?.customText)
                             .contentShape(Rectangle())
                             .onTapGesture {
                                 router.navigate(to: .affirmationDetail(affirmationId: affirmation.id), in: .favorites)
@@ -131,7 +131,7 @@ struct FavoritesView: View {
             if !viewModel.curatedFavorites.isEmpty {
                 Section {
                     ForEach(viewModel.curatedFavorites, id: \.id) { affirmation in
-                        FavoriteRow(affirmation: affirmation, isUserCreated: false)
+                        FavoriteRow(affirmation: affirmation, isUserCreated: false, displayText: viewModel.customizations[affirmation.id]?.customText)
                             .contentShape(Rectangle())
                             .onTapGesture {
                                 router.navigate(to: .affirmationDetail(affirmationId: affirmation.id), in: .favorites)
@@ -179,6 +179,7 @@ struct FavoritesView: View {
 struct FavoriteRow: View {
     let affirmation: Affirmation
     var isUserCreated: Bool = false
+    var displayText: String?
 
     var body: some View {
         HStack(spacing: LumenTheme.Spacing.md) {
@@ -200,7 +201,7 @@ struct FavoriteRow: View {
 
             VStack(alignment: .leading, spacing: 4) {
                 HStack(spacing: 6) {
-                    Text(affirmation.text)
+                    Text(displayText ?? affirmation.text)
                         .font(.subheadline)
                         .lineLimit(2)
 

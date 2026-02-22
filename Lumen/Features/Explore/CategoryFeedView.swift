@@ -322,6 +322,11 @@ struct CategoryFeedView: View {
     }
 
     private func gradientColors(for affirmation: Affirmation) -> [Color] {
+        if let customization = viewModel.customizations[affirmation.id],
+           let paletteRaw = customization.colorPalette,
+           let palette = ColorPalette(rawValue: paletteRaw) {
+            return palette.cgColors.map { Color(cgColor: $0) }
+        }
         let index = abs(affirmation.id.hashValue) % LumenTheme.Colors.gradients.count
         return LumenTheme.Colors.gradients[index]
     }

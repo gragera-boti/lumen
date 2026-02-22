@@ -46,6 +46,7 @@ final class FeedViewModel {
     private let favoriteService: FavoriteServiceProtocol
     private let shareService: ShareServiceProtocol
     private let moodService: MoodServiceProtocol
+    private let backgroundGenerator: any BackgroundGeneratorProtocol
     private let logger = Logger(subsystem: "com.gragera.lumen", category: "Feed")
 
     init(
@@ -53,13 +54,15 @@ final class FeedViewModel {
         favoriteService: FavoriteServiceProtocol = FavoriteService.shared,
         shareService: ShareServiceProtocol = ShareService.shared,
         moodService: MoodServiceProtocol = MoodService.shared,
-        customizationService: CardCustomizationServiceProtocol = CardCustomizationService.shared
+        customizationService: CardCustomizationServiceProtocol = CardCustomizationService.shared,
+        backgroundGenerator: some BackgroundGeneratorProtocol = BackgroundGeneratorService.shared
     ) {
         self.feedService = feedService
         self.favoriteService = favoriteService
         self.shareService = shareService
         self.moodService = moodService
         self.customizationService = customizationService
+        self.backgroundGenerator = backgroundGenerator
     }
 
     // MARK: - Actions
@@ -207,9 +210,52 @@ final class FeedViewModel {
         }
     }
 
-    /// Reloads customizations for the current card set.
+    /// Reloads customizations for the current card set and regenerates backgrounds for customized cards.
     func reloadCustomizations(modelContext: ModelContext) {
+        let previousCustomizations = customizations
         applyCustomizations(to: cards, modelContext: modelContext)
+
+        // Regenerate backgrounds for cards whose customizations changed
+        Task {
+            for (affId, customization) in customizations {
+                let changed = previousCustomizations[affId]?.updatedAt != customization.updatedAt
+                    || previousCustomizations[affId] == nil
+                if changed {
+                    await regenerateBackground(for: affId, customization: customization)
+                }
+            }
+            // Also clear backgrounds for cards whose customizations were removed
+            for affId in previousCustomizations.keys where customizations[affId] == nil {
+                cardBackgrounds.removeValue(forKey: affId)
+            }
+        }
+    }
+
+    /// Regenerate a procedural background from a card's customization.
+    private func regenerateBackground(for affirmationId: String, customization: CardCustomization) async {
+        guard let styleRaw = customization.backgroundStyle,
+              let style = GeneratorStyle(rawValue: styleRaw),
+              let paletteRaw = customization.colorPalette,
+              let palette = ColorPalette(rawValue: paletteRaw) else { return }
+
+        let seed = customization.backgroundSeed ?? 0
+        let request = BackgroundRequest(
+            style: style,
+            palette: palette,
+            mood: .calm,
+            complexity: 0.5,
+            seed: seed,
+            size: CGSize(width: 1080, height: 1920)
+        )
+
+        do {
+            let result = try await backgroundGenerator.generate(request: request)
+            if let image = UIImage(contentsOfFile: result.imagePath.path) {
+                cardBackgrounds[affirmationId] = image
+            }
+        } catch {
+            logger.error("Failed to regenerate background for \(affirmationId, privacy: .private): \(error.localizedDescription)")
+        }
     }
 
     // MARK: - Auto Advance
