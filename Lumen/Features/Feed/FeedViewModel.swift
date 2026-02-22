@@ -68,8 +68,10 @@ final class FeedViewModel {
     // MARK: - Actions
 
     func loadFeed(preferences: UserPreferences, isPremium: Bool, modelContext: ModelContext) async {
-        isLoading = true
-        defer { isLoading = false }
+        // Only show loading spinner on first load (no existing cards)
+        let isFirstLoad = cards.isEmpty
+        if isFirstLoad { isLoading = true }
+        defer { if isFirstLoad { isLoading = false } }
 
         // Load active theme IDs for rotation
         await loadActiveThemes(modelContext: modelContext)

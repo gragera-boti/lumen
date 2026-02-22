@@ -10,18 +10,41 @@ struct ContentView: View {
     @State private var isPremium = false
     @State private var selectedTab: Tab = .forYou
 
+    init() {
+        // Configure tab bar and nav bar appearance once at init
+        let tabAppearance = UITabBarAppearance()
+        tabAppearance.configureWithTransparentBackground()
+        tabAppearance.backgroundEffect = UIBlurEffect(style: .systemUltraThinMaterialDark)
+        UITabBar.appearance().standardAppearance = tabAppearance
+        UITabBar.appearance().scrollEdgeAppearance = tabAppearance
+
+        let navAppearance = UINavigationBarAppearance()
+        navAppearance.configureWithTransparentBackground()
+        UINavigationBar.appearance().standardAppearance = navAppearance
+        UINavigationBar.appearance().scrollEdgeAppearance = navAppearance
+        UINavigationBar.appearance().compactAppearance = navAppearance
+    }
+
     var body: some View {
-        Group {
+        ZStack {
+            // Main content underneath
+            if !isLoadingContent {
+                if !hasCompletedOnboarding {
+                    OnboardingView {
+                        reloadPreferences()
+                    }
+                } else if let prefs = preferences {
+                    mainTabView(preferences: prefs)
+                }
+            }
+
+            // Splash overlay that fades out
             if isLoadingContent {
                 launchScreen
-            } else if !hasCompletedOnboarding {
-                OnboardingView {
-                    reloadPreferences()
-                }
-            } else if let prefs = preferences {
-                mainTabView(preferences: prefs)
+                    .transition(.opacity)
             }
         }
+        .animation(.easeOut(duration: 0.4), value: isLoadingContent)
         .task {
             await bootstrap()
         }
@@ -43,10 +66,11 @@ struct ContentView: View {
 
     private var launchScreen: some View {
         ZStack {
-            AnimatedGradientBackground(colors: [
-                LumenTheme.Colors.gentleAccent,
-                LumenTheme.Colors.softPurple,
-            ])
+            LinearGradient(
+                colors: [LumenTheme.Colors.ambientDark, LumenTheme.Colors.ambientMid],
+                startPoint: .top,
+                endPoint: .bottom
+            )
 
             VStack(spacing: LumenTheme.Spacing.md) {
                 Image(systemName: "sparkle")
@@ -115,21 +139,6 @@ struct ContentView: View {
         }
         .tint(LumenTheme.Colors.primary)
         .background(Color.black)
-        .onAppear {
-            // Glass tab bar that floats over feed content
-            let tabAppearance = UITabBarAppearance()
-            tabAppearance.configureWithTransparentBackground()
-            tabAppearance.backgroundEffect = UIBlurEffect(style: .systemUltraThinMaterialDark)
-            UITabBar.appearance().standardAppearance = tabAppearance
-            UITabBar.appearance().scrollEdgeAppearance = tabAppearance
-
-            // Transparent navigation bar so feed extends edge-to-edge
-            let navAppearance = UINavigationBarAppearance()
-            navAppearance.configureWithTransparentBackground()
-            UINavigationBar.appearance().standardAppearance = navAppearance
-            UINavigationBar.appearance().scrollEdgeAppearance = navAppearance
-            UINavigationBar.appearance().compactAppearance = navAppearance
-        }
     }
 
     // MARK: - Destination Router
