@@ -35,6 +35,9 @@ final class CardCustomization {
     /// Whether this card uses an AI-generated background instead of procedural.
     var usesAIBackground: Bool
 
+    /// ID of a saved theme (from My Backgrounds) applied to this card.
+    var savedThemeId: String?
+
     /// Path to a cached background image (relative to app documents), if any.
     var cachedImagePath: String?
 

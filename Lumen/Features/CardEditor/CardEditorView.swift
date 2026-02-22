@@ -47,6 +47,7 @@ struct CardEditorView: View {
                 }
             }
             .task {
+                viewModel.loadSavedBackgrounds()
                 await viewModel.checkAIModelStatus()
                 await viewModel.generatePreview()
             }
@@ -126,6 +127,8 @@ struct CardEditorView: View {
         switch viewModel.backgroundMode {
         case .procedural:
             proceduralBackgroundSection
+        case .saved:
+            savedBackgroundSection
         case .ai:
             aiBackgroundSection
         }
@@ -153,6 +156,66 @@ struct CardEditorView: View {
             }
 
             shuffleButton
+        }
+    }
+
+    // MARK: - Saved Backgrounds
+
+    private var savedBackgroundSection: some View {
+        VStack(alignment: .leading, spacing: LumenTheme.Spacing.sm) {
+            sectionHeader("My Backgrounds", icon: "photo.on.rectangle")
+
+            if viewModel.savedBackgrounds.isEmpty {
+                VStack(spacing: LumenTheme.Spacing.md) {
+                    Image(systemName: "photo.stack")
+                        .font(.title)
+                        .foregroundStyle(.secondary)
+
+                    Text("No saved backgrounds yet. Generate some in Themes & Backgrounds!")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, LumenTheme.Spacing.xl)
+            } else {
+                LazyVGrid(columns: [
+                    GridItem(.flexible()),
+                    GridItem(.flexible()),
+                    GridItem(.flexible()),
+                ], spacing: LumenTheme.Spacing.sm) {
+                    ForEach(viewModel.savedBackgrounds) { item in
+                        Button {
+                            viewModel.selectSavedBackground(item)
+                        } label: {
+                            Image(uiImage: item.thumbnail)
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                                .frame(height: 100)
+                                .clipped()
+                                .clipShape(RoundedRectangle(cornerRadius: LumenTheme.Radii.sm))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: LumenTheme.Radii.sm)
+                                        .strokeBorder(
+                                            viewModel.selectedSavedBackground?.id == item.id
+                                                ? LumenTheme.Colors.primary
+                                                : Color.clear,
+                                            lineWidth: 3
+                                        )
+                                )
+                                .overlay {
+                                    if viewModel.selectedSavedBackground?.id == item.id {
+                                        Image(systemName: "checkmark.circle.fill")
+                                            .font(.title3)
+                                            .foregroundStyle(.white)
+                                            .shadow(radius: 4)
+                                    }
+                                }
+                        }
+                        .accessibilityLabel("Saved background \(item.id)")
+                    }
+                }
+            }
         }
     }
 

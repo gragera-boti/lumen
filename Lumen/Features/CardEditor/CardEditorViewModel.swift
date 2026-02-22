@@ -16,9 +16,17 @@ final class CardEditorViewModel {
 
     enum BackgroundMode: String, CaseIterable, Identifiable {
         case procedural = "Instant"
+        case saved = "My Backgrounds"
         case ai = "AI ✨"
 
         var id: String { rawValue }
+    }
+
+    /// A saved background thumbnail for the picker.
+    struct SavedBackgroundItem: Identifiable {
+        let id: String  // themeId
+        let thumbnail: UIImage
+        let fullImagePath: URL
     }
 
     // MARK: - AI Load State (mirrors ThemeGeneratorViewModel)
@@ -75,6 +83,8 @@ final class CardEditorViewModel {
 
     var previewImage: UIImage?
     var isGeneratingPreview: Bool = false
+    var savedBackgrounds: [SavedBackgroundItem] = []
+    var selectedSavedBackground: SavedBackgroundItem?
 
     /// Path to the last generated image (for caching on save).
     private var lastGeneratedImagePath: URL?
@@ -91,6 +101,7 @@ final class CardEditorViewModel {
             || customText != initialCustomText
             || backgroundSeed != initialSeed
             || selectedPrompt?.id != initialPromptId
+            || selectedSavedBackground?.id != initialSavedThemeId
     }
 
     // MARK: - Private
@@ -106,6 +117,7 @@ final class CardEditorViewModel {
     private let initialCustomText: String
     private let initialSeed: UInt32
     private let initialPromptId: String?
+    private let initialSavedThemeId: String?
 
     // MARK: - Init
 
@@ -122,7 +134,8 @@ final class CardEditorViewModel {
         self.aiGenerator = aiGenerator
 
         let usesAI = existingCustomization?.usesAIBackground ?? false
-        let mode: BackgroundMode = usesAI ? .ai : .procedural
+        let savedThemeId = existingCustomization?.savedThemeId
+        let mode: BackgroundMode = savedThemeId != nil ? .saved : (usesAI ? .ai : .procedural)
         let style = existingCustomization?.backgroundStyle
             .flatMap(GeneratorStyle.init(rawValue:)) ?? Self.defaultStyle(for: affirmation)
         let palette = existingCustomization?.colorPalette
@@ -163,6 +176,7 @@ final class CardEditorViewModel {
         self.initialCustomText = text
         self.initialSeed = seed
         self.initialPromptId = promptId
+        self.initialSavedThemeId = savedThemeId
     }
 
     // MARK: - Actions
@@ -194,6 +208,61 @@ final class CardEditorViewModel {
         }
     }
 
+    /// Load saved backgrounds from the themes directories.
+    func loadSavedBackgrounds() {
+        var items: [SavedBackgroundItem] = []
+
+        let searchDirs: [URL] = [
+            FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first?
+                .appendingPathComponent("themes/generated"),
+            FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first?
+                .appendingPathComponent("themes/ai"),
+            FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.gragera.lumen")?
+                .appendingPathComponent("themes/generated"),
+            FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.gragera.lumen")?
+                .appendingPathComponent("themes/ai"),
+        ].compactMap { $0 }
+
+        let fm = FileManager.default
+        for dir in searchDirs {
+            guard let files = try? fm.contentsOfDirectory(at: dir, includingPropertiesForKeys: nil) else { continue }
+            for file in files where file.pathExtension == "png" || file.pathExtension == "jpg" {
+                let themeId = file.deletingPathExtension().lastPathComponent
+                // Skip thumbnails
+                guard !themeId.hasSuffix("_thumb") else { continue }
+                // Load thumbnail if exists, else use full image scaled down
+                let thumbPath = file.deletingPathExtension().appendingPathExtension("thumb.\(file.pathExtension)")
+                let thumb: UIImage?
+                if fm.fileExists(atPath: thumbPath.path), let t = UIImage(contentsOfFile: thumbPath.path) {
+                    thumb = t
+                } else if let data = try? Data(contentsOf: file),
+                          let full = UIImage(data: data) {
+                    thumb = full.preparingThumbnail(of: CGSize(width: 120, height: 120))
+                } else {
+                    continue
+                }
+                guard let thumbnail = thumb else { continue }
+                items.append(SavedBackgroundItem(id: themeId, thumbnail: thumbnail, fullImagePath: file))
+            }
+        }
+
+        savedBackgrounds = items
+
+        // Restore selection if editing an existing customization with a saved theme
+        if let savedId = initialSavedThemeId {
+            selectedSavedBackground = items.first { $0.id == savedId }
+        }
+    }
+
+    /// Select a saved background as the card's background.
+    func selectSavedBackground(_ item: SavedBackgroundItem) {
+        selectedSavedBackground = item
+        if let image = UIImage(contentsOfFile: item.fullImagePath.path) {
+            previewImage = image
+            lastGeneratedImagePath = item.fullImagePath
+        }
+    }
+
     /// Generates a preview background image from the current selections.
     func generatePreview() async {
         isGeneratingPreview = true
@@ -202,6 +271,8 @@ final class CardEditorViewModel {
         switch backgroundMode {
         case .procedural:
             await generateProceduralPreview()
+        case .saved:
+            break  // Saved backgrounds are loaded directly, no generation needed
         case .ai:
             await generateAIPreview()
         }
@@ -231,6 +302,7 @@ final class CardEditorViewModel {
             customText: canEditText ? customText : nil
         )
         customization.cachedImagePath = relativePath
+        customization.savedThemeId = backgroundMode == .saved ? selectedSavedBackground?.id : nil
         try customizationService.save(customization, modelContext: modelContext)
 
         if let fontStyle = selectedFontStyle {
