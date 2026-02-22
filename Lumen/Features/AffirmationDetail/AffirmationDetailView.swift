@@ -23,6 +23,8 @@ struct AffirmationDetailView: View {
             }
         }
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar(.hidden, for: .tabBar)
+        .toolbarBackground(.hidden, for: .navigationBar)
         .task { loadAffirmation() }
         .sheet(item: $editingAffirmation) { aff in
             CardEditorView(
