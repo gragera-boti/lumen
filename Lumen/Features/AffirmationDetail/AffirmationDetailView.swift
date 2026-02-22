@@ -48,8 +48,24 @@ struct AffirmationDetailView: View {
             : affirmation.text
 
         ZStack {
-            LinearGradient(colors: colors, startPoint: .topLeading, endPoint: .bottomTrailing)
+            if let cachedPath = customization?.cachedImagePath,
+               let image = UIImage(contentsOfFile: CardEditorViewModel.customizationImagesDir.appendingPathComponent(cachedPath).path) {
+                Image(uiImage: image)
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .ignoresSafeArea()
+            } else if let paletteRaw = customization?.colorPalette,
+                      let palette = ColorPalette(rawValue: paletteRaw) {
+                LinearGradient(
+                    colors: palette.cgColors.map { Color(cgColor: $0) },
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
                 .ignoresSafeArea()
+            } else {
+                LinearGradient(colors: colors, startPoint: .topLeading, endPoint: .bottomTrailing)
+                    .ignoresSafeArea()
+            }
 
             ReadabilityOverlay()
                 .ignoresSafeArea()

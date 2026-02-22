@@ -59,9 +59,6 @@ struct CardEditorView: View {
             .onChange(of: viewModel.backgroundSeed) { _, _ in
                 Task { await viewModel.generatePreview() }
             }
-            .onChange(of: viewModel.backgroundMode) { _, _ in
-                Task { await viewModel.generatePreview() }
-            }
         }
     }
 
@@ -132,151 +129,224 @@ struct CardEditorView: View {
         }
     }
 
+    // MARK: - Procedural Controls
+
     private var proceduralBackgroundSection: some View {
-        VStack(alignment: .leading, spacing: LumenTheme.Spacing.sm) {
-            sectionHeader("Background", icon: "paintpalette")
+        VStack(spacing: LumenTheme.Spacing.lg) {
+            // Style
+            VStack(alignment: .leading, spacing: LumenTheme.Spacing.sm) {
+                sectionHeader("Style", icon: "paintpalette")
 
-            Text("Style")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-                .padding(.leading, LumenTheme.Spacing.md)
+                StylePickerView(
+                    selection: $viewModel.selectedStyle,
+                    palette: viewModel.selectedPalette
+                )
+            }
 
-            StylePickerView(
-                selection: $viewModel.selectedStyle,
-                palette: viewModel.selectedPalette
-            )
+            // Color palette
+            VStack(alignment: .leading, spacing: LumenTheme.Spacing.sm) {
+                sectionHeader("Color", icon: "swatchpalette")
 
-            Text("Color")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-                .padding(.leading, LumenTheme.Spacing.md)
-
-            PalettePickerView(selection: $viewModel.selectedPalette)
+                PalettePickerView(selection: $viewModel.selectedPalette)
+            }
 
             shuffleButton
         }
     }
 
-    private var aiBackgroundSection: some View {
-        VStack(alignment: .leading, spacing: LumenTheme.Spacing.sm) {
-            sectionHeader("AI Background", icon: "sparkles")
+    // MARK: - AI Controls (matching ThemeGeneratorView)
 
-            if !viewModel.aiModelReady && !viewModel.isLoadingAIModel {
-                aiModelDownloadPrompt
-            } else if viewModel.isLoadingAIModel {
-                aiModelLoadingView
-            } else {
-                aiPromptPicker
+    private var aiBackgroundSection: some View {
+        VStack(spacing: LumenTheme.Spacing.lg) {
+            // Model status banner
+            aiModelBanner
+
+            if viewModel.isModelReady {
+                // Category picker
+                VStack(alignment: .leading, spacing: LumenTheme.Spacing.sm) {
+                    sectionHeader("Style", icon: "sparkles")
+
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: LumenTheme.Spacing.sm) {
+                            ForEach(AIBackgroundPrompt.PromptCategory.allCases) { category in
+                                Button {
+                                    withAnimation(.easeInOut(duration: 0.2)) {
+                                        viewModel.selectedPromptCategory = category
+                                        viewModel.selectedPrompt = nil
+                                    }
+                                } label: {
+                                    Text("\(category.emoji) \(category.displayName)")
+                                        .font(.subheadline.weight(
+                                            viewModel.selectedPromptCategory == category ? .semibold : .regular
+                                        ))
+                                        .foregroundStyle(
+                                            viewModel.selectedPromptCategory == category ? .white : .white.opacity(0.7)
+                                        )
+                                        .padding(.horizontal, LumenTheme.Spacing.md)
+                                        .padding(.vertical, LumenTheme.Spacing.sm)
+                                        .background(
+                                            Capsule().fill(
+                                                viewModel.selectedPromptCategory == category
+                                                    ? LumenTheme.Colors.primary
+                                                    : LumenTheme.Colors.glassBackground
+                                            )
+                                        )
+                                }
+                                .accessibilityLabel("\(category.displayName) AI backgrounds")
+                                .accessibilityAddTraits(
+                                    viewModel.selectedPromptCategory == category ? .isSelected : []
+                                )
+                            }
+                        }
+                    }
+                }
+
+                // Prompt picker within category
+                VStack(alignment: .leading, spacing: LumenTheme.Spacing.sm) {
+                    HStack {
+                        sectionHeader("Prompt", icon: "text.quote")
+                        Spacer()
+                        Button("Random") {
+                            viewModel.selectedPrompt = .random(category: viewModel.selectedPromptCategory)
+                            Task { await viewModel.generatePreview() }
+                        }
+                        .font(.subheadline)
+                    }
+
+                    let prompts = AIBackgroundPrompt.library.filter {
+                        $0.category == viewModel.selectedPromptCategory
+                    }
+
+                    LazyVGrid(columns: [
+                        GridItem(.flexible()),
+                        GridItem(.flexible()),
+                    ], spacing: LumenTheme.Spacing.sm) {
+                        ForEach(prompts) { prompt in
+                            Button {
+                                viewModel.selectedPrompt = prompt
+                                Task { await viewModel.generatePreview() }
+                            } label: {
+                                Text(prompt.displayName)
+                                    .font(.subheadline.weight(
+                                        viewModel.selectedPrompt?.id == prompt.id ? .semibold : .regular
+                                    ))
+                                    .foregroundStyle(
+                                        viewModel.selectedPrompt?.id == prompt.id ? .white : .white.opacity(0.7)
+                                    )
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, LumenTheme.Spacing.sm)
+                                    .padding(.horizontal, LumenTheme.Spacing.sm)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: LumenTheme.Radii.sm)
+                                            .fill(
+                                                viewModel.selectedPrompt?.id == prompt.id
+                                                    ? LumenTheme.Colors.primary
+                                                    : LumenTheme.Colors.glassBackground
+                                            )
+                                    )
+                            }
+                        }
+                    }
+                }
+
+                // Generate button
+                Button {
+                    Task { await viewModel.generatePreview() }
+                } label: {
+                    HStack {
+                        Image(systemName: "sparkles")
+                        Text(viewModel.isGeneratingPreview ? "Creating…" : "Generate with AI ✨")
+                    }
+                    .font(.body.weight(.semibold))
+                    .foregroundStyle(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 14)
+                    .background(
+                        RoundedRectangle(cornerRadius: LumenTheme.Radii.md)
+                            .fill(LumenTheme.Colors.primary)
+                    )
+                }
+                .disabled(viewModel.isGeneratingPreview)
+                .accessibilityLabel("Generate AI background")
+
                 shuffleButton
             }
         }
     }
 
-    private var aiModelDownloadPrompt: some View {
-        VStack(spacing: LumenTheme.Spacing.md) {
-            Image(systemName: "cpu")
-                .font(.title)
-                .foregroundStyle(.secondary)
+    // MARK: - AI Model Banner
 
-            Text("AI model needs to be loaded before generating backgrounds.")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
-
-            Button {
-                Task { await viewModel.loadAIModel() }
-            } label: {
-                Label("Load AI Model", systemImage: "arrow.down.circle")
-                    .font(.body.weight(.medium))
-                    .foregroundStyle(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 12)
-                    .background(
-                        RoundedRectangle(cornerRadius: LumenTheme.Radii.sm)
-                            .fill(LumenTheme.Colors.primary)
-                    )
-            }
-            .accessibilityLabel("Download and load AI background model")
-        }
-        .padding(LumenTheme.Spacing.md)
-        .background(
-            RoundedRectangle(cornerRadius: LumenTheme.Radii.md)
-                .fill(Color(.secondarySystemGroupedBackground))
-        )
-        .padding(.horizontal, LumenTheme.Spacing.md)
-    }
-
-    private var aiModelLoadingView: some View {
+    private var aiModelBanner: some View {
         VStack(spacing: LumenTheme.Spacing.sm) {
-            ProgressView(value: viewModel.aiLoadProgress, total: 1.0)
-                .tint(LumenTheme.Colors.primary)
+            HStack(spacing: LumenTheme.Spacing.sm) {
+                Image(systemName: aiModelIcon)
+                    .foregroundStyle(aiModelIconColor)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("AI Model")
+                        .font(.subheadline.weight(.semibold))
+                    Text(viewModel.aiLoadState.statusText)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                Spacer()
+                aiModelAction
+            }
 
-            Text(viewModel.aiLoadingPhase)
-                .font(.caption)
-                .foregroundStyle(.secondary)
+            if let progress = viewModel.aiLoadState.progress, progress > 0 {
+                ProgressView(value: progress)
+                    .tint(LumenTheme.Colors.primary)
+            } else if viewModel.aiLoadState.isWorking {
+                ProgressView()
+                    .progressViewStyle(.linear)
+                    .tint(LumenTheme.Colors.primary)
+            }
         }
         .padding(LumenTheme.Spacing.md)
         .background(
-            RoundedRectangle(cornerRadius: LumenTheme.Radii.md)
-                .fill(Color(.secondarySystemGroupedBackground))
+            RoundedRectangle(cornerRadius: LumenTheme.Radii.card)
+                .fill(LumenTheme.Colors.glassBackground)
+                .overlay(
+                    RoundedRectangle(cornerRadius: LumenTheme.Radii.card)
+                        .strokeBorder(LumenTheme.Colors.glassBorder, lineWidth: 0.5)
+                )
         )
-        .padding(.horizontal, LumenTheme.Spacing.md)
     }
 
-    private var aiPromptPicker: some View {
-        VStack(alignment: .leading, spacing: LumenTheme.Spacing.sm) {
-            Text("Category")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-                .padding(.leading, LumenTheme.Spacing.md)
-
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: LumenTheme.Spacing.sm) {
-                    ForEach(AIBackgroundPrompt.PromptCategory.allCases) { category in
-                        Button {
-                            withAnimation(.easeInOut(duration: 0.2)) {
-                                viewModel.selectedPromptCategory = category
-                                viewModel.selectedPrompt = AIBackgroundPrompt.random(category: category)
-                            }
-                            Task { await viewModel.generatePreview() }
-                        } label: {
-                            HStack(spacing: 4) {
-                                Text(category.emoji)
-                                Text(category.displayName)
-                                    .font(.subheadline.weight(.medium))
-                            }
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 8)
-                            .background(
-                                Capsule().fill(
-                                    viewModel.selectedPromptCategory == category
-                                        ? LumenTheme.Colors.primary.opacity(0.2)
-                                        : Color(.tertiarySystemGroupedBackground)
-                                )
-                            )
-                            .foregroundStyle(
-                                viewModel.selectedPromptCategory == category
-                                    ? LumenTheme.Colors.primary
-                                    : .secondary
-                            )
-                        }
-                        .accessibilityLabel("\(category.displayName) AI backgrounds")
-                        .accessibilityAddTraits(
-                            viewModel.selectedPromptCategory == category ? .isSelected : []
-                        )
-                    }
-                }
-                .padding(.horizontal, LumenTheme.Spacing.md)
-            }
-
-            if let prompt = viewModel.selectedPrompt {
-                Text(prompt.displayName)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .padding(.leading, LumenTheme.Spacing.md)
-            }
+    private var aiModelIcon: String {
+        switch viewModel.aiLoadState {
+        case .ready: "checkmark.circle.fill"
+        case .failed: "exclamationmark.triangle.fill"
+        default: "cpu"
         }
     }
+
+    private var aiModelIconColor: Color {
+        switch viewModel.aiLoadState {
+        case .ready: .green
+        case .failed: .red
+        default: .orange
+        }
+    }
+
+    @ViewBuilder
+    private var aiModelAction: some View {
+        switch viewModel.aiLoadState {
+        case .idle, .failed:
+            Button("Load") {
+                Task { await viewModel.loadAIModel() }
+            }
+            .font(.subheadline.weight(.medium))
+            .buttonStyle(.bordered)
+        case .ready:
+            Image(systemName: "checkmark")
+                .foregroundStyle(.green)
+                .font(.subheadline.weight(.semibold))
+        default:
+            EmptyView()
+        }
+    }
+
+    // MARK: - Shuffle
 
     private var shuffleButton: some View {
         Button {
@@ -292,7 +362,6 @@ struct CardEditorView: View {
                         .fill(LumenTheme.Colors.primary.opacity(0.12))
                 )
         }
-        .padding(.horizontal, LumenTheme.Spacing.md)
         .accessibilityLabel("Shuffle background variation")
     }
 
@@ -303,7 +372,6 @@ struct CardEditorView: View {
             sectionHeader("Typography", icon: "textformat")
 
             FontPickerView(selection: $viewModel.selectedFontStyle)
-                .padding(.horizontal, LumenTheme.Spacing.md)
         }
     }
 
@@ -320,7 +388,7 @@ struct CardEditorView: View {
                     .padding(12)
                     .background(
                         RoundedRectangle(cornerRadius: LumenTheme.Radii.sm)
-                            .fill(Color(.systemBackground))
+                            .fill(LumenTheme.Colors.glassBackground)
                     )
 
                 if viewModel.customText.isEmpty {
@@ -331,7 +399,6 @@ struct CardEditorView: View {
                         .allowsHitTesting(false)
                 }
             }
-            .padding(.horizontal, LumenTheme.Spacing.md)
 
             HStack {
                 Spacer()
@@ -341,7 +408,6 @@ struct CardEditorView: View {
                         viewModel.customText.count > 180 ? .orange : .secondary
                     )
             }
-            .padding(.horizontal, LumenTheme.Spacing.md)
         }
     }
 
@@ -360,7 +426,7 @@ struct CardEditorView: View {
                     .padding(.vertical, 14)
                     .background(
                         RoundedRectangle(cornerRadius: LumenTheme.Radii.md)
-                            .fill(Color(.systemBackground))
+                            .fill(LumenTheme.Colors.glassBackground)
                     )
             }
             .accessibilityLabel("Reset to defaults")
@@ -393,7 +459,6 @@ struct CardEditorView: View {
     private func sectionHeader(_ title: String, icon: String) -> some View {
         Label(title, systemImage: icon)
             .font(.headline)
-            .padding(.leading, LumenTheme.Spacing.md)
     }
 }
 
