@@ -16,7 +16,6 @@ struct SettingsView: View {
                 subscriptionSection
                 // cloudSyncSection — hidden until CloudKit container is configured in ASC
                 historySection
-                dataSection
                 helpSection
                 developerSection
             }
