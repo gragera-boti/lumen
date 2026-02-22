@@ -12,6 +12,8 @@ final class CategoryFeedViewModel {
     var categoryName: String = ""
     var isLoading = false
     var errorMessage: String?
+    var editingAffirmation: Affirmation?
+    var customizations: [String: CardCustomization] = [:]
 
     var currentCard: Affirmation? {
         guard currentIndex >= 0, currentIndex < cards.count else { return nil }
@@ -22,14 +24,17 @@ final class CategoryFeedViewModel {
 
     private let favoriteService: FavoriteServiceProtocol
     private let shareService: ShareServiceProtocol
+    private let customizationService: CardCustomizationServiceProtocol
     private let logger = Logger(subsystem: "com.gragera.lumen", category: "CategoryFeed")
 
     init(
         favoriteService: FavoriteServiceProtocol = FavoriteService.shared,
-        shareService: ShareServiceProtocol = ShareService.shared
+        shareService: ShareServiceProtocol = ShareService.shared,
+        customizationService: CardCustomizationServiceProtocol = CardCustomizationService.shared
     ) {
         self.favoriteService = favoriteService
         self.shareService = shareService
+        self.customizationService = customizationService
     }
 
     // MARK: - Actions
@@ -97,6 +102,19 @@ final class CategoryFeedViewModel {
         if currentIndex > 0 {
             currentIndex -= 1
         }
+    }
+
+    func loadCustomizations(modelContext: ModelContext) {
+        do {
+            let all = try customizationService.allCustomizations(modelContext: modelContext)
+            customizations = Dictionary(uniqueKeysWithValues: all.map { ($0.affirmationId, $0) })
+        } catch {
+            logger.error("Load customizations error: \(error.localizedDescription)")
+        }
+    }
+
+    func reloadCustomizations(modelContext: ModelContext) {
+        loadCustomizations(modelContext: modelContext)
     }
 
     func shareImage(isPremium: Bool) -> UIImage? {

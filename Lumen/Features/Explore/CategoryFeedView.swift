@@ -75,6 +75,16 @@ struct CategoryFeedView: View {
                 isPremium: isPremium,
                 modelContext: modelContext
             )
+            viewModel.loadCustomizations(modelContext: modelContext)
+        }
+        .sheet(item: $viewModel.editingAffirmation) { affirmation in
+            CardEditorView(
+                affirmation: affirmation,
+                existingCustomization: viewModel.customizations[affirmation.id]
+            )
+            .onDisappear {
+                viewModel.reloadCustomizations(modelContext: modelContext)
+            }
         }
     }
 
@@ -98,11 +108,14 @@ struct CategoryFeedView: View {
 
                 // Text + action bar
                 if let current = currentAffirmation {
+                    let customization = viewModel.customizations[current.id]
+                    let displayText = customization?.customText?.isEmpty == false
+                        ? customization!.customText! : current.text
                     VStack {
                         Spacer()
 
-                        Text(current.text)
-                            .font(affirmationFont(for: current))
+                        Text(displayText)
+                            .font(customizedFont(for: current, customization: customization))
                             .tracking(letterSpacing(for: current))
                             .foregroundStyle(.white)
                             .multilineTextAlignment(.center)
@@ -196,6 +209,18 @@ struct CategoryFeedView: View {
 
     // MARK: - Typography (matching FeedView)
 
+    private func customizedFont(for affirmation: Affirmation, customization: CardCustomization?) -> Font {
+        if let fontRaw = customization?.fontStyleOverride,
+           let style = AffirmationFontStyle(rawValue: fontRaw) {
+            return style.cardFont(textLength: affirmation.text.count)
+        }
+        if let fontRaw = affirmation.fontStyle,
+           let style = AffirmationFontStyle(rawValue: fontRaw) {
+            return style.cardFont(textLength: affirmation.text.count)
+        }
+        return affirmationFont(for: affirmation)
+    }
+
     private func affirmationFont(for affirmation: Affirmation) -> Font {
         let length = affirmation.text.count
         let design = fontDesign(for: affirmation)
@@ -244,6 +269,15 @@ struct CategoryFeedView: View {
                 isActive: currentAffirmation?.isFavorited == true
             ) {
                 viewModel.toggleFavorite(modelContext: modelContext)
+            }
+
+            feedButton(
+                icon: "paintbrush",
+                label: "feed.edit".localized
+            ) {
+                if let current = currentAffirmation {
+                    viewModel.editingAffirmation = current
+                }
             }
 
             feedButton(
