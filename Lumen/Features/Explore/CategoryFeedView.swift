@@ -10,6 +10,11 @@ struct CategoryFeedView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
 
+    /// Whether the view is showing a fullscreen card (dark bg) vs empty state (light bg).
+    private var showsFullscreenCard: Bool {
+        !viewModel.isLoading && !viewModel.cards.isEmpty
+    }
+
     // Crossfade state
     @State private var textOpacity: Double = 1.0
     @State private var backgroundOpacity: Double = 1.0
@@ -33,9 +38,14 @@ struct CategoryFeedView: View {
                     } label: {
                         Image(systemName: "chevron.left")
                             .font(.body.weight(.semibold))
-                            .foregroundStyle(.white)
+                            .foregroundStyle(showsFullscreenCard ? .white : .primary)
                             .frame(width: 40, height: 40)
-                            .background(.white.opacity(0.2), in: Circle())
+                            .background(
+                                showsFullscreenCard
+                                    ? AnyShapeStyle(.white.opacity(0.2))
+                                    : AnyShapeStyle(.secondary.opacity(0.15)),
+                                in: Circle()
+                            )
                     }
                     .accessibilityLabel("Go back")
                     .accessibilityIdentifier("category_feed_back")
@@ -46,10 +56,15 @@ struct CategoryFeedView: View {
                     if !viewModel.categoryName.isEmpty {
                         Text(viewModel.categoryName)
                             .font(.subheadline.weight(.semibold))
-                            .foregroundStyle(.white)
+                            .foregroundStyle(showsFullscreenCard ? .white : .primary)
                             .padding(.horizontal, 12)
                             .padding(.vertical, 6)
-                            .background(.white.opacity(0.15), in: Capsule())
+                            .background(
+                                showsFullscreenCard
+                                    ? AnyShapeStyle(.white.opacity(0.15))
+                                    : AnyShapeStyle(.secondary.opacity(0.1)),
+                                in: Capsule()
+                            )
                     }
 
                     Spacer()
