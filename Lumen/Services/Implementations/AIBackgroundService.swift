@@ -367,33 +367,38 @@ actor AIBackgroundService: AIBackgroundServiceProtocol {
 
     // MARK: - Image Processing
 
+    /// Upscale a square SD image to fill a portrait target, then center-crop.
+    /// This avoids stretching — the image is uniformly scaled to cover the
+    /// target frame, then the excess is trimmed from the edges.
     private func upscale(cgImage: CGImage, to targetSize: CGSize) -> UIImage {
         let ciImage = CIImage(cgImage: cgImage)
         let context = CIContext(options: [.useSoftwareRenderer: false])
 
-        let scaleX = targetSize.width / CGFloat(cgImage.width)
-        let scaleY = targetSize.height / CGFloat(cgImage.height)
-        let scale = max(scaleX, scaleY)
+        let sourceWidth = CGFloat(cgImage.width)
+        let sourceHeight = CGFloat(cgImage.height)
 
-        // Use Lanczos scale filter for sharp upscaling
-        guard let filter = CIFilter(name: "CILanczosScaleTransform") else {
-            // Fallback: simple affine transform
-            let scaled = ciImage.transformed(by: CGAffineTransform(scaleX: scaleX, y: scaleY))
-            let outputRect = CGRect(origin: .zero, size: targetSize)
-            guard let outputCG = context.createCGImage(scaled, from: outputRect) else {
-                return UIImage(cgImage: cgImage)
-            }
-            return UIImage(cgImage: outputCG)
+        // Scale uniformly to COVER the target (no distortion)
+        let scale = max(targetSize.width / sourceWidth, targetSize.height / sourceHeight)
+
+        // Use Lanczos for sharp upscaling (aspect ratio = 1.0 to keep uniform)
+        let scaledImage: CIImage
+        if let filter = CIFilter(name: "CILanczosScaleTransform") {
+            filter.setValue(ciImage, forKey: kCIInputImageKey)
+            filter.setValue(scale, forKey: kCIInputScaleKey)
+            filter.setValue(1.0, forKey: kCIInputAspectRatioKey)  // Uniform — no distortion
+            scaledImage = filter.outputImage ?? ciImage.transformed(by: CGAffineTransform(scaleX: scale, y: scale))
+        } else {
+            scaledImage = ciImage.transformed(by: CGAffineTransform(scaleX: scale, y: scale))
         }
 
-        filter.setValue(ciImage, forKey: kCIInputImageKey)
-        filter.setValue(scale, forKey: kCIInputScaleKey)
-        filter.setValue(scaleX / scaleY, forKey: kCIInputAspectRatioKey)
+        // Center-crop to target size
+        let scaledWidth = sourceWidth * scale
+        let scaledHeight = sourceHeight * scale
+        let cropX = (scaledWidth - targetSize.width) / 2
+        let cropY = (scaledHeight - targetSize.height) / 2
+        let cropRect = CGRect(x: cropX, y: cropY, width: targetSize.width, height: targetSize.height)
 
-        let outputImage = filter.outputImage ?? ciImage.transformed(by: CGAffineTransform(scaleX: scaleX, y: scaleY))
-        let outputRect = CGRect(origin: .zero, size: targetSize)
-
-        guard let outputCG = context.createCGImage(outputImage, from: outputRect) else {
+        guard let outputCG = context.createCGImage(scaledImage, from: cropRect) else {
             return UIImage(cgImage: cgImage)
         }
 
