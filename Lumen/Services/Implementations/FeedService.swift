@@ -20,7 +20,7 @@ struct FeedService: FeedServiceProtocol {
 
         guard !candidates.isEmpty else {
             logger.warning("No candidates found, relaxing constraints…")
-            return try relaxedFetch(preferences: preferences, modelContext: modelContext)
+            return try relaxedFetch(preferences: preferences, isPremium: isPremium, modelContext: modelContext)
         }
 
         return weightedPick(from: candidates, preferences: preferences, modelContext: modelContext)
@@ -174,13 +174,27 @@ struct FeedService: FeedServiceProtocol {
 
     private func relaxedFetch(
         preferences: UserPreferences,
+        isPremium: Bool = false,
         modelContext: ModelContext
     ) throws -> Affirmation? {
         let allAffirmations = try modelContext.fetch(FetchDescriptor<Affirmation>())
         let selectedIds = preferences.selectedCategoryIds
+        let gentleMode = preferences.gentleMode
+        let includeSensitive = preferences.includeSensitiveTopics
+        let includeSpiritual = preferences.contentFilters.spiritual
 
+        // Relaxed: ignore seen/disliked history, but still respect content safety filters
         let relaxed = allAffirmations.filter { aff in
-            aff.categories.contains { selectedIds.contains($0.id) }
+            let hasMatchingCategory = aff.categories.contains { selectedIds.contains($0.id) }
+            guard hasMatchingCategory else { return false }
+            if aff.isSensitiveTopic && !includeSensitive { return false }
+            if gentleMode {
+                if aff.intensity == .high { return false }
+                if aff.isAbsolute { return false }
+            }
+            if aff.tone == .spiritual && !includeSpiritual { return false }
+            if aff.isPremium && !isPremium { return false }
+            return true
         }
 
         return relaxed.randomElement()

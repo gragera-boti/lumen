@@ -1,6 +1,7 @@
 import Dependencies
 import Foundation
 import Testing
+import UIKit
 
 @testable import Lumen
 
@@ -20,9 +21,15 @@ import Testing
 
             let dir = FileManager.default.temporaryDirectory
             let imagePath = dir.appendingPathComponent("\(UUID().uuidString).png")
-            let thumbPath = dir.appendingPathComponent("\(UUID().uuidString)_thumb.jpg")
-            try Data([0x89, 0x50]).write(to: imagePath)
-            try Data([0xFF, 0xD8]).write(to: thumbPath)
+            let thumbPath = dir.appendingPathComponent("\(UUID().uuidString)_thumb.png")
+            // Create a valid 1x1 pixel image
+            let renderer = UIGraphicsImageRenderer(size: CGSize(width: 1, height: 1))
+            let imageData = renderer.pngData { ctx in
+                UIColor.blue.setFill()
+                ctx.fill(CGRect(x: 0, y: 0, width: 1, height: 1))
+            }
+            try imageData.write(to: imagePath)
+            try imageData.write(to: thumbPath)
 
             return GeneratedBackground(
                 themeId: "test_theme",
@@ -58,10 +65,15 @@ import Testing
         func generate(request: AIBackgroundRequest) async throws -> GeneratedBackground {
             generateCalled = true
             let dir = FileManager.default.temporaryDirectory
-            let imagePath = dir.appendingPathComponent("\(UUID().uuidString).jpg")
-            let thumbPath = dir.appendingPathComponent("\(UUID().uuidString)_thumb.jpg")
-            try Data([0xFF, 0xD8]).write(to: imagePath)
-            try Data([0xFF, 0xD8]).write(to: thumbPath)
+            let imagePath = dir.appendingPathComponent("\(UUID().uuidString).png")
+            let thumbPath = dir.appendingPathComponent("\(UUID().uuidString)_thumb.png")
+            let renderer = await UIGraphicsImageRenderer(size: CGSize(width: 1, height: 1))
+            let imageData = await renderer.pngData { ctx in
+                UIColor.red.setFill()
+                ctx.fill(CGRect(x: 0, y: 0, width: 1, height: 1))
+            }
+            try imageData.write(to: imagePath)
+            try imageData.write(to: thumbPath)
             return GeneratedBackground(
                 themeId: "ai_test",
                 imagePath: imagePath,
@@ -144,10 +156,12 @@ import Testing
         mock.shouldThrow = true
         let mockAI = MockAIGenerator()
         let entitlement = MockEntitlementService()
+        let analytics = MockAnalytics()
         let vm = withDependencies {
             $0.backgroundGenerator = mock
             $0.aiBackgroundService = mockAI
             $0.entitlementService = entitlement
+            $0.analyticsService = analytics
         } operation: {
             ThemeGeneratorViewModel()
         }
