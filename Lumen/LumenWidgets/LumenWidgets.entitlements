@@ -4,7 +4,7 @@
 <dict>
 	<key>com.apple.security.application-groups</key>
 	<array>
-		<string>group.roup.com.gragera.lumen</string>
+		<string>group.com.gragera.lumen</string>
 	</array>
 </dict>
 </plist>
