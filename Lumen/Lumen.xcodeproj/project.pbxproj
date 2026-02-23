@@ -14,6 +14,7 @@
 		09FD3EE482EC6C029F01633B /* PrivacyDataView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82F5AE7BC4BDBCBBED957B9E /* PrivacyDataView.swift */; };
 		0AA6CBB845362DFE38759C3F /* RevenueCat_RevenueCatUI.bundle in Resources */ = {isa = PBXBuildFile; fileRef = AD32263929BF904E5B6833B3 /* RevenueCat_RevenueCatUI.bundle */; };
 		0E2710107B3DD132D7C3FFE2 /* JosefinSans.ttf in Resources */ = {isa = PBXBuildFile; fileRef = BADBB8BD9D75CF765EF1AE46 /* JosefinSans.ttf */; };
+		0E4146670EAA0EC03BF4617F /* BackgroundGeneratorService+NaturalStyles.swift in Sources */ = {isa = PBXBuildFile; fileRef = E553F5AEFC73B01EC3066B01 /* BackgroundGeneratorService+NaturalStyles.swift */; };
 		15F62546D319E872284AD6D1 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5E4986BAD4F87829C87E8E9 /* Theme.swift */; };
 		167FE1B229674B6764AAFDFF /* EntitlementServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB9E633D1F25C7C8BB71BDC9 /* EntitlementServiceProtocol.swift */; };
 		189A673954AD3A801C37789A /* CardCustomization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C429C410688C39C6892A6E7 /* CardCustomization.swift */; };
@@ -36,10 +37,10 @@
 		324918B5409C9BDB6EABC053 /* FontPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F9EDD35C53FBEDDCEB0B971 /* FontPickerView.swift */; };
 		333F729E6FB7B63059D2A4C8 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 656082C6A0CCA3A1CBEA3CA8 /* ContentView.swift */; };
 		3364F4B6203993637E6BE3D1 /* EntitlementState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8DF3870A2714DCFB7888AD8E /* EntitlementState.swift */; };
-		336C18F96077382826032C76 /* AffirmationCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56CC276360C1A74A958F3ED8 /* AffirmationCardView.swift */; };
 		33DCD1536D58F9C9FDCA2DBB /* FavoritesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90090A247CDE04802FE64F74 /* FavoritesView.swift */; };
 		386A51FA43E5D0C888D7F060 /* DeepLinkHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84124BA0AB31B9A5E65C7328 /* DeepLinkHandler.swift */; };
 		3930B1394DCB830ED5DE3B07 /* CardCustomizationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC6F5C1428BB725A943CF29 /* CardCustomizationService.swift */; };
+		3ABE47070024B03DDC0305F9 /* BackgroundGeneratorService+Overlays.swift in Sources */ = {isa = PBXBuildFile; fileRef = 877AF7B898C56CFCC18E424E /* BackgroundGeneratorService+Overlays.swift */; };
 		3AFE76F2DB427A3D74FB20A5 /* Caveat.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 75D08E340D4D84D79D2B9E13 /* Caveat.ttf */; };
 		3C37F1FDF0C415BADA622C8E /* WatchComplication.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1A352932546E09D7041854B /* WatchComplication.swift */; };
 		3D10EA7F85EFDB05622E7531 /* TuistFonts+Lumen.swift in Sources */ = {isa = PBXBuildFile; fileRef = C225F6CF81A4F9195BB8AC2F /* TuistFonts+Lumen.swift */; };
@@ -91,6 +92,7 @@
 		7C4C1689DCDFFF3FBC5EF2BB /* StableDiffusion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2F18E8EB6EAF4A127B402185 /* StableDiffusion.framework */; };
 		7CE5BC5EAD18EB9D5AC7DF30 /* PaywallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB8F00CC3D6BCF0DDBE00F2B /* PaywallView.swift */; };
 		7ED027785498F575DEA20194 /* Intensity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EB26E3E7123A2C731E695EC /* Intensity.swift */; };
+		7F42066F617D702F048B79D8 /* BackgroundGeneratorService+GeometricStyles.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65CC00E8D766DCB32C81FCCD /* BackgroundGeneratorService+GeometricStyles.swift */; };
 		7F558DFFECE543F4F3041329 /* CombineSchedulers.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 13A26536D62D969498ECD8B8 /* CombineSchedulers.framework */; };
 		8229C793FB95DBE76F0ABE68 /* categories_en.json in Resources */ = {isa = PBXBuildFile; fileRef = 2EF1A526662D51CF321A4FB5 /* categories_en.json */; };
 		8333C8A5EBD236C719A19A4E /* ContentServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76B98BCADE61DAFB75026C80 /* ContentServiceTests.swift */; };
@@ -166,7 +168,6 @@
 		F0779D0D86C1B2989FBF7207 /* EntitlementService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C7EF842D9AAC90B92084F40 /* EntitlementService.swift */; };
 		F277E06370D976CE39FA93BD /* ContentService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBDE24CC4580D7462478DD69 /* ContentService.swift */; };
 		F3D57091180257462F62E0EE /* PreferencesService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3A54CBAC3C8EFF78FD2CBF4 /* PreferencesService.swift */; };
-		F487D78770E5FE75A7EFCE0F /* Date+Formatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CBCFB3A1B2229614C96CDBB /* Date+Formatting.swift */; };
 		F68C20D8D62F22FA8005715A /* FavoritesViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7971A5410CB663B9078861D4 /* FavoritesViewModelTests.swift */; };
 		F76002B1A4D0A41AF281F850 /* GradientBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3757731631F7FEB13F62B598 /* GradientBackground.swift */; };
 		F83B6AF51E8E9CF7A940B323 /* FeedServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D24F4749820D94D7CEBA8B1B /* FeedServiceTests.swift */; };
@@ -315,7 +316,6 @@
 		507D8B4F5805BE560825061B /* DancingScript.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = DancingScript.ttf; sourceTree = "<group>"; };
 		5115AB78D89C2B2D627F5CF8 /* Dependencies.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Dependencies.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		53627739BC8DC136CBBD080B /* CustomAffirmationSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomAffirmationSheet.swift; sourceTree = "<group>"; };
-		56CC276360C1A74A958F3ED8 /* AffirmationCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AffirmationCardView.swift; sourceTree = "<group>"; };
 		5B3E1680C6ED4FD754F1B273 /* CardEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardEditorView.swift; sourceTree = "<group>"; };
 		5BE9B369D8A0F0EDEE23CF4C /* CategoryCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryCardView.swift; sourceTree = "<group>"; };
 		5EB26E3E7123A2C731E695EC /* Intensity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Intensity.swift; sourceTree = "<group>"; };
@@ -326,6 +326,7 @@
 		647B4CA3AAC59E7972B92323 /* WidgetService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetService.swift; sourceTree = "<group>"; };
 		64C6099102F800EDF50B38B3 /* CormorantGaramond-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "CormorantGaramond-Bold.ttf"; sourceTree = "<group>"; };
 		656082C6A0CCA3A1CBEA3CA8 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		65CC00E8D766DCB32C81FCCD /* BackgroundGeneratorService+GeometricStyles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BackgroundGeneratorService+GeometricStyles.swift"; sourceTree = "<group>"; };
 		65ED03FB0F4AC919CEF82909 /* Affirmation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Affirmation.swift; sourceTree = "<group>"; };
 		676A3B75A77977EA3C46432B /* CategoryFeedViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryFeedViewModelTests.swift; sourceTree = "<group>"; };
 		68DCFBA52701F28FEAB1F328 /* affirmations_en.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = affirmations_en.json; sourceTree = "<group>"; };
@@ -351,9 +352,9 @@
 		81F31C90F5519FF4AD996621 /* ExploreViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExploreViewModel.swift; sourceTree = "<group>"; };
 		82F5AE7BC4BDBCBBED957B9E /* PrivacyDataView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivacyDataView.swift; sourceTree = "<group>"; };
 		84124BA0AB31B9A5E65C7328 /* DeepLinkHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepLinkHandler.swift; sourceTree = "<group>"; };
+		877AF7B898C56CFCC18E424E /* BackgroundGeneratorService+Overlays.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BackgroundGeneratorService+Overlays.swift"; sourceTree = "<group>"; };
 		88940B14EE69D30BB82FA8E3 /* AnalyticsServiceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsServiceProtocol.swift; sourceTree = "<group>"; };
 		8A5EB3B8DD759C2E6F3104B9 /* CloudSyncServiceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudSyncServiceProtocol.swift; sourceTree = "<group>"; };
-		8CBCFB3A1B2229614C96CDBB /* Date+Formatting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Date+Formatting.swift"; sourceTree = "<group>"; };
 		8DF3870A2714DCFB7888AD8E /* EntitlementState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EntitlementState.swift; sourceTree = "<group>"; };
 		90090A247CDE04802FE64F74 /* FavoritesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoritesView.swift; sourceTree = "<group>"; };
 		906321285338E137193EAB8B /* BackgroundGeneratorServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundGeneratorServiceTests.swift; sourceTree = "<group>"; };
@@ -414,6 +415,7 @@
 		DDF18C6F7EDDF6E842735470 /* ZillaSlab-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "ZillaSlab-Bold.ttf"; sourceTree = "<group>"; };
 		DED0B366D214F29644DCF4DC /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
 		E2BC2072FBEE93142EADC197 /* SeenEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeenEvent.swift; sourceTree = "<group>"; };
+		E553F5AEFC73B01EC3066B01 /* BackgroundGeneratorService+NaturalStyles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BackgroundGeneratorService+NaturalStyles.swift"; sourceTree = "<group>"; };
 		E6AD582BDE5DAFB4CF0A7A76 /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModel.swift; sourceTree = "<group>"; };
 		E7573C44E39B8DD4BAE23D9F /* IssueReporting.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = IssueReporting.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		E8D0850EF4D053E2993133D2 /* AIBackgroundService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIBackgroundService.swift; sourceTree = "<group>"; };
@@ -553,6 +555,9 @@
 				E8D0850EF4D053E2993133D2 /* AIBackgroundService.swift */,
 				CA128F797A9C0DBBAA6A84BE /* AnalyticsService.swift */,
 				0C4EC73D6B7A67156E198F6F /* BackgroundGeneratorService.swift */,
+				65CC00E8D766DCB32C81FCCD /* BackgroundGeneratorService+GeometricStyles.swift */,
+				E553F5AEFC73B01EC3066B01 /* BackgroundGeneratorService+NaturalStyles.swift */,
+				877AF7B898C56CFCC18E424E /* BackgroundGeneratorService+Overlays.swift */,
 				ECC6F5C1428BB725A943CF29 /* CardCustomizationService.swift */,
 				73662858A5FAF253C8FB4531 /* CloudSyncService.swift */,
 				FBDE24CC4580D7462478DD69 /* ContentService.swift */,
@@ -769,7 +774,6 @@
 			isa = PBXGroup;
 			children = (
 				2262A3DF203FB3BAC6DEA55A /* Color+Hex.swift */,
-				8CBCFB3A1B2229614C96CDBB /* Date+Formatting.swift */,
 				F59A42990A7C7E9C84C77D2E /* Logger+Lumen.swift */,
 				364E94280BFDC14AD1664303 /* String+Localization.swift */,
 			);
@@ -876,7 +880,6 @@
 		B4FF548034194BB3A6CFCB47 /* Components */ = {
 			isa = PBXGroup;
 			children = (
-				56CC276360C1A74A958F3ED8 /* AffirmationCardView.swift */,
 				53627739BC8DC136CBBD080B /* CustomAffirmationSheet.swift */,
 				A5BE67B50638B81A9EC5169E /* EditAffirmationSheet.swift */,
 			);
@@ -1156,7 +1159,6 @@
 				3D10EA7F85EFDB05622E7531 /* TuistFonts+Lumen.swift in Sources */,
 				ED8CAEC6594140F6A735490F /* TuistStrings+Lumen.swift in Sources */,
 				3E2A294AD5B93D2C5328F229 /* Color+Hex.swift in Sources */,
-				F487D78770E5FE75A7EFCE0F /* Date+Formatting.swift in Sources */,
 				507A756CAB854DF16252DEE6 /* Logger+Lumen.swift in Sources */,
 				4F6C33A9A1500E05D064D8A6 /* String+Localization.swift in Sources */,
 				1CC4F7B21B0E7221C39493D0 /* AffirmationDetailView.swift in Sources */,
@@ -1174,7 +1176,6 @@
 				33DCD1536D58F9C9FDCA2DBB /* FavoritesView.swift in Sources */,
 				685D78BB648C2728F59DAD5D /* FavoritesViewModel.swift in Sources */,
 				4E508C8E4F5562803662D16C /* SlideshowView.swift in Sources */,
-				336C18F96077382826032C76 /* AffirmationCardView.swift in Sources */,
 				CF771922F9836BD3A2852591 /* CustomAffirmationSheet.swift in Sources */,
 				51B6338271758C275A96A2A1 /* EditAffirmationSheet.swift in Sources */,
 				605E8AF3C00684603EFDCDFD /* FeedView.swift in Sources */,
@@ -1221,6 +1222,9 @@
 				CA621C01BC3432156245D84A /* DependencyRegistrations.swift in Sources */,
 				A0444F4D4E6502CDEFA7C1BE /* AIBackgroundService.swift in Sources */,
 				BBC120CAED380A40BF49614B /* AnalyticsService.swift in Sources */,
+				7F42066F617D702F048B79D8 /* BackgroundGeneratorService+GeometricStyles.swift in Sources */,
+				0E4146670EAA0EC03BF4617F /* BackgroundGeneratorService+NaturalStyles.swift in Sources */,
+				3ABE47070024B03DDC0305F9 /* BackgroundGeneratorService+Overlays.swift in Sources */,
 				6FFA457B004AA3FCB53E0638 /* BackgroundGeneratorService.swift in Sources */,
 				3930B1394DCB830ED5DE3B07 /* CardCustomizationService.swift in Sources */,
 				75E0C6448D3B1B0BB798583B /* CloudSyncService.swift in Sources */,

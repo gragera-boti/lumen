@@ -124,9 +124,12 @@ struct CategoryFeedView: View {
                 // Text + action bar
                 if let current = currentAffirmation {
                     let customization = viewModel.customizations[current.id]
-                    let displayText =
-                        customization?.customText?.isEmpty == false
-                        ? customization!.customText! : current.text
+                    let displayText: String =
+                        if let text = customization?.customText, !text.isEmpty {
+                            text
+                        } else {
+                            current.text
+                        }
                     VStack {
                         Spacer()
 

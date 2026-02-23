@@ -1,6 +1,5 @@
 import Dependencies
 import Foundation
-import SwiftData
 import Testing
 
 @testable import Lumen
@@ -9,33 +8,6 @@ import Testing
 @MainActor struct OnboardingViewModelTests {
 
     // MARK: - Mocks
-
-    private final class MockContentService: ContentServiceProtocol, @unchecked Sendable {
-        var categories: [Lumen.Category] = []
-
-        func loadBundledContentIfNeeded(modelContext: ModelContext) throws {}
-
-        func fetchCategories(modelContext: ModelContext, locale: String) throws -> [Lumen.Category] {
-            categories
-        }
-
-        func fetchAffirmation(byId id: String, modelContext: ModelContext) throws -> Affirmation? {
-            nil
-        }
-    }
-
-    private final class MockPreferencesService: PreferencesServiceProtocol, @unchecked Sendable {
-        var savedPreferences: UserPreferences?
-
-        func getOrCreate(modelContext: ModelContext) throws -> UserPreferences {
-            if let existing = savedPreferences { return existing }
-            let prefs = UserPreferences()
-            savedPreferences = prefs
-            return prefs
-        }
-
-        func save(modelContext: ModelContext) throws {}
-    }
 
     private final class MockNotificationService: NotificationServiceProtocol, @unchecked Sendable {
         var shouldGrant = true

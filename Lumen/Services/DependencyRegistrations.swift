@@ -49,6 +49,7 @@ extension DependencyValues {
 
 // MARK: DislikeService
 
+// periphery:ignore - registered for completeness, not yet consumed by any ViewModel
 private enum DislikeServiceKey: DependencyKey {
     static let liveValue: any DislikeServiceProtocol = DislikeService.shared
 }

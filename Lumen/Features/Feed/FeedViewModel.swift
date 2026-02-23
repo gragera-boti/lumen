@@ -27,11 +27,6 @@ final class FeedViewModel {
     /// Card customizations keyed by affirmation id.
     var customizations: [String: CardCustomization] = [:]
 
-    /// Auto-advance timer for feed rotation.
-    private var autoAdvanceTask: Task<Void, Never>?
-    /// Seconds between auto-advances.
-    private let autoAdvanceInterval: TimeInterval = 12
-
     var currentCard: Affirmation? {
         guard currentIndex >= 0, currentIndex < cards.count else { return nil }
         return cards[currentIndex]
@@ -150,10 +145,6 @@ final class FeedViewModel {
     // MARK: - Card Customizations
 
     /// Loads the customization for a single affirmation, if one exists.
-    func loadCustomization(for affirmation: Affirmation, modelContext: ModelContext) throws -> CardCustomization? {
-        try customizationService.customization(for: affirmation.id, modelContext: modelContext)
-    }
-
     /// Bulk-loads all customizations and indexes them by affirmation id.
     func applyCustomizations(to cards: [Affirmation], modelContext: ModelContext) {
         do {
@@ -232,27 +223,6 @@ final class FeedViewModel {
     }
 
     // MARK: - Auto Advance
-
-    func startAutoAdvance() {
-        stopAutoAdvance()
-        autoAdvanceTask = Task { [weak self] in
-            while !Task.isCancelled {
-                try? await Task.sleep(for: .seconds(self?.autoAdvanceInterval ?? 12))
-                guard !Task.isCancelled else { break }
-                self?.swipeToNext()
-            }
-        }
-    }
-
-    func stopAutoAdvance() {
-        autoAdvanceTask?.cancel()
-        autoAdvanceTask = nil
-    }
-
-    func resetAutoAdvance() {
-        // Restart the timer on manual interaction
-        startAutoAdvance()
-    }
 
     /// Insert the most recently created user affirmation right after the current card and navigate to it.
     func insertLatestUserAffirmation(modelContext: ModelContext) {

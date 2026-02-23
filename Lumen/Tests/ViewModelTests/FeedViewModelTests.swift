@@ -8,64 +8,6 @@ import Testing
 @Suite("FeedViewModel Tests")
 @MainActor struct FeedViewModelTests {
 
-    // MARK: - Mocks
-
-    private final class MockFeedService: FeedServiceProtocol, @unchecked Sendable {
-        var affirmations: [Affirmation] = []
-        var dailyResult: Affirmation?
-        var callCount = 0
-
-        func nextAffirmation(
-            preferences: UserPreferences,
-            isPremium: Bool,
-            modelContext: ModelContext
-        ) throws -> Affirmation? {
-            defer { callCount += 1 }
-            guard callCount < affirmations.count else { return nil }
-            return affirmations[callCount]
-        }
-
-        func dailyAffirmation(
-            preferences: UserPreferences,
-            isPremium: Bool,
-            modelContext: ModelContext
-        ) throws -> Affirmation? {
-            dailyResult
-        }
-
-        func loadBatch(
-            count: Int,
-            preferences: UserPreferences,
-            isPremium: Bool,
-            modelContext: ModelContext
-        ) throws -> (daily: Affirmation?, feed: [Affirmation]) {
-            (dailyResult, affirmations)
-        }
-
-        func recordSeen(affirmation: Affirmation, source: SeenSource, modelContext: ModelContext) throws {}
-    }
-
-    private final class MockFavoriteService: FavoriteServiceProtocol, @unchecked Sendable {
-        var toggleCalled = false
-
-        func toggleFavorite(affirmation: Affirmation, modelContext: ModelContext) throws {
-            toggleCalled = true
-        }
-
-        func fetchFavorites(modelContext: ModelContext) throws -> [Affirmation] { [] }
-    }
-
-    private final class MockShareService: ShareServiceProtocol, @unchecked Sendable {
-        @MainActor func renderShareImage(
-            text: String,
-            gradientColors: [SwiftUI.Color],
-            size: CGSize,
-            showWatermark: Bool
-        ) -> UIImage? {
-            UIImage()
-        }
-    }
-
     // MARK: - Tests
 
     @Test("initial state")

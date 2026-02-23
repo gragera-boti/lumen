@@ -31,10 +31,12 @@ struct HistoryView: View {
         List {
             ForEach(viewModel.entries) { entry in
                 let custom = customizations[entry.affirmationId]
-                let displayText =
-                    (custom?.customText?.isEmpty == false)
-                    ? custom!.customText!
-                    : entry.text
+                let displayText: String =
+                    if let text = custom?.customText, !text.isEmpty {
+                        text
+                    } else {
+                        entry.text
+                    }
                 Button {
                     router.navigate(to: .affirmationDetail(affirmationId: entry.affirmationId), in: .settings)
                 } label: {

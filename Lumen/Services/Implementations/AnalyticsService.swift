@@ -27,6 +27,7 @@ actor AnalyticsService: AnalyticsServiceProtocol {
 
     // MARK: - Event mapping
 
+    // swiftlint:disable:next cyclomatic_complexity
     private func eventName(for event: AnalyticsEvent) -> String {
         switch event {
         case .onboardingStarted: "onboarding_started"

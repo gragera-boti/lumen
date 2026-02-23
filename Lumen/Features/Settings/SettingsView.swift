@@ -71,7 +71,7 @@ struct SettingsView: View {
         }
     }
 
-    private func remindersSection(_ prefs: UserPreferences) -> some View {
+    private func remindersSection(_: UserPreferences) -> some View {
         Section("settings.reminders".localized) {
             NavigationLink(value: AppDestination.reminders) {
                 Label("settings.reminderSchedule".localized, systemImage: "bell.fill")
@@ -120,6 +120,7 @@ struct SettingsView: View {
         }
     }
 
+    // periphery:ignore - hidden until CloudKit container is configured
     private var cloudSyncSection: some View {
         Section {
             HStack {
@@ -161,6 +162,7 @@ struct SettingsView: View {
         }
     }
 
+    // periphery:ignore - hidden until CloudKit container is configured
     private var dataSection: some View {
         Section("settings.dataPrivacy".localized) {
             NavigationLink(value: AppDestination.privacyData) {

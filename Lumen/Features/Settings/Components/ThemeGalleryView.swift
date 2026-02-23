@@ -91,7 +91,7 @@ struct ThemeGalleryView: View {
 
     private func toggleActive(_ theme: AppTheme) {
         withAnimation(.easeInOut(duration: 0.2)) {
-            theme.isInRotation = !theme.isInRotation
+            theme.isInRotation.toggle()
             theme.updatedAt = .now
             try? modelContext.save()
         }

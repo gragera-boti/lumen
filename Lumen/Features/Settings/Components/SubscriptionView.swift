@@ -2,7 +2,6 @@ import RevenueCatUI
 import SwiftUI
 
 struct SubscriptionView: View {
-    @Environment(AppRouter.self) private var router
     @State private var isPremium = false
     @State private var showPaywall = false
 
@@ -60,11 +59,13 @@ struct SubscriptionView: View {
                 }
             }
 
-            Section {
-                Link(
-                    "subscription.contact_support".localized,
-                    destination: URL(string: "mailto:alberto.gragera@gmail.com")!
-                )
+            if let supportURL = URL(string: "mailto:alberto.gragera@gmail.com") {
+                Section {
+                    Link(
+                        "subscription.contact_support".localized,
+                        destination: supportURL
+                    )
+                }
             }
         }
         .ambientBackground()

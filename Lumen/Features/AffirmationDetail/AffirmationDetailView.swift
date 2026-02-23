@@ -44,9 +44,11 @@ struct AffirmationDetailView: View {
         let gradientIndex = abs(affirmation.id.hashValue) % LumenTheme.Colors.gradients.count
         let colors = LumenTheme.Colors.gradients[gradientIndex]
         let displayText =
-            customization?.customText?.isEmpty == false
-            ? customization!.customText!
-            : affirmation.text
+            if let text = customization?.customText, !text.isEmpty {
+                text
+            } else {
+                affirmation.text
+            }
 
         ZStack {
             if let cachedPath = customization?.cachedImagePath,

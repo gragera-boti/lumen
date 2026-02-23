@@ -4,7 +4,6 @@ import SwiftUI
 struct FeedView: View {
     @State private var viewModel = FeedViewModel()
     @Environment(\.modelContext) private var modelContext
-    @Environment(AppRouter.self) private var router
     @State private var showCustomAffirmation = false
 
     // Crossfade transition state
@@ -141,10 +140,12 @@ struct FeedView: View {
     private func cardTextAndActions(geo: GeometryProxy) -> some View {
         if let current = currentAffirmation {
             let customization = viewModel.customizations[current.id]
-            let displayText =
-                customization?.customText?.isEmpty == false
-                ? customization!.customText!
-                : current.text
+            let displayText: String =
+                if let text = customization?.customText, !text.isEmpty {
+                    text
+                } else {
+                    current.text
+                }
             VStack {
                 Spacer()
 

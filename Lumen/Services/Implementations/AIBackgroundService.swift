@@ -474,7 +474,7 @@ actor AIBackgroundService: AIBackgroundServiceProtocol {
         ) {
             return container.appendingPathComponent("themes/ai")
         }
-        let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
+        let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
         return appSupport.appendingPathComponent("themes/ai")
     }
 }

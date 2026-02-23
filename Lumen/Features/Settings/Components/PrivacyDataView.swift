@@ -45,7 +45,9 @@ struct PrivacyDataView: View {
             }
 
             Section("Privacy Policy") {
-                Link("Read our privacy policy", destination: URL(string: "https://example.com/privacy")!)
+                if let privacyURL = URL(string: "https://example.com/privacy") {
+                    Link("Read our privacy policy", destination: privacyURL)
+                }
             }
         }
         .ambientBackground()
@@ -54,14 +56,19 @@ struct PrivacyDataView: View {
             preferences = try? preferencesService.getOrCreate(modelContext: modelContext)
         }
         .sheet(isPresented: $showShareSheet) {
-            if let data = exportedData {
-                let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent("lumen_favorites.json")
-                let _ = try? data.write(to: tempURL)
-                ShareLink(item: tempURL) {
+            if let url = exportedFileURL {
+                ShareLink(item: url) {
                     Text("Share exported data")
                 }
             }
         }
+    }
+
+    private var exportedFileURL: URL? {
+        guard let data = exportedData else { return nil }
+        let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent("lumen_favorites.json")
+        try? data.write(to: tempURL)
+        return tempURL
     }
 
     private func save() {

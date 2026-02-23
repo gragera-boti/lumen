@@ -29,10 +29,12 @@ struct SlideshowView: View {
             if !affirmations.isEmpty {
                 let aff = affirmations[currentIndex]
                 let custom = customizations[aff.id]
-                let displayText =
-                    (custom?.customText?.isEmpty == false)
-                    ? custom!.customText!
-                    : aff.text
+                let displayText: String =
+                    if let text = custom?.customText, !text.isEmpty {
+                        text
+                    } else {
+                        aff.text
+                    }
                 Text(displayText)
                     .font(.custom("PlayfairDisplayRoman-Bold", size: 36))
                     .foregroundStyle(.white)

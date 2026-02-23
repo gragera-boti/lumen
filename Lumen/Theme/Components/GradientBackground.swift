@@ -1,20 +1,5 @@
 import SwiftUI
 
-struct GradientBackground: View {
-    let colors: [Color]
-    var startPoint: UnitPoint = .topLeading
-    var endPoint: UnitPoint = .bottomTrailing
-
-    var body: some View {
-        LinearGradient(
-            colors: colors,
-            startPoint: startPoint,
-            endPoint: endPoint
-        )
-        .ignoresSafeArea()
-    }
-}
-
 struct AnimatedGradientBackground: View {
     let colors: [Color]
     @State private var animateGradient = false
@@ -35,10 +20,6 @@ struct AnimatedGradientBackground: View {
 }
 
 // MARK: - Preview
-
-#Preview("Static Gradient") {
-    GradientBackground(colors: [.teal, .blue])
-}
 
 #Preview("Animated Gradient") {
     AnimatedGradientBackground(colors: [.purple, .pink, .orange])
