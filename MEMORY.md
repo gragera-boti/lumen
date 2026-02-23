@@ -71,9 +71,13 @@
 - All 14 force unwraps eliminated
 - Periphery scan done: removed dead code (AffirmationCardView, Date+Formatting, auto-advance, stale mocks)
 - Entitlements typo fixed: `group.roup.com.gragera.lumen` → `group.com.gragera.lumen`
-- Zero SwiftLint errors, 27 warnings (short var names in drawing code, acceptable)
-- swift-snapshot-testing added as dependency (not yet scaffolded)
+- Zero SwiftLint errors, ~27 warnings (short var names in drawing code, acceptable)
+- 4 snapshot tests scaffolded: CategoryCardView (standard + premium), CrisisView, OnboardingView
+- Fixed non-deterministic `hashValue` in CategoryCardView → stable UTF-8 sum
+- Cleaned Theme.swift: removed 10 unused color/font tokens
+- **104/104 tests passing** (100 unit + 4 snapshot)
 - `project.yml.deprecated` kept for reference
+- Note: entitlements fix requires regenerating provisioning profiles in ASC
 
 ## 2026-02-23
 - Typography overhaul complete: 10 custom Google Fonts, weighted random assignment, legacy mapping
