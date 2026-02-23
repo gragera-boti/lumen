@@ -80,6 +80,7 @@
 		685D78BB648C2728F59DAD5D /* FavoritesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3A594120AC482F3D2504C3C /* FavoritesViewModel.swift */; };
 		68CE93744D7B92D617C9D6FD /* SnapshotTesting.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A2EFAE89A876E3A0EAB45B1 /* SnapshotTesting.framework */; };
 		6966A85F9EC2FD2B7AB5041E /* ExploreViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46F40FD262A407FD24289AE8 /* ExploreViewModelTests.swift */; };
+		6ABDFDBBE92BA811344A03DC /* ComponentSnapshotTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC3FA104514ACE238BFC905A /* ComponentSnapshotTests.swift */; };
 		6B78FAA561B5CD21DC457E35 /* RevenueCat.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 765A189010C2332A0C9FE2B1 /* RevenueCat.framework */; };
 		6F6D9B2BF442FBC108921D31 /* RevenueCat_RevenueCatUI.bundle in Dependencies */ = {isa = PBXBuildFile; fileRef = AD32263929BF904E5B6833B3 /* RevenueCat_RevenueCatUI.bundle */; };
 		6FFA457B004AA3FCB53E0638 /* BackgroundGeneratorService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C4EC73D6B7A67156E198F6F /* BackgroundGeneratorService.swift */; };
@@ -382,6 +383,7 @@
 		BA4654D52F1A26F05994A11B /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		BAB7E4C85C05FF05D376A9FF /* PaywallViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaywallViewModelTests.swift; sourceTree = "<group>"; };
 		BADBB8BD9D75CF765EF1AE46 /* JosefinSans.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = JosefinSans.ttf; sourceTree = "<group>"; };
+		BC3FA104514ACE238BFC905A /* ComponentSnapshotTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComponentSnapshotTests.swift; sourceTree = "<group>"; };
 		BC7B9341D5AAC7E801FCFA10 /* LumenWidgets.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = LumenWidgets.entitlements; sourceTree = "<group>"; };
 		BD4307B26DF3F7AEDD9679BD /* LumenWatchApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LumenWatchApp.swift; sourceTree = "<group>"; };
 		C03CFB6175EA6A45BE046ADD /* UserPreferences.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserPreferences.swift; sourceTree = "<group>"; };
@@ -627,6 +629,14 @@
 				7BAE51957F483717ED71CC80 /* ThemesSettingsView.swift */,
 			);
 			path = Components;
+			sourceTree = "<group>";
+		};
+		4A2180BC9CAD87701CFBCA89 /* SnapshotTests */ = {
+			isa = PBXGroup;
+			children = (
+				BC3FA104514ACE238BFC905A /* ComponentSnapshotTests.swift */,
+			);
+			path = SnapshotTests;
 			sourceTree = "<group>";
 		};
 		4AD741030E3F90736B573BEF /* Components */ = {
@@ -890,6 +900,7 @@
 			isa = PBXGroup;
 			children = (
 				7BF7FE3BB7FB088103A72D74 /* ServiceTests */,
+				4A2180BC9CAD87701CFBCA89 /* SnapshotTests */,
 				2972EEC9FDC279F793B3EC3E /* ViewModelTests */,
 			);
 			path = Tests;
@@ -1271,6 +1282,7 @@
 				929BB637AC368AC7603171E8 /* FavoriteServiceTests.swift in Sources */,
 				F83B6AF51E8E9CF7A940B323 /* FeedServiceTests.swift in Sources */,
 				9A47CA99F54A34641287B0C0 /* PreferencesServiceTests.swift in Sources */,
+				6ABDFDBBE92BA811344A03DC /* ComponentSnapshotTests.swift in Sources */,
 				EA3F9701EB95C83FC6F228CB /* CardEditorViewModelTests.swift in Sources */,
 				3F177102F89EBC2359B4C64C /* CategoryFeedViewModelTests.swift in Sources */,
 				466FBCC9DA3F89F56324232D /* CustomizationRefreshTests.swift in Sources */,

@@ -5,7 +5,7 @@ struct CategoryCardView: View {
     let action: () -> Void
 
     private var categoryColors: [Color] {
-        let index = abs(category.id.hashValue) % LumenTheme.Colors.gradients.count
+        let index = abs(category.id.utf8.reduce(0) { $0 &+ Int($1) }) % LumenTheme.Colors.gradients.count
         return LumenTheme.Colors.gradients[index]
     }
 
