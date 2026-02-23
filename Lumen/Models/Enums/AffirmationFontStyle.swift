@@ -3,16 +3,16 @@ import SwiftUI
 /// Curated font styles for affirmation cards.
 /// Includes bundled custom fonts (OFL-licensed) and select system fonts.
 enum AffirmationFontStyle: String, CaseIterable, Identifiable, Codable {
-    case playfair       // Playfair Display — dramatic editorial serif
-    case cormorant      // Cormorant Garamond — refined, tall, elegant
-    case caveat         // Caveat — warm natural handwriting
-    case dancing        // Dancing Script — lively calligraphic script
-    case abril          // Abril Fatface — bold display serif, magazine cover
-    case josefin        // Josefin Sans — geometric, airy, Scandinavian
-    case zilla          // Zilla Slab — friendly, strong slab serif
-    case righteous      // Righteous — retro-futuristic display
-    case rounded        // SF Rounded — soft, approachable (system)
-    case heavy          // SF Pro Heavy — powerful, assertive (system)
+    case playfair  // Playfair Display — dramatic editorial serif
+    case cormorant  // Cormorant Garamond — refined, tall, elegant
+    case caveat  // Caveat — warm natural handwriting
+    case dancing  // Dancing Script — lively calligraphic script
+    case abril  // Abril Fatface — bold display serif, magazine cover
+    case josefin  // Josefin Sans — geometric, airy, Scandinavian
+    case zilla  // Zilla Slab — friendly, strong slab serif
+    case righteous  // Righteous — retro-futuristic display
+    case rounded  // SF Rounded — soft, approachable (system)
+    case heavy  // SF Pro Heavy — powerful, assertive (system)
 
     var id: String { rawValue }
 

@@ -1,5 +1,5 @@
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 struct SlideshowView: View {
     let affirmations: [Affirmation]
@@ -29,7 +29,8 @@ struct SlideshowView: View {
             if !affirmations.isEmpty {
                 let aff = affirmations[currentIndex]
                 let custom = customizations[aff.id]
-                let displayText = (custom?.customText?.isEmpty == false)
+                let displayText =
+                    (custom?.customText?.isEmpty == false)
                     ? custom!.customText!
                     : aff.text
                 Text(displayText)

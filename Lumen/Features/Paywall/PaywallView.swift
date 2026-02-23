@@ -1,5 +1,5 @@
-import SwiftUI
 import RevenueCatUI
+import SwiftUI
 
 struct LumenPaywallView: View {
     @Environment(\.dismiss) private var dismiss

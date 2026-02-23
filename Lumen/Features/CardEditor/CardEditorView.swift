@@ -1,5 +1,5 @@
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 // MARK: - CardEditorView
 
@@ -179,11 +179,14 @@ struct CardEditorView: View {
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, LumenTheme.Spacing.xl)
             } else {
-                LazyVGrid(columns: [
-                    GridItem(.flexible()),
-                    GridItem(.flexible()),
-                    GridItem(.flexible()),
-                ], spacing: LumenTheme.Spacing.sm) {
+                LazyVGrid(
+                    columns: [
+                        GridItem(.flexible()),
+                        GridItem(.flexible()),
+                        GridItem(.flexible()),
+                    ],
+                    spacing: LumenTheme.Spacing.sm
+                ) {
                     ForEach(viewModel.savedBackgrounds) { item in
                         Button {
                             viewModel.selectSavedBackground(item)
@@ -241,9 +244,11 @@ struct CardEditorView: View {
                                     }
                                 } label: {
                                     Text("\(category.emoji) \(category.displayName)")
-                                        .font(.subheadline.weight(
-                                            viewModel.selectedPromptCategory == category ? .semibold : .regular
-                                        ))
+                                        .font(
+                                            .subheadline.weight(
+                                                viewModel.selectedPromptCategory == category ? .semibold : .regular
+                                            )
+                                        )
                                         .foregroundStyle(
                                             viewModel.selectedPromptCategory == category ? .white : .white.opacity(0.7)
                                         )
@@ -282,19 +287,24 @@ struct CardEditorView: View {
                         $0.category == viewModel.selectedPromptCategory
                     }
 
-                    LazyVGrid(columns: [
-                        GridItem(.flexible()),
-                        GridItem(.flexible()),
-                    ], spacing: LumenTheme.Spacing.sm) {
+                    LazyVGrid(
+                        columns: [
+                            GridItem(.flexible()),
+                            GridItem(.flexible()),
+                        ],
+                        spacing: LumenTheme.Spacing.sm
+                    ) {
                         ForEach(prompts) { prompt in
                             Button {
                                 viewModel.selectedPrompt = prompt
                                 Task { await viewModel.generatePreview() }
                             } label: {
                                 Text(prompt.displayName)
-                                    .font(.subheadline.weight(
-                                        viewModel.selectedPrompt?.id == prompt.id ? .semibold : .regular
-                                    ))
+                                    .font(
+                                        .subheadline.weight(
+                                            viewModel.selectedPrompt?.id == prompt.id ? .semibold : .regular
+                                        )
+                                    )
                                     .foregroundStyle(
                                         viewModel.selectedPrompt?.id == prompt.id ? .white : .white.opacity(0.7)
                                     )

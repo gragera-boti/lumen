@@ -1,4 +1,6 @@
+import Foundation
 import Testing
+
 @testable import Lumen
 
 @Suite("AIBackgroundService Tests")

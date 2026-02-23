@@ -1,0 +1,8 @@
+workspace: Lumen.xcworkspace
+schemes:
+  - Lumen
+targets:
+  - Lumen
+  - LumenTests
+retain_public: true
+verbose: false

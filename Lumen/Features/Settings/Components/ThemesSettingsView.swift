@@ -1,5 +1,5 @@
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 struct ThemesSettingsView: View {
     @Environment(\.modelContext) private var modelContext
@@ -135,7 +135,8 @@ private struct ThemeThumbnail: View {
 
     private func parseGradient() -> [Color] {
         guard let data = theme.dataJSON.data(using: .utf8),
-              let gradient = try? JSONDecoder().decode(GradientData.self, from: data) else {
+            let gradient = try? JSONDecoder().decode(GradientData.self, from: data)
+        else {
             return [.gray]
         }
         return gradient.swiftUIColors

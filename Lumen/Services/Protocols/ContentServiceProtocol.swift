@@ -3,7 +3,7 @@ import SwiftData
 
 /// Service for loading and querying bundled content (categories, affirmations, themes).
 @MainActor
-protocol ContentServiceProtocol {
+protocol ContentServiceProtocol: Sendable {
     /// Load all bundled JSON content into SwiftData on first launch.
     /// No-op if categories already exist in the store.
     /// - Parameter modelContext: The SwiftData model context to insert content into.

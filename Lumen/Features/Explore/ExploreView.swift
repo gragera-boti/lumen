@@ -1,5 +1,5 @@
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 struct ExploreView: View {
     @State private var viewModel = ExploreViewModel()
@@ -11,21 +11,24 @@ struct ExploreView: View {
 
     var body: some View {
         ScrollView {
-                LazyVGrid(columns: [
+            LazyVGrid(
+                columns: [
                     GridItem(.flexible()),
                     GridItem(.flexible()),
-                ], spacing: LumenTheme.Spacing.md) {
-                    ForEach(viewModel.categories, id: \.id) { category in
-                        CategoryCardView(category: category) {
-                            if category.isPremium && !viewModel.isPremium {
-                                router.isShowingPaywall = true
-                            } else {
-                                router.navigate(to: .categoryFeed(categoryId: category.id), in: .explore)
-                            }
+                ],
+                spacing: LumenTheme.Spacing.md
+            ) {
+                ForEach(viewModel.categories, id: \.id) { category in
+                    CategoryCardView(category: category) {
+                        if category.isPremium && !viewModel.isPremium {
+                            router.isShowingPaywall = true
+                        } else {
+                            router.navigate(to: .categoryFeed(categoryId: category.id), in: .explore)
                         }
                     }
                 }
-                .padding(LumenTheme.Spacing.md)
+            }
+            .padding(LumenTheme.Spacing.md)
         }
         .ambientBackground()
         .navigationTitle("explore.title".localized)

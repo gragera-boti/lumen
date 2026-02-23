@@ -1,5 +1,5 @@
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 struct SettingsView: View {
     @State private var viewModel = SettingsViewModel()
@@ -43,21 +43,27 @@ struct SettingsView: View {
                 Label("settings.contentFilters".localized, systemImage: "slider.horizontal.3")
             }
 
-            Toggle("settings.gentleMode".localized, isOn: Binding(
-                get: { prefs.gentleMode },
-                set: {
-                    prefs.gentleMode = $0
-                    viewModel.save(modelContext: modelContext)
-                }
-            ))
+            Toggle(
+                "settings.gentleMode".localized,
+                isOn: Binding(
+                    get: { prefs.gentleMode },
+                    set: {
+                        prefs.gentleMode = $0
+                        viewModel.save(modelContext: modelContext)
+                    }
+                )
+            )
 
-            Picker("settings.tone".localized, selection: Binding(
-                get: { prefs.tonePreset },
-                set: {
-                    prefs.tonePreset = $0
-                    viewModel.save(modelContext: modelContext)
-                }
-            )) {
+            Picker(
+                "settings.tone".localized,
+                selection: Binding(
+                    get: { prefs.tonePreset },
+                    set: {
+                        prefs.tonePreset = $0
+                        viewModel.save(modelContext: modelContext)
+                    }
+                )
+            ) {
                 ForEach(Tone.allCases) { tone in
                     Text(tone.displayName).tag(tone)
                 }
@@ -86,7 +92,8 @@ struct SettingsView: View {
             NavigationLink(value: AppDestination.subscription) {
                 HStack {
                     Label(
-                        viewModel.isPremium ? "settings.manageSubscription".localized : "subscription.upgrade.title".localized,
+                        viewModel.isPremium
+                            ? "settings.manageSubscription".localized : "subscription.upgrade.title".localized,
                         systemImage: viewModel.isPremium ? "star.fill" : "sparkles"
                     )
                     .foregroundStyle(viewModel.isPremium ? Color.primary : Color.orange)
@@ -119,10 +126,13 @@ struct SettingsView: View {
                 Label("iCloud Sync", systemImage: "icloud.fill")
                 Spacer()
                 if viewModel.isPremium {
-                    Toggle("", isOn: Binding(
-                        get: { viewModel.isCloudSyncEnabled },
-                        set: { viewModel.toggleCloudSync($0) }
-                    ))
+                    Toggle(
+                        "",
+                        isOn: Binding(
+                            get: { viewModel.isCloudSyncEnabled },
+                            set: { viewModel.toggleCloudSync($0) }
+                        )
+                    )
                     .labelsHidden()
                 } else {
                     Button {
@@ -167,15 +177,15 @@ struct SettingsView: View {
     }
 
     #if DEBUG
-    private var developerSection: some View {
-        Section("Developer") {
-            Button("Reset Onboarding") {
-                viewModel.resetOnboarding(modelContext: modelContext)
+        private var developerSection: some View {
+            Section("Developer") {
+                Button("Reset Onboarding") {
+                    viewModel.resetOnboarding(modelContext: modelContext)
+                }
             }
         }
-    }
     #else
-    private var developerSection: some View { EmptyView() }
+        private var developerSection: some View { EmptyView() }
     #endif
 
     private var helpSection: some View {

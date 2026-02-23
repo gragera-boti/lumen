@@ -1,6 +1,6 @@
 import Foundation
-import RevenueCat
 import OSLog
+import RevenueCat
 
 struct EntitlementService: EntitlementServiceProtocol {
     static let shared = EntitlementService()
@@ -15,12 +15,12 @@ struct EntitlementService: EntitlementServiceProtocol {
     /// Call once at app launch to configure RevenueCat
     func configure() {
         #if DEBUG
-        Purchases.logLevel = .debug
+            Purchases.logLevel = .debug
         #endif
         #if DEBUG
-        let apiKey = "test_VfvOKeRUGqMRSBEwwWCpVStTmkG"  // RC Test Store
+            let apiKey = "test_VfvOKeRUGqMRSBEwwWCpVStTmkG"  // RC Test Store
         #else
-        let apiKey = "appl_NXFeBNuRZMdVjWeWoxbwmiOfYCK"   // Production App Store
+            let apiKey = "appl_NXFeBNuRZMdVjWeWoxbwmiOfYCK"  // Production App Store
         #endif
         Purchases.configure(withAPIKey: apiKey)
         logger.info("RevenueCat configured")

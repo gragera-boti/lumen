@@ -1,6 +1,8 @@
-import Testing
-import SwiftUI
+import Foundation
 import SwiftData
+import SwiftUI
+import Testing
+
 @testable import Lumen
 
 @Suite("CategoryFeedViewModel Tests")
@@ -17,7 +19,12 @@ import SwiftData
     }
 
     private final class MockShareService: ShareServiceProtocol, @unchecked Sendable {
-        @MainActor func renderShareImage(text: String, gradientColors: [Color], size: CGSize, showWatermark: Bool) -> UIImage? {
+        @MainActor func renderShareImage(
+            text: String,
+            gradientColors: [Color],
+            size: CGSize,
+            showWatermark: Bool
+        ) -> UIImage? {
             UIImage()
         }
     }

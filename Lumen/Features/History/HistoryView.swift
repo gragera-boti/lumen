@@ -1,5 +1,5 @@
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 struct HistoryView: View {
     @State private var viewModel = HistoryViewModel()
@@ -31,7 +31,8 @@ struct HistoryView: View {
         List {
             ForEach(viewModel.entries) { entry in
                 let custom = customizations[entry.affirmationId]
-                let displayText = (custom?.customText?.isEmpty == false)
+                let displayText =
+                    (custom?.customText?.isEmpty == false)
                     ? custom!.customText!
                     : entry.text
                 Button {

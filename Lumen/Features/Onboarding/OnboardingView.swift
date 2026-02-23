@@ -1,5 +1,5 @@
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 struct OnboardingView: View {
     @State private var viewModel = OnboardingViewModel()
@@ -16,16 +16,21 @@ struct OnboardingView: View {
             VStack {
                 // Progress indicator
                 if viewModel.currentStep != .welcome {
-                    ProgressView(value: Double(viewModel.currentStep.rawValue), total: Double(OnboardingStep.allCases.count - 1))
-                        .tint(.white)
-                        .padding(.horizontal, LumenTheme.Spacing.lg)
-                        .padding(.top, LumenTheme.Spacing.md)
+                    ProgressView(
+                        value: Double(viewModel.currentStep.rawValue),
+                        total: Double(OnboardingStep.allCases.count - 1)
+                    )
+                    .tint(.white)
+                    .padding(.horizontal, LumenTheme.Spacing.lg)
+                    .padding(.top, LumenTheme.Spacing.md)
                 }
 
-                TabView(selection: Binding(
-                    get: { viewModel.currentStep },
-                    set: { _ in }
-                )) {
+                TabView(
+                    selection: Binding(
+                        get: { viewModel.currentStep },
+                        set: { _ in }
+                    )
+                ) {
                     WelcomeStepView(viewModel: viewModel)
                         .tag(OnboardingStep.welcome)
 
@@ -120,10 +125,13 @@ struct OnboardingView: View {
                         .font(.subheadline)
                         .foregroundStyle(.white.opacity(0.7))
 
-                    LazyVGrid(columns: [
-                        GridItem(.flexible()),
-                        GridItem(.flexible()),
-                    ], spacing: LumenTheme.Spacing.md) {
+                    LazyVGrid(
+                        columns: [
+                            GridItem(.flexible()),
+                            GridItem(.flexible()),
+                        ],
+                        spacing: LumenTheme.Spacing.md
+                    ) {
                         ForEach(coreCategories, id: \.id) { category in
                             CategoryChip(
                                 category: category,
@@ -144,10 +152,13 @@ struct OnboardingView: View {
                             .font(.subheadline)
                             .foregroundStyle(.white.opacity(0.7))
 
-                        LazyVGrid(columns: [
-                            GridItem(.flexible()),
-                            GridItem(.flexible()),
-                        ], spacing: LumenTheme.Spacing.md) {
+                        LazyVGrid(
+                            columns: [
+                                GridItem(.flexible()),
+                                GridItem(.flexible()),
+                            ],
+                            spacing: LumenTheme.Spacing.md
+                        ) {
                             ForEach(sensitiveCategories, id: \.id) { category in
                                 CategoryChip(
                                     category: category,
@@ -160,10 +171,13 @@ struct OnboardingView: View {
                         .padding(.horizontal, LumenTheme.Spacing.md)
                     }
 
-                    PrimaryButton(title: "onboarding.welcome.continueButton".localized, action: { viewModel.advance() },
-                                  isDisabled: !viewModel.canContinueFromCategories)
-                        .padding(.horizontal, LumenTheme.Spacing.lg)
-                        .padding(.bottom, LumenTheme.Spacing.xxl)
+                    PrimaryButton(
+                        title: "onboarding.welcome.continueButton".localized,
+                        action: { viewModel.advance() },
+                        isDisabled: !viewModel.canContinueFromCategories
+                    )
+                    .padding(.horizontal, LumenTheme.Spacing.lg)
+                    .padding(.bottom, LumenTheme.Spacing.xxl)
                 }
             }
         }

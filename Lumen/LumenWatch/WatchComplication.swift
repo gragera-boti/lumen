@@ -1,5 +1,5 @@
-import WidgetKit
 import SwiftUI
+import WidgetKit
 
 struct WatchComplicationProvider: TimelineProvider {
     func placeholder(in context: Context) -> WatchComplicationEntry {
@@ -21,13 +21,16 @@ struct WatchComplicationProvider: TimelineProvider {
     }
 
     private func loadEntry() -> WatchComplicationEntry? {
-        guard let containerURL = FileManager.default.containerURL(
-            forSecurityApplicationGroupIdentifier: "group.com.gragera.lumen"
-        ) else { return nil }
+        guard
+            let containerURL = FileManager.default.containerURL(
+                forSecurityApplicationGroupIdentifier: "group.com.gragera.lumen"
+            )
+        else { return nil }
 
         let fileURL = containerURL.appendingPathComponent("widget_snapshot.json")
         guard let data = try? Data(contentsOf: fileURL),
-              let json = try? JSONDecoder().decode(WatchSnapshotData.self, from: data) else {
+            let json = try? JSONDecoder().decode(WatchSnapshotData.self, from: data)
+        else {
             return nil
         }
 

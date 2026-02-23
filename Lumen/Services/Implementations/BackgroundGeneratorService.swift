@@ -1,5 +1,5 @@
-import UIKit
 import OSLog
+import UIKit
 
 /// Procedural background generator using Core Graphics.
 ///
@@ -27,7 +27,9 @@ actor BackgroundGeneratorService: BackgroundGeneratorProtocol {
             let startTime = CFAbsoluteTimeGetCurrent()
             let seed = request.seed ?? UInt32.random(in: 0...UInt32.max)
 
-            logger.info("Generating: style=\(request.style.rawValue), palette=\(request.palette.rawValue), seed=\(seed)")
+            logger.info(
+                "Generating: style=\(request.style.rawValue), palette=\(request.palette.rawValue), seed=\(seed)"
+            )
 
             var rng = SeededRNG(seed: UInt64(seed))
             let image = renderImage(request: request, rng: &rng)
@@ -98,7 +100,7 @@ actor BackgroundGeneratorService: BackgroundGeneratorProtocol {
             case .dunes:
                 drawDunes(gc: gc, rect: rect, palette: request.palette, complexity: request.complexity, rng: &rng)
             case .minimal:
-                break // Just base + orbs
+                break  // Just base + orbs
             case .cosmos:
                 drawCosmos(gc: gc, rect: rect, palette: request.palette, complexity: request.complexity, rng: &rng)
             case .geometric:
@@ -106,7 +108,13 @@ actor BackgroundGeneratorService: BackgroundGeneratorProtocol {
             case .watercolor:
                 drawWatercolor(gc: gc, rect: rect, palette: request.palette, complexity: request.complexity, rng: &rng)
             case .stainedGlass:
-                drawStainedGlass(gc: gc, rect: rect, palette: request.palette, complexity: request.complexity, rng: &rng)
+                drawStainedGlass(
+                    gc: gc,
+                    rect: rect,
+                    palette: request.palette,
+                    complexity: request.complexity,
+                    rng: &rng
+                )
             case .waves:
                 drawWaves(gc: gc, rect: rect, palette: request.palette, complexity: request.complexity, rng: &rng)
             case .prism:
@@ -125,29 +133,41 @@ actor BackgroundGeneratorService: BackgroundGeneratorProtocol {
 
     // MARK: - Layer 1: Base gradient
 
-    private func drawBaseGradient(gc: CGContext, rect: CGRect, palette: ColorPalette, mood: GeneratorMood, rng: inout SeededRNG) {
+    private func drawBaseGradient(
+        gc: CGContext,
+        rect: CGRect,
+        palette: ColorPalette,
+        mood: GeneratorMood,
+        rng: inout SeededRNG
+    ) {
         let colorSpace = CGColorSpaceCreateDeviceRGB()
 
         let colors = palette.cgColors.map { cgColor -> CGColor in
             let uiColor = UIColor(cgColor: cgColor)
-            var h: CGFloat = 0, s: CGFloat = 0, b: CGFloat = 0, a: CGFloat = 0
+            var h: CGFloat = 0
+            var s: CGFloat = 0
+            var b: CGFloat = 0
+            var a: CGFloat = 0
             uiColor.getHue(&h, saturation: &s, brightness: &b, alpha: &a)
             return UIColor(hue: h, saturation: min(s * 1.2, 1.0), brightness: b * 0.85, alpha: a).cgColor
         }
 
-        guard let gradient = CGGradient(
-            colorsSpace: colorSpace,
-            colors: colors as CFArray,
-            locations: [0.0, 0.45, 1.0]
-        ) else { return }
+        guard
+            let gradient = CGGradient(
+                colorsSpace: colorSpace,
+                colors: colors as CFArray,
+                locations: [0.0, 0.45, 1.0]
+            )
+        else { return }
 
-        let angle: CGFloat = switch mood {
-        case .calm: .pi * 0.65
-        case .hopeful: .pi * 0.35
-        case .focused: .pi * 0.5
-        case .energized: .pi * 0.25
-        case .dreamy: .pi * 0.75
-        }
+        let angle: CGFloat =
+            switch mood {
+            case .calm: .pi * 0.65
+            case .hopeful: .pi * 0.35
+            case .focused: .pi * 0.5
+            case .energized: .pi * 0.25
+            case .dreamy: .pi * 0.75
+            }
 
         // Add slight random angle variation for uniqueness
         let jitter = CGFloat(rng.nextFloat() - 0.5) * 0.15
@@ -158,12 +178,23 @@ actor BackgroundGeneratorService: BackgroundGeneratorProtocol {
         let start = CGPoint(x: center.x + cos(finalAngle) * radius, y: center.y + sin(finalAngle) * radius)
         let end = CGPoint(x: center.x - cos(finalAngle) * radius, y: center.y - sin(finalAngle) * radius)
 
-        gc.drawLinearGradient(gradient, start: start, end: end, options: [.drawsBeforeStartLocation, .drawsAfterEndLocation])
+        gc.drawLinearGradient(
+            gradient,
+            start: start,
+            end: end,
+            options: [.drawsBeforeStartLocation, .drawsAfterEndLocation]
+        )
     }
 
     // MARK: - Layer 2: Glow orbs
 
-    private func drawGlowOrbs(gc: CGContext, rect: CGRect, palette: ColorPalette, rng: inout SeededRNG, complexity: Float) {
+    private func drawGlowOrbs(
+        gc: CGContext,
+        rect: CGRect,
+        palette: ColorPalette,
+        rng: inout SeededRNG,
+        complexity: Float
+    ) {
         let colorSpace = CGColorSpaceCreateDeviceRGB()
         let orbCount = 2 + Int(complexity * 4)
         let allColors = palette.cgColors + [palette.accentCGColor]
@@ -177,21 +208,30 @@ actor BackgroundGeneratorService: BackgroundGeneratorProtocol {
             let sourceColor = allColors[Int(rng.next() % UInt64(allColors.count))]
             let alpha = CGFloat(0.12 + rng.nextFloat() * 0.18)
 
-            let colors = [
-                UIColor(cgColor: sourceColor).withAlphaComponent(alpha).cgColor,
-                UIColor(cgColor: sourceColor).withAlphaComponent(alpha * 0.3).cgColor,
-                UIColor(cgColor: sourceColor).withAlphaComponent(0).cgColor,
-            ] as CFArray
+            let colors =
+                [
+                    UIColor(cgColor: sourceColor).withAlphaComponent(alpha).cgColor,
+                    UIColor(cgColor: sourceColor).withAlphaComponent(alpha * 0.3).cgColor,
+                    UIColor(cgColor: sourceColor).withAlphaComponent(0).cgColor,
+                ] as CFArray
 
             if let gradient = CGGradient(colorsSpace: colorSpace, colors: colors, locations: [0, 0.4, 1]) {
-                gc.drawRadialGradient(gradient, startCenter: center, startRadius: 0, endCenter: center, endRadius: radius, options: [])
+                gc.drawRadialGradient(
+                    gradient,
+                    startCenter: center,
+                    startRadius: 0,
+                    endCenter: center,
+                    endRadius: radius,
+                    options: []
+                )
             }
         }
     }
 
     // MARK: - Aurora — rich flowing bands
 
-    private func drawAurora(gc: CGContext, rect: CGRect, palette: ColorPalette, complexity: Float, rng: inout SeededRNG) {
+    private func drawAurora(gc: CGContext, rect: CGRect, palette: ColorPalette, complexity: Float, rng: inout SeededRNG)
+    {
         let bandCount = 4 + Int(complexity * 5)
         let allColors = palette.cgColors + [palette.accentCGColor]
         let colorSpace = CGColorSpaceCreateDeviceRGB()
@@ -258,19 +298,22 @@ actor BackgroundGeneratorService: BackgroundGeneratorProtocol {
 
     // MARK: - Bokeh — luminous floating circles
 
-    private func drawBokeh(gc: CGContext, rect: CGRect, palette: ColorPalette, complexity: Float, rng: inout SeededRNG) {
+    private func drawBokeh(gc: CGContext, rect: CGRect, palette: ColorPalette, complexity: Float, rng: inout SeededRNG)
+    {
         let circleCount = 12 + Int(complexity * 30)
         let allColors = palette.cgColors + [palette.accentCGColor]
         let colorSpace = CGColorSpaceCreateDeviceRGB()
 
         var circles: [(x: CGFloat, y: CGFloat, r: CGFloat, colorIdx: Int)] = []
         for _ in 0..<circleCount {
-            circles.append((
-                x: CGFloat(rng.nextFloat()) * rect.width,
-                y: CGFloat(rng.nextFloat()) * rect.height,
-                r: CGFloat(20 + rng.nextFloat() * 80) * CGFloat(0.6 + complexity * 0.8),
-                colorIdx: Int(rng.next() % UInt64(allColors.count))
-            ))
+            circles.append(
+                (
+                    x: CGFloat(rng.nextFloat()) * rect.width,
+                    y: CGFloat(rng.nextFloat()) * rect.height,
+                    r: CGFloat(20 + rng.nextFloat() * 80) * CGFloat(0.6 + complexity * 0.8),
+                    colorIdx: Int(rng.next() % UInt64(allColors.count))
+                )
+            )
         }
         circles.sort { $0.r > $1.r }
 
@@ -279,26 +322,36 @@ actor BackgroundGeneratorService: BackgroundGeneratorProtocol {
             let color = UIColor(cgColor: allColors[circle.colorIdx])
             let alpha = CGFloat(0.06 + rng.nextFloat() * 0.14)
 
-            let colors = [
-                color.withAlphaComponent(alpha * 0.8).cgColor,
-                color.withAlphaComponent(alpha).cgColor,
-                color.withAlphaComponent(alpha * 0.5).cgColor,
-                color.withAlphaComponent(0).cgColor,
-            ] as CFArray
+            let colors =
+                [
+                    color.withAlphaComponent(alpha * 0.8).cgColor,
+                    color.withAlphaComponent(alpha).cgColor,
+                    color.withAlphaComponent(alpha * 0.5).cgColor,
+                    color.withAlphaComponent(0).cgColor,
+                ] as CFArray
 
             if let radial = CGGradient(colorsSpace: colorSpace, colors: colors, locations: [0, 0.3, 0.7, 1]) {
-                gc.drawRadialGradient(radial, startCenter: center, startRadius: 0, endCenter: center, endRadius: circle.r, options: [])
+                gc.drawRadialGradient(
+                    radial,
+                    startCenter: center,
+                    startRadius: 0,
+                    endCenter: center,
+                    endRadius: circle.r,
+                    options: []
+                )
             }
 
             if rng.nextFloat() > 0.6 {
                 gc.setStrokeColor(color.withAlphaComponent(alpha * 0.6).cgColor)
                 gc.setLineWidth(1.5)
-                gc.strokeEllipse(in: CGRect(
-                    x: circle.x - circle.r * 0.9,
-                    y: circle.y - circle.r * 0.9,
-                    width: circle.r * 1.8,
-                    height: circle.r * 1.8
-                ))
+                gc.strokeEllipse(
+                    in: CGRect(
+                        x: circle.x - circle.r * 0.9,
+                        y: circle.y - circle.r * 0.9,
+                        width: circle.r * 1.8,
+                        height: circle.r * 1.8
+                    )
+                )
             }
         }
     }
@@ -320,11 +373,12 @@ actor BackgroundGeneratorService: BackgroundGeneratorProtocol {
 
             let sourceColor = UIColor(cgColor: allColors[i % allColors.count])
 
-            let colors = [
-                sourceColor.withAlphaComponent(alpha).cgColor,
-                sourceColor.withAlphaComponent(alpha * 0.4).cgColor,
-                sourceColor.withAlphaComponent(0).cgColor,
-            ] as CFArray
+            let colors =
+                [
+                    sourceColor.withAlphaComponent(alpha).cgColor,
+                    sourceColor.withAlphaComponent(alpha * 0.4).cgColor,
+                    sourceColor.withAlphaComponent(0).cgColor,
+                ] as CFArray
 
             gc.saveGState()
             gc.translateBy(x: center.x, y: center.y)
@@ -332,7 +386,14 @@ actor BackgroundGeneratorService: BackgroundGeneratorProtocol {
             gc.translateBy(x: -center.x, y: -center.y)
 
             if let gradient = CGGradient(colorsSpace: colorSpace, colors: colors, locations: [0, 0.5, 1]) {
-                gc.drawRadialGradient(gradient, startCenter: center, startRadius: 0, endCenter: center, endRadius: radiusX, options: [])
+                gc.drawRadialGradient(
+                    gradient,
+                    startCenter: center,
+                    startRadius: 0,
+                    endCenter: center,
+                    endRadius: radiusX,
+                    options: []
+                )
             }
             gc.restoreGState()
         }
@@ -340,7 +401,8 @@ actor BackgroundGeneratorService: BackgroundGeneratorProtocol {
 
     // MARK: - Dunes — layered sand-wave bands
 
-    private func drawDunes(gc: CGContext, rect: CGRect, palette: ColorPalette, complexity: Float, rng: inout SeededRNG) {
+    private func drawDunes(gc: CGContext, rect: CGRect, palette: ColorPalette, complexity: Float, rng: inout SeededRNG)
+    {
         let waveCount = 5 + Int(complexity * 6)
         let allColors = palette.cgColors + [palette.accentCGColor]
         let colorSpace = CGColorSpaceCreateDeviceRGB()
@@ -361,7 +423,8 @@ actor BackgroundGeneratorService: BackgroundGeneratorProtocol {
             for s in 0...steps {
                 let x = rect.width * CGFloat(s) / CGFloat(steps)
                 let n = x / rect.width
-                let y = yBase
+                let y =
+                    yBase
                     + sin(n * .pi * 2 * wavelength + phase) * amplitude
                     + cos(n * .pi * 3 * wavelength * 0.5 + phase * 0.7) * amplitude * 0.3
                 path.addLine(to: CGPoint(x: x, y: y))
@@ -399,7 +462,8 @@ actor BackgroundGeneratorService: BackgroundGeneratorProtocol {
 
     // MARK: - Cosmos — deep space with nebula and stars
 
-    private func drawCosmos(gc: CGContext, rect: CGRect, palette: ColorPalette, complexity: Float, rng: inout SeededRNG) {
+    private func drawCosmos(gc: CGContext, rect: CGRect, palette: ColorPalette, complexity: Float, rng: inout SeededRNG)
+    {
         let colorSpace = CGColorSpaceCreateDeviceRGB()
         let nebulaCount = 2 + Int(complexity * 2)
         let allColors = palette.cgColors + [palette.accentCGColor]
@@ -419,14 +483,22 @@ actor BackgroundGeneratorService: BackgroundGeneratorProtocol {
             gc.rotate(by: rotation)
             gc.scaleBy(x: 1.0, y: scaleY)
 
-            let colors = [
-                nebulaColor.withAlphaComponent(alpha).cgColor,
-                nebulaColor.withAlphaComponent(alpha * 0.5).cgColor,
-                nebulaColor.withAlphaComponent(0).cgColor,
-            ] as CFArray
+            let colors =
+                [
+                    nebulaColor.withAlphaComponent(alpha).cgColor,
+                    nebulaColor.withAlphaComponent(alpha * 0.5).cgColor,
+                    nebulaColor.withAlphaComponent(0).cgColor,
+                ] as CFArray
 
             if let gradient = CGGradient(colorsSpace: colorSpace, colors: colors, locations: [0, 0.4, 1]) {
-                gc.drawRadialGradient(gradient, startCenter: .zero, startRadius: 0, endCenter: .zero, endRadius: radius, options: [])
+                gc.drawRadialGradient(
+                    gradient,
+                    startCenter: .zero,
+                    startRadius: 0,
+                    endCenter: .zero,
+                    endRadius: radius,
+                    options: []
+                )
             }
             gc.restoreGState()
         }
@@ -451,14 +523,22 @@ actor BackgroundGeneratorService: BackgroundGeneratorProtocol {
             let center = CGPoint(x: x, y: y)
             let starAlpha = CGFloat(0.15 + rng.nextFloat() * 0.2)
 
-            let colors = [
-                UIColor.white.withAlphaComponent(starAlpha).cgColor,
-                UIColor.white.withAlphaComponent(starAlpha * 0.3).cgColor,
-                UIColor.white.withAlphaComponent(0).cgColor,
-            ] as CFArray
+            let colors =
+                [
+                    UIColor.white.withAlphaComponent(starAlpha).cgColor,
+                    UIColor.white.withAlphaComponent(starAlpha * 0.3).cgColor,
+                    UIColor.white.withAlphaComponent(0).cgColor,
+                ] as CFArray
 
             if let gradient = CGGradient(colorsSpace: colorSpace, colors: colors, locations: [0, 0.3, 1]) {
-                gc.drawRadialGradient(gradient, startCenter: center, startRadius: 0, endCenter: center, endRadius: glowRadius, options: [])
+                gc.drawRadialGradient(
+                    gradient,
+                    startCenter: center,
+                    startRadius: 0,
+                    endCenter: center,
+                    endRadius: glowRadius,
+                    options: []
+                )
             }
 
             gc.setStrokeColor(UIColor.white.withAlphaComponent(starAlpha * 0.5).cgColor)
@@ -474,17 +554,25 @@ actor BackgroundGeneratorService: BackgroundGeneratorProtocol {
 
     // MARK: - Geometric — tessellated crystal facets
 
-    private func drawGeometric(gc: CGContext, rect: CGRect, palette: ColorPalette, complexity: Float, rng: inout SeededRNG) {
+    private func drawGeometric(
+        gc: CGContext,
+        rect: CGRect,
+        palette: ColorPalette,
+        complexity: Float,
+        rng: inout SeededRNG
+    ) {
         let allColors = palette.cgColors + [palette.accentCGColor]
         let cellCount = 20 + Int(complexity * 40)
 
         // Generate Voronoi-like seed points
         var points: [CGPoint] = []
         for _ in 0..<cellCount {
-            points.append(CGPoint(
-                x: CGFloat(rng.nextFloat()) * rect.width,
-                y: CGFloat(rng.nextFloat()) * rect.height
-            ))
+            points.append(
+                CGPoint(
+                    x: CGFloat(rng.nextFloat()) * rect.width,
+                    y: CGFloat(rng.nextFloat()) * rect.height
+                )
+            )
         }
 
         // For each point, draw a polygon by connecting midpoints to neighbors
@@ -549,7 +637,13 @@ actor BackgroundGeneratorService: BackgroundGeneratorProtocol {
 
     // MARK: - Watercolor — soft bleeding paint washes
 
-    private func drawWatercolor(gc: CGContext, rect: CGRect, palette: ColorPalette, complexity: Float, rng: inout SeededRNG) {
+    private func drawWatercolor(
+        gc: CGContext,
+        rect: CGRect,
+        palette: ColorPalette,
+        complexity: Float,
+        rng: inout SeededRNG
+    ) {
         let colorSpace = CGColorSpaceCreateDeviceRGB()
         let allColors = palette.cgColors + [palette.accentCGColor]
         let washCount = 6 + Int(complexity * 8)
@@ -582,15 +676,23 @@ actor BackgroundGeneratorService: BackgroundGeneratorProtocol {
                 gc.translateBy(x: -partCenter.x, y: -partCenter.y)
 
                 // Soft radial gradient for watercolor bleed
-                let colors = [
-                    washColor.withAlphaComponent(alpha).cgColor,
-                    washColor.withAlphaComponent(alpha * 0.6).cgColor,
-                    washColor.withAlphaComponent(alpha * 0.15).cgColor,
-                    washColor.withAlphaComponent(0).cgColor,
-                ] as CFArray
+                let colors =
+                    [
+                        washColor.withAlphaComponent(alpha).cgColor,
+                        washColor.withAlphaComponent(alpha * 0.6).cgColor,
+                        washColor.withAlphaComponent(alpha * 0.15).cgColor,
+                        washColor.withAlphaComponent(0).cgColor,
+                    ] as CFArray
 
                 if let gradient = CGGradient(colorsSpace: colorSpace, colors: colors, locations: [0, 0.25, 0.65, 1]) {
-                    gc.drawRadialGradient(gradient, startCenter: partCenter, startRadius: 0, endCenter: partCenter, endRadius: partRadius, options: [])
+                    gc.drawRadialGradient(
+                        gradient,
+                        startCenter: partCenter,
+                        startRadius: 0,
+                        endCenter: partCenter,
+                        endRadius: partRadius,
+                        options: []
+                    )
                 }
                 gc.restoreGState()
             }
@@ -612,7 +714,13 @@ actor BackgroundGeneratorService: BackgroundGeneratorProtocol {
 
     // MARK: - Stained Glass — bold angular shards with bright edges
 
-    private func drawStainedGlass(gc: CGContext, rect: CGRect, palette: ColorPalette, complexity: Float, rng: inout SeededRNG) {
+    private func drawStainedGlass(
+        gc: CGContext,
+        rect: CGRect,
+        palette: ColorPalette,
+        complexity: Float,
+        rng: inout SeededRNG
+    ) {
         let allColors = palette.cgColors + [palette.accentCGColor]
 
         // Generate seed points in a grid with jitter for organic Voronoi feel
@@ -696,7 +804,8 @@ actor BackgroundGeneratorService: BackgroundGeneratorProtocol {
 
     // MARK: - Waves — concentric ripple rings
 
-    private func drawWaves(gc: CGContext, rect: CGRect, palette: ColorPalette, complexity: Float, rng: inout SeededRNG) {
+    private func drawWaves(gc: CGContext, rect: CGRect, palette: ColorPalette, complexity: Float, rng: inout SeededRNG)
+    {
         let allColors = palette.cgColors + [palette.accentCGColor]
 
         // 1-3 ripple centers
@@ -731,12 +840,14 @@ actor BackgroundGeneratorService: BackgroundGeneratorProtocol {
                 let lineWidth = CGFloat(1.5 + complexity * 2.0) * falloff + 0.5
                 gc.setStrokeColor(color.withAlphaComponent(alpha).cgColor)
                 gc.setLineWidth(lineWidth)
-                gc.strokeEllipse(in: CGRect(
-                    x: center.x - radius,
-                    y: center.y - radius,
-                    width: radius * 2,
-                    height: radius * 2
-                ))
+                gc.strokeEllipse(
+                    in: CGRect(
+                        x: center.x - radius,
+                        y: center.y - radius,
+                        width: radius * 2,
+                        height: radius * 2
+                    )
+                )
                 gc.restoreGState()
             }
         }
@@ -744,13 +855,14 @@ actor BackgroundGeneratorService: BackgroundGeneratorProtocol {
 
     // MARK: - Prism — refracted light streaks
 
-    private func drawPrism(gc: CGContext, rect: CGRect, palette: ColorPalette, complexity: Float, rng: inout SeededRNG) {
+    private func drawPrism(gc: CGContext, rect: CGRect, palette: ColorPalette, complexity: Float, rng: inout SeededRNG)
+    {
         let colorSpace = CGColorSpaceCreateDeviceRGB()
         let allColors = palette.cgColors + [palette.accentCGColor]
 
         // Rainbow-like spectral bars cutting diagonally
         let barCount = 5 + Int(complexity * 10)
-        let baseAngle = CGFloat(rng.nextFloat()) * .pi * 0.4 + .pi * 0.1 // 10°–50°
+        let baseAngle = CGFloat(rng.nextFloat()) * .pi * 0.4 + .pi * 0.1  // 10°–50°
 
         for i in 0..<barCount {
             let fraction = CGFloat(i) / CGFloat(barCount)
@@ -782,12 +894,13 @@ actor BackgroundGeneratorService: BackgroundGeneratorProtocol {
             gc.addPath(path)
             gc.clip()
 
-            let colors = [
-                barColor.withAlphaComponent(alpha * 0.2).cgColor,
-                barColor.withAlphaComponent(alpha).cgColor,
-                barColor.withAlphaComponent(alpha * 0.4).cgColor,
-                barColor.withAlphaComponent(0).cgColor,
-            ] as CFArray
+            let colors =
+                [
+                    barColor.withAlphaComponent(alpha * 0.2).cgColor,
+                    barColor.withAlphaComponent(alpha).cgColor,
+                    barColor.withAlphaComponent(alpha * 0.4).cgColor,
+                    barColor.withAlphaComponent(0).cgColor,
+                ] as CFArray
 
             if let gradient = CGGradient(colorsSpace: colorSpace, colors: colors, locations: [0, 0.3, 0.7, 1]) {
                 gc.drawLinearGradient(
@@ -806,32 +919,48 @@ actor BackgroundGeneratorService: BackgroundGeneratorProtocol {
         let flareCenter = CGPoint(x: flareX, y: flareY)
         let flareRadius = CGFloat(0.08 + rng.nextFloat() * 0.12) * max(rect.width, rect.height)
 
-        let flareColors = [
-            UIColor.white.withAlphaComponent(0.20).cgColor,
-            UIColor.white.withAlphaComponent(0.05).cgColor,
-            UIColor.white.withAlphaComponent(0).cgColor,
-        ] as CFArray
+        let flareColors =
+            [
+                UIColor.white.withAlphaComponent(0.20).cgColor,
+                UIColor.white.withAlphaComponent(0.05).cgColor,
+                UIColor.white.withAlphaComponent(0).cgColor,
+            ] as CFArray
 
         if let gradient = CGGradient(colorsSpace: colorSpace, colors: flareColors, locations: [0, 0.4, 1]) {
-            gc.drawRadialGradient(gradient, startCenter: flareCenter, startRadius: 0, endCenter: flareCenter, endRadius: flareRadius, options: [])
+            gc.drawRadialGradient(
+                gradient,
+                startCenter: flareCenter,
+                startRadius: 0,
+                endCenter: flareCenter,
+                endRadius: flareRadius,
+                options: []
+            )
         }
     }
 
     // MARK: - Topography — contour-map elevation lines
 
-    private func drawTopography(gc: CGContext, rect: CGRect, palette: ColorPalette, complexity: Float, rng: inout SeededRNG) {
+    private func drawTopography(
+        gc: CGContext,
+        rect: CGRect,
+        palette: ColorPalette,
+        complexity: Float,
+        rng: inout SeededRNG
+    ) {
         let allColors = palette.cgColors + [palette.accentCGColor]
 
         // Generate a simple height field using overlapping sine functions
         let peaks = 3 + Int(rng.nextFloat() * 3)
         var peakData: [(cx: CGFloat, cy: CGFloat, radius: CGFloat, height: CGFloat)] = []
         for _ in 0..<peaks {
-            peakData.append((
-                cx: CGFloat(rng.nextFloat()) * rect.width,
-                cy: CGFloat(rng.nextFloat()) * rect.height,
-                radius: CGFloat(0.2 + rng.nextFloat() * 0.4) * max(rect.width, rect.height),
-                height: CGFloat(0.5 + rng.nextFloat() * 0.5)
-            ))
+            peakData.append(
+                (
+                    cx: CGFloat(rng.nextFloat()) * rect.width,
+                    cy: CGFloat(rng.nextFloat()) * rect.height,
+                    radius: CGFloat(0.2 + rng.nextFloat() * 0.4) * max(rect.width, rect.height),
+                    height: CGFloat(0.5 + rng.nextFloat() * 0.5)
+                )
+            )
         }
 
         func heightAt(_ x: CGFloat, _ y: CGFloat) -> CGFloat {
@@ -929,35 +1058,54 @@ actor BackgroundGeneratorService: BackgroundGeneratorProtocol {
     private func drawLightLeak(gc: CGContext, rect: CGRect, mood: GeneratorMood, rng: inout SeededRNG) {
         let colorSpace = CGColorSpaceCreateDeviceRGB()
 
-        let (cx, cy, warmth): (CGFloat, CGFloat, UIColor) = switch mood {
-        case .calm:
-            (rect.width * 0.7, rect.height * 0.2,
-             UIColor(red: 1.0, green: 0.95, blue: 0.85, alpha: 1))
-        case .hopeful:
-            (rect.width * 0.3, rect.height * 0.15,
-             UIColor(red: 1.0, green: 0.92, blue: 0.75, alpha: 1))
-        case .focused:
-            (rect.midX, rect.height * 0.1,
-             UIColor(red: 0.9, green: 0.92, blue: 1.0, alpha: 1))
-        case .energized:
-            (rect.width * 0.8, rect.height * 0.3,
-             UIColor(red: 1.0, green: 0.85, blue: 0.65, alpha: 1))
-        case .dreamy:
-            (rect.width * 0.4, rect.height * 0.25,
-             UIColor(red: 0.92, green: 0.85, blue: 1.0, alpha: 1))
-        }
+        let (cx, cy, warmth): (CGFloat, CGFloat, UIColor) =
+            switch mood {
+            case .calm:
+                (
+                    rect.width * 0.7, rect.height * 0.2,
+                    UIColor(red: 1.0, green: 0.95, blue: 0.85, alpha: 1)
+                )
+            case .hopeful:
+                (
+                    rect.width * 0.3, rect.height * 0.15,
+                    UIColor(red: 1.0, green: 0.92, blue: 0.75, alpha: 1)
+                )
+            case .focused:
+                (
+                    rect.midX, rect.height * 0.1,
+                    UIColor(red: 0.9, green: 0.92, blue: 1.0, alpha: 1)
+                )
+            case .energized:
+                (
+                    rect.width * 0.8, rect.height * 0.3,
+                    UIColor(red: 1.0, green: 0.85, blue: 0.65, alpha: 1)
+                )
+            case .dreamy:
+                (
+                    rect.width * 0.4, rect.height * 0.25,
+                    UIColor(red: 0.92, green: 0.85, blue: 1.0, alpha: 1)
+                )
+            }
 
         let center = CGPoint(x: cx, y: cy)
         let radius = max(rect.width, rect.height) * 0.5
 
-        let colors = [
-            warmth.withAlphaComponent(0.12).cgColor,
-            warmth.withAlphaComponent(0.04).cgColor,
-            warmth.withAlphaComponent(0).cgColor,
-        ] as CFArray
+        let colors =
+            [
+                warmth.withAlphaComponent(0.12).cgColor,
+                warmth.withAlphaComponent(0.04).cgColor,
+                warmth.withAlphaComponent(0).cgColor,
+            ] as CFArray
 
         if let gradient = CGGradient(colorsSpace: colorSpace, colors: colors, locations: [0, 0.35, 1]) {
-            gc.drawRadialGradient(gradient, startCenter: center, startRadius: 0, endCenter: center, endRadius: radius, options: [])
+            gc.drawRadialGradient(
+                gradient,
+                startCenter: center,
+                startRadius: 0,
+                endCenter: center,
+                endRadius: radius,
+                options: []
+            )
         }
     }
 

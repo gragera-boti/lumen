@@ -1,6 +1,8 @@
-import Testing
-import SwiftUI
+import Foundation
 import SwiftData
+import SwiftUI
+import Testing
+
 @testable import Lumen
 
 @Suite("FeedViewModel Tests")
@@ -13,17 +15,30 @@ import SwiftData
         var dailyResult: Affirmation?
         var callCount = 0
 
-        func nextAffirmation(preferences: UserPreferences, isPremium: Bool, modelContext: ModelContext) throws -> Affirmation? {
+        func nextAffirmation(
+            preferences: UserPreferences,
+            isPremium: Bool,
+            modelContext: ModelContext
+        ) throws -> Affirmation? {
             defer { callCount += 1 }
             guard callCount < affirmations.count else { return nil }
             return affirmations[callCount]
         }
 
-        func dailyAffirmation(preferences: UserPreferences, isPremium: Bool, modelContext: ModelContext) throws -> Affirmation? {
+        func dailyAffirmation(
+            preferences: UserPreferences,
+            isPremium: Bool,
+            modelContext: ModelContext
+        ) throws -> Affirmation? {
             dailyResult
         }
 
-        func loadBatch(count: Int, preferences: UserPreferences, isPremium: Bool, modelContext: ModelContext) throws -> (daily: Affirmation?, feed: [Affirmation]) {
+        func loadBatch(
+            count: Int,
+            preferences: UserPreferences,
+            isPremium: Bool,
+            modelContext: ModelContext
+        ) throws -> (daily: Affirmation?, feed: [Affirmation]) {
             (dailyResult, affirmations)
         }
 
@@ -41,7 +56,12 @@ import SwiftData
     }
 
     private final class MockShareService: ShareServiceProtocol, @unchecked Sendable {
-        @MainActor func renderShareImage(text: String, gradientColors: [SwiftUI.Color], size: CGSize, showWatermark: Bool) -> UIImage? {
+        @MainActor func renderShareImage(
+            text: String,
+            gradientColors: [SwiftUI.Color],
+            size: CGSize,
+            showWatermark: Bool
+        ) -> UIImage? {
             UIImage()
         }
     }

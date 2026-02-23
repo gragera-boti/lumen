@@ -1,6 +1,9 @@
-import Testing
-import SwiftUI
+import Dependencies
+import Foundation
 import SwiftData
+import SwiftUI
+import Testing
+
 @testable import Lumen
 
 // MARK: - Customization Refresh Tests
@@ -13,24 +16,41 @@ struct CustomizationRefreshTests {
 
     // MARK: - Mocks
 
-    private final class MockFeedService: FeedServiceProtocol {
+    private final class MockFeedService: FeedServiceProtocol, @unchecked Sendable {
         var batch: (daily: Affirmation?, feed: [Affirmation]) = (nil, [])
 
-        func nextAffirmation(preferences: UserPreferences, isPremium: Bool, modelContext: ModelContext) throws -> Affirmation? { nil }
-        func dailyAffirmation(preferences: UserPreferences, isPremium: Bool, modelContext: ModelContext) throws -> Affirmation? { nil }
-        func loadBatch(count: Int, preferences: UserPreferences, isPremium: Bool, modelContext: ModelContext) throws -> (daily: Affirmation?, feed: [Affirmation]) { batch }
+        func nextAffirmation(
+            preferences: UserPreferences,
+            isPremium: Bool,
+            modelContext: ModelContext
+        ) throws -> Affirmation? { nil }
+        func dailyAffirmation(
+            preferences: UserPreferences,
+            isPremium: Bool,
+            modelContext: ModelContext
+        ) throws -> Affirmation? { nil }
+        func loadBatch(
+            count: Int,
+            preferences: UserPreferences,
+            isPremium: Bool,
+            modelContext: ModelContext
+        ) throws -> (daily: Affirmation?, feed: [Affirmation]) { batch }
         func recordSeen(affirmation: Affirmation, source: SeenSource, modelContext: ModelContext) throws {}
     }
 
-    private final class MockFavoriteService: FavoriteServiceProtocol {
+    private final class MockFavoriteService: FavoriteServiceProtocol, @unchecked Sendable {
         func toggleFavorite(affirmation: Affirmation, modelContext: ModelContext) throws {}
         func fetchFavorites(modelContext: ModelContext) throws -> [Affirmation] { [] }
     }
 
-    private final class MockShareService: ShareServiceProtocol {
-        @MainActor func renderShareImage(text: String, gradientColors: [SwiftUI.Color], size: CGSize, showWatermark: Bool) -> UIImage? { nil }
+    private final class MockShareService: ShareServiceProtocol, @unchecked Sendable {
+        @MainActor func renderShareImage(
+            text: String,
+            gradientColors: [SwiftUI.Color],
+            size: CGSize,
+            showWatermark: Bool
+        ) -> UIImage? { nil }
     }
-
 
     private actor MockBackgroundGenerator: BackgroundGeneratorProtocol {
         var generateCallCount = 0
@@ -40,13 +60,13 @@ struct CustomizationRefreshTests {
             generateCallCount += 1
             lastRequest = request
 
-            // Write a tiny image to a temp file so the path resolves
             let tempDir = FileManager.default.temporaryDirectory
             let imagePath = tempDir.appendingPathComponent("mock_bg_\(UUID().uuidString).png")
             let thumbnailPath = tempDir.appendingPathComponent("mock_thumb_\(UUID().uuidString).png")
-            let imageData = UIImage(systemName: "circle.fill")!.pngData()!
-            try imageData.write(to: imagePath)
-            try imageData.write(to: thumbnailPath)
+            if let imageData = UIImage(systemName: "circle.fill")?.pngData() {
+                try imageData.write(to: imagePath)
+                try imageData.write(to: thumbnailPath)
+            }
 
             return GeneratedBackground(
                 themeId: "mock_\(generateCallCount)",
@@ -70,6 +90,9 @@ struct CustomizationRefreshTests {
 
     private let container: ModelContainer
     private let context: ModelContext
+    private let mockFeedService = MockFeedService()
+    private let mockFavoriteService = MockFavoriteService()
+    private let mockShareService = MockShareService()
 
     init() throws {
         let schema = Schema([
@@ -77,10 +100,52 @@ struct CustomizationRefreshTests {
             Dislike.self, AppTheme.self, UserPreferences.self,
             EntitlementState.self, CardCustomization.self,
         ])
-        container = try ModelContainer(for: schema, configurations: [
-            ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
-        ])
+        container = try ModelContainer(
+            for: schema,
+            configurations: [
+                ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
+            ]
+        )
         context = ModelContext(container)
+    }
+
+    private func makeFeedViewModel(
+        backgroundGenerator: (any BackgroundGeneratorProtocol)? = nil
+    ) -> FeedViewModel {
+        let mockBG = backgroundGenerator ?? MockBackgroundGenerator()
+        return withDependencies {
+            $0.feedService = mockFeedService
+            $0.favoriteService = mockFavoriteService
+            $0.shareService = mockShareService
+            $0.cardCustomizationService = CardCustomizationService.shared
+            $0.backgroundGenerator = mockBG
+        } operation: {
+            FeedViewModel()
+        }
+    }
+
+    private func makeCategoryFeedViewModel() -> CategoryFeedViewModel {
+        withDependencies {
+            $0.favoriteService = mockFavoriteService
+            $0.shareService = mockShareService
+            $0.cardCustomizationService = CardCustomizationService.shared
+        } operation: {
+            CategoryFeedViewModel()
+        }
+    }
+
+    private func makeCardEditorViewModel(
+        affirmation: Affirmation,
+        existingCustomization: CardCustomization? = nil
+    ) -> CardEditorViewModel {
+        withDependencies {
+            $0.cardCustomizationService = CardCustomizationService.shared
+        } operation: {
+            CardEditorViewModel(
+                affirmation: affirmation,
+                existingCustomization: existingCustomization
+            )
+        }
     }
 
     // MARK: - FeedViewModel Tests
@@ -91,19 +156,12 @@ struct CustomizationRefreshTests {
         context.insert(affirmation)
         try context.save()
 
-        let vm = FeedViewModel(
-            feedService: MockFeedService(),
-            favoriteService: MockFavoriteService(),
-            shareService: MockShareService(),
-            customizationService: CardCustomizationService.shared
-        )
-        vm.cards = [affirmation]
+        let viewModel = makeFeedViewModel()
+        viewModel.cards = [affirmation]
 
-        // Initially no customizations
-        vm.reloadCustomizations(modelContext: context)
-        #expect(vm.customizations.isEmpty)
+        viewModel.reloadCustomizations(modelContext: context)
+        #expect(viewModel.customizations.isEmpty)
 
-        // Save a customization
         let customization = CardCustomization(
             affirmationId: "test_1",
             backgroundStyle: "aurora",
@@ -114,11 +172,10 @@ struct CustomizationRefreshTests {
         context.insert(customization)
         try context.save()
 
-        // Reload should pick it up
-        vm.reloadCustomizations(modelContext: context)
-        #expect(vm.customizations["test_1"] != nil)
-        #expect(vm.customizations["test_1"]?.backgroundStyle == "aurora")
-        #expect(vm.customizations["test_1"]?.fontStyleOverride == "serif")
+        viewModel.reloadCustomizations(modelContext: context)
+        #expect(viewModel.customizations["test_1"] != nil)
+        #expect(viewModel.customizations["test_1"]?.backgroundStyle == "aurora")
+        #expect(viewModel.customizations["test_1"]?.fontStyleOverride == "serif")
     }
 
     @Test("reloadCustomizations clears removed customization")
@@ -134,23 +191,17 @@ struct CustomizationRefreshTests {
         context.insert(customization)
         try context.save()
 
-        let vm = FeedViewModel(
-            feedService: MockFeedService(),
-            favoriteService: MockFavoriteService(),
-            shareService: MockShareService(),
-            customizationService: CardCustomizationService.shared
-        )
-        vm.cards = [affirmation]
+        let viewModel = makeFeedViewModel()
+        viewModel.cards = [affirmation]
 
-        vm.reloadCustomizations(modelContext: context)
-        #expect(vm.customizations["test_2"] != nil)
+        viewModel.reloadCustomizations(modelContext: context)
+        #expect(viewModel.customizations["test_2"] != nil)
 
-        // Delete the customization
         context.delete(customization)
         try context.save()
 
-        vm.reloadCustomizations(modelContext: context)
-        #expect(vm.customizations["test_2"] == nil)
+        viewModel.reloadCustomizations(modelContext: context)
+        #expect(viewModel.customizations["test_2"] == nil)
     }
 
     @Test("reloadCustomizations triggers background regeneration for changed customization")
@@ -160,16 +211,9 @@ struct CustomizationRefreshTests {
         try context.save()
 
         let mockGenerator = MockBackgroundGenerator()
-        let vm = FeedViewModel(
-            feedService: MockFeedService(),
-            favoriteService: MockFavoriteService(),
-            shareService: MockShareService(),
-            customizationService: CardCustomizationService.shared,
-            backgroundGenerator: mockGenerator
-        )
-        vm.cards = [affirmation]
+        let viewModel = makeFeedViewModel(backgroundGenerator: mockGenerator)
+        viewModel.cards = [affirmation]
 
-        // Save a customization
         let customization = CardCustomization(
             affirmationId: "test_3",
             backgroundStyle: "cosmos",
@@ -179,16 +223,13 @@ struct CustomizationRefreshTests {
         context.insert(customization)
         try context.save()
 
-        vm.reloadCustomizations(modelContext: context)
+        viewModel.reloadCustomizations(modelContext: context)
 
-        // Give the background generation task time to run
         try await Task.sleep(for: .milliseconds(500))
 
         let callCount = await mockGenerator.generateCallCount
         #expect(callCount >= 1, "Expected background generator to be called after customization reload")
-
-        // Should have a background image now
-        #expect(vm.cardBackgrounds["test_3"] != nil)
+        #expect(viewModel.cardBackgrounds["test_3"] != nil)
     }
 
     // MARK: - CategoryFeedViewModel Tests
@@ -199,15 +240,11 @@ struct CustomizationRefreshTests {
         context.insert(affirmation)
         try context.save()
 
-        let vm = CategoryFeedViewModel(
-            favoriteService: MockFavoriteService(),
-            shareService: MockShareService(),
-            customizationService: CardCustomizationService.shared
-        )
-        vm.cards = [affirmation]
+        let viewModel = makeCategoryFeedViewModel()
+        viewModel.cards = [affirmation]
 
-        vm.loadCustomizations(modelContext: context)
-        #expect(vm.customizations.isEmpty)
+        viewModel.loadCustomizations(modelContext: context)
+        #expect(viewModel.customizations.isEmpty)
 
         let customization = CardCustomization(
             affirmationId: "cat_1",
@@ -217,9 +254,9 @@ struct CustomizationRefreshTests {
         context.insert(customization)
         try context.save()
 
-        vm.reloadCustomizations(modelContext: context)
-        #expect(vm.customizations["cat_1"]?.colorPalette == "sakura")
-        #expect(vm.customizations["cat_1"]?.fontStyleOverride == "elegant")
+        viewModel.reloadCustomizations(modelContext: context)
+        #expect(viewModel.customizations["cat_1"]?.colorPalette == "sakura")
+        #expect(viewModel.customizations["cat_1"]?.fontStyleOverride == "elegant")
     }
 
     // MARK: - CardEditorViewModel save + reload round-trip
@@ -230,16 +267,11 @@ struct CustomizationRefreshTests {
         context.insert(affirmation)
         try context.save()
 
-        let editorVM = CardEditorViewModel(
-            affirmation: affirmation,
-            existingCustomization: nil,
-            customizationService: CardCustomizationService.shared
-        )
+        let editorVM = makeCardEditorViewModel(affirmation: affirmation)
 
-        // Change some properties
         editorVM.selectedStyle = .watercolor
         editorVM.selectedPalette = .deepForest
-        editorVM.selectedFontStyle = .typewriter
+        editorVM.selectedFontStyle = .zilla
         editorVM.customText = "Updated text"
         editorVM.backgroundSeed = 777
 
@@ -247,23 +279,17 @@ struct CustomizationRefreshTests {
 
         try editorVM.save(modelContext: context)
 
-        // Now create a FeedViewModel and reload
-        let feedVM = FeedViewModel(
-            feedService: MockFeedService(),
-            favoriteService: MockFavoriteService(),
-            shareService: MockShareService(),
-            customizationService: CardCustomizationService.shared
-        )
+        let feedVM = makeFeedViewModel()
         feedVM.cards = [affirmation]
         feedVM.reloadCustomizations(modelContext: context)
 
-        let c = feedVM.customizations["rt_1"]
-        #expect(c != nil)
-        #expect(c?.backgroundStyle == "watercolor")
-        #expect(c?.colorPalette == "deepForest")
-        #expect(c?.fontStyleOverride == "typewriter")
-        #expect(c?.customText == "Updated text")
-        #expect(c?.backgroundSeed == 777)
+        let saved = feedVM.customizations["rt_1"]
+        #expect(saved != nil)
+        #expect(saved?.backgroundStyle == "watercolor")
+        #expect(saved?.colorPalette == "deepForest")
+        #expect(saved?.fontStyleOverride == "zilla")
+        #expect(saved?.customText == "Updated text")
+        #expect(saved?.backgroundSeed == 777)
     }
 
     @Test("CardEditorViewModel resetToDefaults clears customization")
@@ -279,20 +305,14 @@ struct CustomizationRefreshTests {
         context.insert(existing)
         try context.save()
 
-        let editorVM = CardEditorViewModel(
+        let editorVM = makeCardEditorViewModel(
             affirmation: affirmation,
-            existingCustomization: existing,
-            customizationService: CardCustomizationService.shared
+            existingCustomization: existing
         )
 
         try editorVM.resetToDefaults(modelContext: context)
 
-        let feedVM = FeedViewModel(
-            feedService: MockFeedService(),
-            favoriteService: MockFavoriteService(),
-            shareService: MockShareService(),
-            customizationService: CardCustomizationService.shared
-        )
+        let feedVM = makeFeedViewModel()
         feedVM.cards = [affirmation]
         feedVM.reloadCustomizations(modelContext: context)
 

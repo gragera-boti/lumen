@@ -1,6 +1,7 @@
+import Dependencies
 import Foundation
-import SwiftData
 import OSLog
+import SwiftData
 
 @MainActor @Observable
 final class FavoritesViewModel {
@@ -20,20 +21,10 @@ final class FavoritesViewModel {
     // Keep backwards compat for any code referencing .favorites
     var favorites: [Affirmation] { allFavorites }
 
-    private let favoriteService: FavoriteServiceProtocol
-    private let widgetService: WidgetServiceProtocol
-    private let customizationService: CardCustomizationServiceProtocol
+    @ObservationIgnored @Dependency(\.favoriteService) private var favoriteService
+    @ObservationIgnored @Dependency(\.widgetService) private var widgetService
+    @ObservationIgnored @Dependency(\.cardCustomizationService) private var customizationService
     private let logger = Logger(subsystem: "com.gragera.lumen", category: "Favorites")
-
-    init(
-        favoriteService: FavoriteServiceProtocol = FavoriteService.shared,
-        widgetService: WidgetServiceProtocol = WidgetService.shared,
-        customizationService: CardCustomizationServiceProtocol = CardCustomizationService.shared
-    ) {
-        self.favoriteService = favoriteService
-        self.widgetService = widgetService
-        self.customizationService = customizationService
-    }
 
     func loadFavorites(modelContext: ModelContext) {
         isLoading = true

@@ -59,6 +59,14 @@
 - AffirmationFontStyle enum + fontStyle field added to Affirmation model
 
 ## 2026-02-23
+- **Tooling modernization session**: Tuist (replaced XcodeGen), swift-format, SwiftLint, swift-dependencies, Periphery
+- All 10 ViewModels migrated from init-based DI to `@Dependency` (Point-Free swift-dependencies)
+- All 14 services registered in `DependencyRegistrations.swift` with proper `@MainActor` handling
+- swift-snapshot-testing added as dependency (not yet scaffolded)
+- Build: zero errors on iOS; 100 tests run (92 pass, 8 pre-existing failures)
+- Pre-existing test failures: 5 FeedService filter predicate tests, 3 ThemeGenerator mock data issues
+- Entitlements typo spotted: `group.roup.com.gragera.lumen` should be `group.com.gragera.lumen` — not fixed yet
+- `project.yml.deprecated` kept for reference
 - Typography overhaul complete: 10 custom Google Fonts, weighted random assignment, legacy mapping
 - `redesign/immersive-ui` merged → `main` (commit `314a59f`), pushed to origin
 - Immersive dark UI: ambient background, glassmorphic cards, no light mode

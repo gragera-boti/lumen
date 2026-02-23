@@ -1,6 +1,6 @@
 import Foundation
-import SwiftData
 import OSLog
+import SwiftData
 
 struct FeedService: FeedServiceProtocol {
     static let shared = FeedService()

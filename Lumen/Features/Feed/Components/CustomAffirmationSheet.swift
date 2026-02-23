@@ -1,6 +1,6 @@
-import SwiftUI
-import SwiftData
 import NaturalLanguage
+import SwiftData
+import SwiftUI
 
 struct CustomAffirmationSheet: View {
     @Environment(\.modelContext) private var modelContext
@@ -137,12 +137,15 @@ struct CustomAffirmationSheet: View {
             Text("Font Style")
                 .font(.headline)
 
-            LazyVGrid(columns: [
-                GridItem(.flexible()),
-                GridItem(.flexible()),
-                GridItem(.flexible()),
-                GridItem(.flexible()),
-            ], spacing: LumenTheme.Spacing.sm) {
+            LazyVGrid(
+                columns: [
+                    GridItem(.flexible()),
+                    GridItem(.flexible()),
+                    GridItem(.flexible()),
+                    GridItem(.flexible()),
+                ],
+                spacing: LumenTheme.Spacing.sm
+            ) {
                 ForEach(AffirmationFontStyle.allCases) { style in
                     Button {
                         withAnimation(.easeInOut(duration: 0.2)) {

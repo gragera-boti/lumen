@@ -1,5 +1,5 @@
-import WidgetKit
 import SwiftUI
+import WidgetKit
 
 // MARK: - Widget Data
 
@@ -37,13 +37,16 @@ struct LumenTimelineProvider: TimelineProvider {
     }
 
     private func loadEntry() -> LumenEntry? {
-        guard let containerURL = FileManager.default.containerURL(
-            forSecurityApplicationGroupIdentifier: "group.com.gragera.lumen"
-        ) else { return nil }
+        guard
+            let containerURL = FileManager.default.containerURL(
+                forSecurityApplicationGroupIdentifier: "group.com.gragera.lumen"
+            )
+        else { return nil }
 
         let fileURL = containerURL.appendingPathComponent("widget_snapshot.json")
         guard let data = try? Data(contentsOf: fileURL),
-              let snapshot = try? JSONDecoder().decode(WidgetAffirmation.self, from: data) else {
+            let snapshot = try? JSONDecoder().decode(WidgetAffirmation.self, from: data)
+        else {
             return nil
         }
 
@@ -175,11 +178,13 @@ struct FavoritesTimelineProvider: TimelineProvider {
         for i in 0..<min(favorites.count, 48) {
             let entryDate = now.adding(minutes: i * 30)
             let fav = favorites[i % favorites.count]
-            entries.append(FavoritesEntry(
-                date: entryDate,
-                affirmationText: fav.text,
-                gradientColors: fav.gradientColors
-            ))
+            entries.append(
+                FavoritesEntry(
+                    date: entryDate,
+                    affirmationText: fav.text,
+                    gradientColors: fav.gradientColors
+                )
+            )
         }
 
         let timeline = Timeline(entries: entries, policy: .after(now.adding(hours: 24)))
@@ -187,13 +192,16 @@ struct FavoritesTimelineProvider: TimelineProvider {
     }
 
     private func loadFavorites() -> [FavoriteWidgetEntry] {
-        guard let containerURL = FileManager.default.containerURL(
-            forSecurityApplicationGroupIdentifier: "group.com.gragera.lumen"
-        ) else { return [] }
+        guard
+            let containerURL = FileManager.default.containerURL(
+                forSecurityApplicationGroupIdentifier: "group.com.gragera.lumen"
+            )
+        else { return [] }
 
         let fileURL = containerURL.appendingPathComponent("favorites_widget.json")
         guard let data = try? Data(contentsOf: fileURL),
-              let snapshot = try? JSONDecoder().decode(FavoritesWidgetSnapshot.self, from: data) else {
+            let snapshot = try? JSONDecoder().decode(FavoritesWidgetSnapshot.self, from: data)
+        else {
             return []
         }
         return snapshot.favorites.shuffled()

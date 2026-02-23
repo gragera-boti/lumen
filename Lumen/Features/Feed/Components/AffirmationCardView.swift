@@ -42,12 +42,14 @@ struct AffirmationCardView: View {
     private var affirmationFont: Font {
         // Customization font override takes priority
         if let overrideName = customization?.fontStyleOverride,
-           let style = AffirmationFontStyle.from( overrideName) {
+            let style = AffirmationFontStyle.from(overrideName)
+        {
             return style.cardFont(textLength: displayText.count)
         }
 
         if let styleName = affirmation.fontStyle,
-           let style = AffirmationFontStyle.from( styleName) {
+            let style = AffirmationFontStyle.from(styleName)
+        {
             return style.cardFont(textLength: displayText.count)
         }
 
@@ -70,11 +72,13 @@ struct AffirmationCardView: View {
 
     private var letterSpacing: CGFloat {
         if let overrideName = customization?.fontStyleOverride,
-           let style = AffirmationFontStyle.from(overrideName) {
+            let style = AffirmationFontStyle.from(overrideName)
+        {
             return Self.spacingForStyle(style)
         }
         if let styleName = affirmation.fontStyle,
-           let style = AffirmationFontStyle.from(styleName) {
+            let style = AffirmationFontStyle.from(styleName)
+        {
             return Self.spacingForStyle(style)
         }
         return Self.spacingForStyle(Self.randomFontStyle(for: affirmation))

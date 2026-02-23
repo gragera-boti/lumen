@@ -1,5 +1,5 @@
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 struct AffirmationDetailView: View {
     let affirmationId: String
@@ -43,13 +43,17 @@ struct AffirmationDetailView: View {
     private func detailContent(_ affirmation: Affirmation) -> some View {
         let gradientIndex = abs(affirmation.id.hashValue) % LumenTheme.Colors.gradients.count
         let colors = LumenTheme.Colors.gradients[gradientIndex]
-        let displayText = customization?.customText?.isEmpty == false
+        let displayText =
+            customization?.customText?.isEmpty == false
             ? customization!.customText!
             : affirmation.text
 
         ZStack {
             if let cachedPath = customization?.cachedImagePath,
-               let image = UIImage(contentsOfFile: CardEditorViewModel.customizationImagesDir.appendingPathComponent(cachedPath).path) {
+                let image = UIImage(
+                    contentsOfFile: CardEditorViewModel.customizationImagesDir.appendingPathComponent(cachedPath).path
+                )
+            {
                 GeometryReader { geo in
                     Image(uiImage: image)
                         .resizable()
@@ -59,7 +63,8 @@ struct AffirmationDetailView: View {
                 }
                 .ignoresSafeArea()
             } else if let paletteRaw = customization?.colorPalette,
-                      let palette = ColorPalette(rawValue: paletteRaw) {
+                let palette = ColorPalette(rawValue: paletteRaw)
+            {
                 LinearGradient(
                     colors: palette.cgColors.map { Color(cgColor: $0) },
                     startPoint: .topLeading,
@@ -127,7 +132,12 @@ struct AffirmationDetailView: View {
         }
     }
 
-    private func detailButton(icon: String, label: String, isActive: Bool = false, action: @escaping () -> Void) -> some View {
+    private func detailButton(
+        icon: String,
+        label: String,
+        isActive: Bool = false,
+        action: @escaping () -> Void
+    ) -> some View {
         Button(action: action) {
             VStack(spacing: LumenTheme.Spacing.xs) {
                 Image(systemName: icon)
@@ -145,14 +155,16 @@ struct AffirmationDetailView: View {
     private func shareText(_ text: String) {
         let activityVC = UIActivityViewController(activityItems: [text], applicationActivities: nil)
         guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-              let window = windowScene.windows.first,
-              let rootVC = window.rootViewController else { return }
+            let window = windowScene.windows.first,
+            let rootVC = window.rootViewController
+        else { return }
         rootVC.present(activityVC, animated: true)
     }
 
     private func detailFont(for affirmation: Affirmation) -> Font {
         if let overrideName = customization?.fontStyleOverride,
-           let style = AffirmationFontStyle.from( overrideName) {
+            let style = AffirmationFontStyle.from(overrideName)
+        {
             return style.cardFont(textLength: affirmation.text.count)
         }
         return .custom("PlayfairDisplayRoman-Bold", size: 34)

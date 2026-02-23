@@ -1,6 +1,7 @@
+import Dependencies
 import Foundation
-import SwiftData
 import OSLog
+import SwiftData
 
 @MainActor @Observable
 final class ExploreViewModel {
@@ -9,17 +10,9 @@ final class ExploreViewModel {
     var isLoading = false
     var errorMessage: String?
 
-    private let contentService: ContentServiceProtocol
-    private let entitlementService: EntitlementServiceProtocol
+    @ObservationIgnored @Dependency(\.contentService) private var contentService
+    @ObservationIgnored @Dependency(\.entitlementService) private var entitlementService
     private let logger = Logger(subsystem: "com.gragera.lumen", category: "Explore")
-
-    init(
-        contentService: ContentServiceProtocol = ContentService.shared,
-        entitlementService: EntitlementServiceProtocol = EntitlementService.shared
-    ) {
-        self.contentService = contentService
-        self.entitlementService = entitlementService
-    }
 
     func loadData(modelContext: ModelContext) async {
         isLoading = true

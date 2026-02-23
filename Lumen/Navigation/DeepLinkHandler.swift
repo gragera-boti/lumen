@@ -7,7 +7,8 @@ final class DeepLinkHandler {
 
     func handle(url: URL, router: AppRouter) {
         guard let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
-              components.scheme == "lumen" else { return }
+            components.scheme == "lumen"
+        else { return }
 
         let pathParts = components.path.split(separator: "/").map(String.init)
 
@@ -21,7 +22,7 @@ final class DeepLinkHandler {
                 router.navigate(to: .categoryFeed(categoryId: id), in: .explore)
             }
         case "favorites":
-            break // Tab switch handled externally
+            break  // Tab switch handled externally
         case "settings":
             if pathParts.first == "reminders" {
                 router.navigate(to: .reminders, in: .settings)

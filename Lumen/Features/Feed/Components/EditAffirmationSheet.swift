@@ -1,5 +1,5 @@
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 struct EditAffirmationSheet: View {
     let affirmation: Affirmation
@@ -17,7 +17,7 @@ struct EditAffirmationSheet: View {
     init(affirmation: Affirmation) {
         self.affirmation = affirmation
         _text = State(initialValue: affirmation.text)
-        let style = affirmation.fontStyle.flatMap { AffirmationFontStyle.from( $0) } ?? .playfair
+        let style = affirmation.fontStyle.flatMap { AffirmationFontStyle.from($0) } ?? .playfair
         _selectedFont = State(initialValue: style)
     }
 
@@ -113,12 +113,15 @@ struct EditAffirmationSheet: View {
             Text("Font Style")
                 .font(.headline)
 
-            LazyVGrid(columns: [
-                GridItem(.flexible()),
-                GridItem(.flexible()),
-                GridItem(.flexible()),
-                GridItem(.flexible()),
-            ], spacing: LumenTheme.Spacing.sm) {
+            LazyVGrid(
+                columns: [
+                    GridItem(.flexible()),
+                    GridItem(.flexible()),
+                    GridItem(.flexible()),
+                    GridItem(.flexible()),
+                ],
+                spacing: LumenTheme.Spacing.sm
+            ) {
                 ForEach(AffirmationFontStyle.allCases) { style in
                     Button {
                         withAnimation(.easeInOut(duration: 0.2)) {

@@ -1,6 +1,7 @@
+import Dependencies
 import Foundation
-import SwiftData
 import OSLog
+import SwiftData
 
 @MainActor @Observable
 final class OnboardingViewModel {
@@ -24,20 +25,10 @@ final class OnboardingViewModel {
 
     // MARK: - Dependencies
 
-    private let contentService: ContentServiceProtocol
-    private let preferencesService: PreferencesServiceProtocol
-    private let notificationService: NotificationServiceProtocol
+    @ObservationIgnored @Dependency(\.contentService) private var contentService
+    @ObservationIgnored @Dependency(\.preferencesService) private var preferencesService
+    @ObservationIgnored @Dependency(\.notificationService) private var notificationService
     private let logger = Logger(subsystem: "com.gragera.lumen", category: "Onboarding")
-
-    init(
-        contentService: ContentServiceProtocol = ContentService.shared,
-        preferencesService: PreferencesServiceProtocol = PreferencesService.shared,
-        notificationService: NotificationServiceProtocol = NotificationService.shared
-    ) {
-        self.contentService = contentService
-        self.preferencesService = preferencesService
-        self.notificationService = notificationService
-    }
 
     // MARK: - Actions
 

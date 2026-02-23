@@ -1,5 +1,7 @@
-import Testing
+import Foundation
 import SwiftData
+import Testing
+
 @testable import Lumen
 
 @Suite("ExploreViewModel Tests")
@@ -21,6 +23,7 @@ import SwiftData
 
     private final class MockEntitlementService: EntitlementServiceProtocol, @unchecked Sendable {
         var premium = false
+        func configure() {}
         func isPremium() async -> Bool { premium }
         func purchase(productId: String) async throws {}
         func restorePurchases() async throws {}

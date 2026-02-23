@@ -1,5 +1,5 @@
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 struct CategoryFeedView: View {
     let categoryId: String
@@ -124,7 +124,8 @@ struct CategoryFeedView: View {
                 // Text + action bar
                 if let current = currentAffirmation {
                     let customization = viewModel.customizations[current.id]
-                    let displayText = customization?.customText?.isEmpty == false
+                    let displayText =
+                        customization?.customText?.isEmpty == false
                         ? customization!.customText! : current.text
                     VStack {
                         Spacer()
@@ -226,11 +227,13 @@ struct CategoryFeedView: View {
 
     private func customizedFont(for affirmation: Affirmation, customization: CardCustomization?) -> Font {
         if let fontRaw = customization?.fontStyleOverride,
-           let style = AffirmationFontStyle.from( fontRaw) {
+            let style = AffirmationFontStyle.from(fontRaw)
+        {
             return style.cardFont(textLength: affirmation.text.count)
         }
         if let fontRaw = affirmation.fontStyle,
-           let style = AffirmationFontStyle.from( fontRaw) {
+            let style = AffirmationFontStyle.from(fontRaw)
+        {
             return style.cardFont(textLength: affirmation.text.count)
         }
         return affirmationFont(for: affirmation)
@@ -295,7 +298,12 @@ struct CategoryFeedView: View {
         }
     }
 
-    private func feedButton(icon: String, label: String, isActive: Bool = false, action: @escaping () -> Void) -> some View {
+    private func feedButton(
+        icon: String,
+        label: String,
+        isActive: Bool = false,
+        action: @escaping () -> Void
+    ) -> some View {
         Button(action: action) {
             VStack(spacing: LumenTheme.Spacing.xs) {
                 Image(systemName: icon)
@@ -327,8 +335,9 @@ struct CategoryFeedView: View {
 
     private func gradientColors(for affirmation: Affirmation) -> [Color] {
         if let customization = viewModel.customizations[affirmation.id],
-           let paletteRaw = customization.colorPalette,
-           let palette = ColorPalette(rawValue: paletteRaw) {
+            let paletteRaw = customization.colorPalette,
+            let palette = ColorPalette(rawValue: paletteRaw)
+        {
             return palette.cgColors.map { Color(cgColor: $0) }
         }
         let index = abs(affirmation.id.hashValue) % LumenTheme.Colors.gradients.count
@@ -338,8 +347,9 @@ struct CategoryFeedView: View {
     private func shareImage(_ image: UIImage) {
         let activityVC = UIActivityViewController(activityItems: [image], applicationActivities: nil)
         guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-              let window = windowScene.windows.first,
-              let rootVC = window.rootViewController else { return }
+            let window = windowScene.windows.first,
+            let rootVC = window.rootViewController
+        else { return }
         rootVC.present(activityVC, animated: true)
     }
 }

@@ -1,5 +1,5 @@
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 struct ThemeGeneratorView: View {
     @State private var viewModel = ThemeGeneratorViewModel()
@@ -32,10 +32,13 @@ struct ThemeGeneratorView: View {
         }
         .ambientBackground()
         .navigationTitle("generator.title".localized)
-        .alert("general.error".localized, isPresented: Binding(
-            get: { viewModel.errorMessage != nil },
-            set: { if !$0 { viewModel.errorMessage = nil } }
-        )) {
+        .alert(
+            "general.error".localized,
+            isPresented: Binding(
+                get: { viewModel.errorMessage != nil },
+                set: { if !$0 { viewModel.errorMessage = nil } }
+            )
+        ) {
             Button("general.ok".localized) { viewModel.errorMessage = nil }
         } message: {
             Text(viewModel.errorMessage ?? "")
@@ -133,12 +136,15 @@ struct ThemeGeneratorView: View {
                 Text("generator.color".localized)
                     .font(.headline)
 
-                LazyVGrid(columns: [
-                    GridItem(.flexible()),
-                    GridItem(.flexible()),
-                    GridItem(.flexible()),
-                    GridItem(.flexible()),
-                ], spacing: LumenTheme.Spacing.md) {
+                LazyVGrid(
+                    columns: [
+                        GridItem(.flexible()),
+                        GridItem(.flexible()),
+                        GridItem(.flexible()),
+                        GridItem(.flexible()),
+                    ],
+                    spacing: LumenTheme.Spacing.md
+                ) {
                     ForEach(ColorPalette.allCases) { palette in
                         PaletteChip(
                             palette: palette,
@@ -221,10 +227,13 @@ struct ThemeGeneratorView: View {
                     $0.category == viewModel.selectedPromptCategory
                 }
 
-                LazyVGrid(columns: [
-                    GridItem(.flexible()),
-                    GridItem(.flexible()),
-                ], spacing: LumenTheme.Spacing.sm) {
+                LazyVGrid(
+                    columns: [
+                        GridItem(.flexible()),
+                        GridItem(.flexible()),
+                    ],
+                    spacing: LumenTheme.Spacing.sm
+                ) {
                     ForEach(prompts) { prompt in
                         PromptCard(
                             prompt: prompt,
@@ -309,7 +318,7 @@ struct ThemeGeneratorView: View {
                 .foregroundStyle(.green)
                 .font(.subheadline.weight(.semibold))
         default:
-            EmptyView() // progress bar handles visual feedback
+            EmptyView()  // progress bar handles visual feedback
         }
     }
 
@@ -365,12 +374,14 @@ struct ThemeGeneratorView: View {
                 }
             }
 
-            Text(viewModel.selectedMode == .ai
-                 ? "AI backgrounds are generated on-device. Saved backgrounds rotate randomly in your feed."
-                 : "Unlimited free backgrounds. Saved themes rotate randomly in your feed.")
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
+            Text(
+                viewModel.selectedMode == .ai
+                    ? "AI backgrounds are generated on-device. Saved backgrounds rotate randomly in your feed."
+                    : "Unlimited free backgrounds. Saved themes rotate randomly in your feed."
+            )
+            .font(.caption)
+            .foregroundStyle(.secondary)
+            .multilineTextAlignment(.center)
         }
     }
 
@@ -485,7 +496,8 @@ private struct CachedThumbnail: View {
 
             ZStack(alignment: .topTrailing) {
                 if let data = try? Data(contentsOf: background.thumbnailPath),
-                   let image = UIImage(data: data) {
+                    let image = UIImage(data: data)
+                {
                     Image(uiImage: image)
                         .resizable()
                         .scaledToFill()

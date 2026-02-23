@@ -1,5 +1,5 @@
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 struct FeedView: View {
     @State private var viewModel = FeedViewModel()
@@ -34,9 +34,12 @@ struct FeedView: View {
         .toolbar(.hidden, for: .navigationBar)
         .toolbarBackground(.hidden, for: .tabBar)
         .ignoresSafeArea()
-        .sheet(isPresented: $showCustomAffirmation, onDismiss: {
-            viewModel.insertLatestUserAffirmation(modelContext: modelContext)
-        }) {
+        .sheet(
+            isPresented: $showCustomAffirmation,
+            onDismiss: {
+                viewModel.insertLatestUserAffirmation(modelContext: modelContext)
+            }
+        ) {
             CustomAffirmationSheet()
         }
         .sheet(item: $viewModel.editingAffirmation) { affirmation in
@@ -138,7 +141,8 @@ struct FeedView: View {
     private func cardTextAndActions(geo: GeometryProxy) -> some View {
         if let current = currentAffirmation {
             let customization = viewModel.customizations[current.id]
-            let displayText = customization?.customText?.isEmpty == false
+            let displayText =
+                customization?.customText?.isEmpty == false
                 ? customization!.customText!
                 : current.text
             VStack {
@@ -265,7 +269,12 @@ struct FeedView: View {
         }
     }
 
-    private func feedButton(icon: String, label: String, isActive: Bool = false, action: @escaping () -> Void) -> some View {
+    private func feedButton(
+        icon: String,
+        label: String,
+        isActive: Bool = false,
+        action: @escaping () -> Void
+    ) -> some View {
         Button(action: action) {
             VStack(spacing: LumenTheme.Spacing.xs) {
                 Image(systemName: icon)
@@ -294,7 +303,8 @@ struct FeedView: View {
 
     private func customizedFont(for affirmation: Affirmation, customization: CardCustomization?) -> Font {
         if let overrideName = customization?.fontStyleOverride,
-           let style = AffirmationFontStyle.from( overrideName) {
+            let style = AffirmationFontStyle.from(overrideName)
+        {
             return style.cardFont(textLength: affirmation.text.count)
         }
         return affirmationFont(for: affirmation)
@@ -302,7 +312,8 @@ struct FeedView: View {
 
     private func affirmationFont(for affirmation: Affirmation) -> Font {
         if let styleName = affirmation.fontStyle,
-           let style = AffirmationFontStyle.from( styleName) {
+            let style = AffirmationFontStyle.from(styleName)
+        {
             return style.cardFont(textLength: affirmation.text.count)
         }
 
@@ -316,12 +327,12 @@ struct FeedView: View {
     private func randomFontStyle(for affirmation: Affirmation) -> AffirmationFontStyle {
         let roll = abs(affirmation.id.hashValue) % 10
         switch roll {
-        case 0...3: return .playfair    // 40% — the signature font
-        case 4...5: return .cormorant   // 20% — refined
-        case 6: return .zilla           // 10% — slab
-        case 7: return .abril           // 10% — display
-        case 8: return .rounded         // 10% — soft
-        default: return .josefin        // 10% — minimal
+        case 0...3: return .playfair  // 40% — the signature font
+        case 4...5: return .cormorant  // 20% — refined
+        case 6: return .zilla  // 10% — slab
+        case 7: return .abril  // 10% — display
+        case 8: return .rounded  // 10% — soft
+        default: return .josefin  // 10% — minimal
         }
     }
 
@@ -369,8 +380,9 @@ struct FeedView: View {
     private func presentShareSheet(image: UIImage) {
         let activityVC = UIActivityViewController(activityItems: [image], applicationActivities: nil)
         guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-              let window = windowScene.windows.first,
-              let rootVC = window.rootViewController else { return }
+            let window = windowScene.windows.first,
+            let rootVC = window.rootViewController
+        else { return }
         rootVC.present(activityVC, animated: true)
     }
 }

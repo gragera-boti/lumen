@@ -1,6 +1,6 @@
 import Foundation
-import WidgetKit
 import OSLog
+import WidgetKit
 
 struct WidgetService: WidgetServiceProtocol {
     static let shared = WidgetService()
@@ -9,9 +9,11 @@ struct WidgetService: WidgetServiceProtocol {
     private let appGroupId = "group.com.gragera.lumen"
 
     func updateWidget(affirmationText: String, gradientColors: [String]) {
-        guard let containerURL = FileManager.default.containerURL(
-            forSecurityApplicationGroupIdentifier: appGroupId
-        ) else {
+        guard
+            let containerURL = FileManager.default.containerURL(
+                forSecurityApplicationGroupIdentifier: appGroupId
+            )
+        else {
             logger.warning("App group container not available")
             return
         }
@@ -34,9 +36,11 @@ struct WidgetService: WidgetServiceProtocol {
         }
     }
     func updateFavoritesWidget(favorites: [(text: String, gradientColors: [String])]) {
-        guard let containerURL = FileManager.default.containerURL(
-            forSecurityApplicationGroupIdentifier: appGroupId
-        ) else {
+        guard
+            let containerURL = FileManager.default.containerURL(
+                forSecurityApplicationGroupIdentifier: appGroupId
+            )
+        else {
             logger.warning("App group container not available")
             return
         }

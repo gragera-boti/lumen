@@ -1,8 +1,8 @@
-import UIKit
-import CoreML
-import StableDiffusion
 import CoreImage
+import CoreML
 import OSLog
+import StableDiffusion
+import UIKit
 
 /// On-device AI background generator using Core ML Stable Diffusion.
 ///
@@ -78,7 +78,9 @@ actor AIBackgroundService: AIBackgroundServiceProtocol {
 
             // List what's in the model directory
             let contents = (try? FileManager.default.contentsOfDirectory(atPath: modelURL.path)) ?? []
-            logger.info("Model directory contents (\(contents.count) items): \(contents.filter { $0.hasSuffix(".mlmodelc") || $0.hasSuffix(".json") || $0.hasSuffix(".txt") }.joined(separator: ", "))")
+            logger.info(
+                "Model directory contents (\(contents.count) items): \(contents.filter { $0.hasSuffix(".mlmodelc") || $0.hasSuffix(".json") || $0.hasSuffix(".txt") }.joined(separator: ", "))"
+            )
 
             // Check available memory before loading
             let memInfo = ProcessInfo.processInfo.physicalMemory
@@ -150,7 +152,7 @@ actor AIBackgroundService: AIBackgroundServiceProtocol {
 
     private func requestODRResources() async throws -> URL {
         let request = NSBundleResourceRequest(tags: ["ai-model"])
-        self.odrRequest = request // retain to keep resources available
+        self.odrRequest = request  // retain to keep resources available
 
         // Check if already available
         let isAvailable = await request.conditionallyBeginAccessingResources()
@@ -216,7 +218,9 @@ actor AIBackgroundService: AIBackgroundServiceProtocol {
             let startTime = CFAbsoluteTimeGetCurrent()
             let seed = request.seed ?? UInt32.random(in: 0...UInt32.max)
 
-            logger.info("Generating AI background: '\(request.prompt.displayName)', seed=\(seed), steps=\(request.stepCount)")
+            logger.info(
+                "Generating AI background: '\(request.prompt.displayName)', seed=\(seed), steps=\(request.stepCount)"
+            )
 
             var pipelineConfig = StableDiffusionPipeline.Configuration(prompt: request.prompt.prompt)
             pipelineConfig.negativePrompt = request.prompt.negativePrompt
@@ -252,7 +256,11 @@ actor AIBackgroundService: AIBackgroundServiceProtocol {
 
             // Save to disk
             let themeId = "ai_\(UUID().uuidString.prefix(8))"
-            let (imagePath, thumbPath) = try saveToDisk(image: upscaledImage, thumbnail: UIImage(cgImage: unwrapped), themeId: themeId)
+            let (imagePath, thumbPath) = try saveToDisk(
+                image: upscaledImage,
+                thumbnail: UIImage(cgImage: unwrapped),
+                themeId: themeId
+            )
 
             let metadata = GenerationMetadata(
                 style: "ai_\(request.prompt.category.rawValue)",
@@ -328,7 +336,8 @@ actor AIBackgroundService: AIBackgroundServiceProtocol {
         let manifestURL = dir.appendingPathComponent("manifest.json")
 
         guard let data = try? Data(contentsOf: manifestURL),
-              let entries = try? JSONDecoder().decode([CachedEntry].self, from: data) else {
+            let entries = try? JSONDecoder().decode([CachedEntry].self, from: data)
+        else {
             return []
         }
 
@@ -356,7 +365,8 @@ actor AIBackgroundService: AIBackgroundServiceProtocol {
         // Update manifest
         let manifestURL = dir.appendingPathComponent("manifest.json")
         if let data = try? Data(contentsOf: manifestURL),
-           var entries = try? JSONDecoder().decode([CachedEntry].self, from: data) {
+            var entries = try? JSONDecoder().decode([CachedEntry].self, from: data)
+        {
             entries.removeAll { $0.themeId == themeId }
             let updated = try JSONEncoder().encode(entries)
             try updated.write(to: manifestURL)
@@ -438,7 +448,8 @@ actor AIBackgroundService: AIBackgroundServiceProtocol {
         // Load existing entries and append
         var entries: [CachedEntry] = []
         if let data = try? Data(contentsOf: manifestURL),
-           let existing = try? JSONDecoder().decode([CachedEntry].self, from: data) {
+            let existing = try? JSONDecoder().decode([CachedEntry].self, from: data)
+        {
             entries = existing
         }
 

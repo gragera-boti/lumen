@@ -1,5 +1,7 @@
-import Testing
+import Foundation
 import SwiftData
+import Testing
+
 @testable import Lumen
 
 @Suite("ContentService Tests")

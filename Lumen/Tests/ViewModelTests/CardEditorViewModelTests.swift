@@ -1,10 +1,13 @@
-import Testing
+import Dependencies
+import Foundation
 import SwiftData
+import Testing
+
 @testable import Lumen
 
 // MARK: - Mock Services
 
-private struct MockCardCustomizationService: CardCustomizationServiceProtocol {
+private struct MockCardCustomizationService: CardCustomizationServiceProtocol, @unchecked Sendable {
     var savedCustomizations: [CardCustomization] = []
     var shouldThrow: Bool = false
 
@@ -58,7 +61,8 @@ struct CardEditorViewModelTests {
     private func makeModelContext() throws -> ModelContext {
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
         let container = try ModelContainer(
-            for: Affirmation.self, CardCustomization.self,
+            for: Affirmation.self,
+            CardCustomization.self,
             configurations: config
         )
         return ModelContext(container)
@@ -76,20 +80,30 @@ struct CardEditorViewModelTests {
         return aff
     }
 
+    @MainActor private func makeViewModel(
+        affirmation: Affirmation,
+        existingCustomization: CardCustomization? = nil
+    ) -> CardEditorViewModel {
+        withDependencies {
+            $0.cardCustomizationService = MockCardCustomizationService()
+            $0.backgroundGenerator = MockBackgroundGenerator()
+        } operation: {
+            CardEditorViewModel(
+                affirmation: affirmation,
+                existingCustomization: existingCustomization
+            )
+        }
+    }
+
     @Test("Initial state from nil customization uses defaults")
     @MainActor
     func initialStateFromNilCustomization() {
         let affirmation = makeAffirmation()
-        let vm = CardEditorViewModel(
-            affirmation: affirmation,
-            existingCustomization: nil,
-            customizationService: MockCardCustomizationService(),
-            backgroundGenerator: MockBackgroundGenerator()
-        )
+        let viewModel = makeViewModel(affirmation: affirmation)
 
-        #expect(vm.customText == affirmation.text)
-        #expect(vm.selectedFontStyle == nil)
-        #expect(!vm.hasChanges)
+        #expect(viewModel.customText == affirmation.text)
+        #expect(viewModel.selectedFontStyle == nil)
+        #expect(!viewModel.hasChanges)
     }
 
     @Test("Initial state from existing customization")
@@ -101,23 +115,18 @@ struct CardEditorViewModelTests {
             backgroundStyle: GeneratorStyle.cosmos.rawValue,
             colorPalette: ColorPalette.cherry.rawValue,
             backgroundSeed: 42,
-            fontStyleOverride: AffirmationFontStyle.elegant.rawValue,
+            fontStyleOverride: AffirmationFontStyle.cormorant.rawValue,
             customText: "Custom text"
         )
 
-        let vm = CardEditorViewModel(
-            affirmation: affirmation,
-            existingCustomization: customization,
-            customizationService: MockCardCustomizationService(),
-            backgroundGenerator: MockBackgroundGenerator()
-        )
+        let viewModel = makeViewModel(affirmation: affirmation, existingCustomization: customization)
 
-        #expect(vm.selectedStyle == .cosmos)
-        #expect(vm.selectedPalette == .cherry)
-        #expect(vm.selectedFontStyle == .elegant)
-        #expect(vm.customText == "Custom text")
-        #expect(vm.backgroundSeed == 42)
-        #expect(!vm.hasChanges)
+        #expect(viewModel.selectedStyle == .cosmos)
+        #expect(viewModel.selectedPalette == .cherry)
+        #expect(viewModel.selectedFontStyle == .cormorant)
+        #expect(viewModel.customText == "Custom text")
+        #expect(viewModel.backgroundSeed == 42)
+        #expect(!viewModel.hasChanges)
     }
 
     @Test("canEditText is true for user source, false for curated")
@@ -126,18 +135,8 @@ struct CardEditorViewModelTests {
         let userAff = makeAffirmation(source: .user)
         let curatedAff = makeAffirmation(source: .curated)
 
-        let userVM = CardEditorViewModel(
-            affirmation: userAff,
-            existingCustomization: nil,
-            customizationService: MockCardCustomizationService(),
-            backgroundGenerator: MockBackgroundGenerator()
-        )
-        let curatedVM = CardEditorViewModel(
-            affirmation: curatedAff,
-            existingCustomization: nil,
-            customizationService: MockCardCustomizationService(),
-            backgroundGenerator: MockBackgroundGenerator()
-        )
+        let userVM = makeViewModel(affirmation: userAff)
+        let curatedVM = makeViewModel(affirmation: curatedAff)
 
         #expect(userVM.canEditText == true)
         #expect(curatedVM.canEditText == false)
@@ -147,17 +146,12 @@ struct CardEditorViewModelTests {
     @MainActor
     func hasChangesDetection() {
         let affirmation = makeAffirmation()
-        let vm = CardEditorViewModel(
-            affirmation: affirmation,
-            existingCustomization: nil,
-            customizationService: MockCardCustomizationService(),
-            backgroundGenerator: MockBackgroundGenerator()
-        )
+        let viewModel = makeViewModel(affirmation: affirmation)
 
-        #expect(!vm.hasChanges)
+        #expect(!viewModel.hasChanges)
 
-        vm.selectedStyle = .cosmos
-        #expect(vm.hasChanges)
+        viewModel.selectedStyle = .cosmos
+        #expect(viewModel.hasChanges)
     }
 
     @Test("save creates CardCustomization in context")
@@ -168,27 +162,23 @@ struct CardEditorViewModelTests {
         modelContext.insert(affirmation)
         try modelContext.save()
 
-        let vm = CardEditorViewModel(
-            affirmation: affirmation,
-            existingCustomization: nil,
-            customizationService: MockCardCustomizationService(),
-            backgroundGenerator: MockBackgroundGenerator()
-        )
+        let viewModel = makeViewModel(affirmation: affirmation)
 
-        vm.selectedStyle = .watercolor
-        vm.selectedPalette = .sakura
-        vm.selectedFontStyle = .script
+        viewModel.selectedStyle = .watercolor
+        viewModel.selectedPalette = .sakura
+        viewModel.selectedFontStyle = .dancing
 
-        try vm.save(modelContext: modelContext)
+        try viewModel.save(modelContext: modelContext)
 
+        let affId = affirmation.id
         let descriptor = FetchDescriptor<CardCustomization>(
-            predicate: #Predicate { $0.affirmationId == affirmation.id }
+            predicate: #Predicate { $0.affirmationId == affId }
         )
         let results = try modelContext.fetch(descriptor)
         #expect(results.count == 1)
         #expect(results.first?.backgroundStyle == GeneratorStyle.watercolor.rawValue)
         #expect(results.first?.colorPalette == ColorPalette.sakura.rawValue)
-        #expect(results.first?.fontStyleOverride == AffirmationFontStyle.script.rawValue)
+        #expect(results.first?.fontStyleOverride == AffirmationFontStyle.dancing.rawValue)
     }
 
     @Test("resetToDefaults deletes customization")
@@ -205,17 +195,13 @@ struct CardEditorViewModelTests {
         modelContext.insert(customization)
         try modelContext.save()
 
-        let vm = CardEditorViewModel(
-            affirmation: affirmation,
-            existingCustomization: customization,
-            customizationService: MockCardCustomizationService(),
-            backgroundGenerator: MockBackgroundGenerator()
-        )
+        let viewModel = makeViewModel(affirmation: affirmation, existingCustomization: customization)
 
-        try vm.resetToDefaults(modelContext: modelContext)
+        try viewModel.resetToDefaults(modelContext: modelContext)
 
+        let affId = affirmation.id
         let descriptor = FetchDescriptor<CardCustomization>(
-            predicate: #Predicate { $0.affirmationId == affirmation.id }
+            predicate: #Predicate { $0.affirmationId == affId }
         )
         let results = try modelContext.fetch(descriptor)
         #expect(results.isEmpty)
@@ -225,19 +211,13 @@ struct CardEditorViewModelTests {
     @MainActor
     func randomizeSeedChangesSeed() {
         let affirmation = makeAffirmation()
-        let vm = CardEditorViewModel(
-            affirmation: affirmation,
-            existingCustomization: nil,
-            customizationService: MockCardCustomizationService(),
-            backgroundGenerator: MockBackgroundGenerator()
-        )
+        let viewModel = makeViewModel(affirmation: affirmation)
 
-        let originalSeed = vm.backgroundSeed
-        // Run multiple times to avoid false positive from collision
+        let originalSeed = viewModel.backgroundSeed
         var changed = false
         for _ in 0..<10 {
-            vm.randomizeSeed()
-            if vm.backgroundSeed != originalSeed {
+            viewModel.randomizeSeed()
+            if viewModel.backgroundSeed != originalSeed {
                 changed = true
                 break
             }

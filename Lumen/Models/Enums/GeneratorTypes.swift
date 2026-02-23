@@ -3,18 +3,18 @@ import UIKit
 // MARK: - Pattern styles
 
 enum GeneratorStyle: String, CaseIterable, Identifiable, Sendable {
-    case aurora       // Flowing horizontal light bands
-    case bokeh        // Soft luminous floating circles
-    case mist         // Dreamy layered fog
-    case dunes        // Smooth rolling wave bands
-    case minimal      // Clean multi-stop gradient
-    case cosmos       // Deep space with nebula + stars
-    case geometric    // Tessellated polygons / crystal facets
-    case watercolor   // Soft bleeding paint washes
-    case stainedGlass // Bold angular shards with bright edges
-    case waves        // Concentric ripple rings
-    case prism        // Refracted light streaks / rainbow bars
-    case topography   // Contour-map elevation lines
+    case aurora  // Flowing horizontal light bands
+    case bokeh  // Soft luminous floating circles
+    case mist  // Dreamy layered fog
+    case dunes  // Smooth rolling wave bands
+    case minimal  // Clean multi-stop gradient
+    case cosmos  // Deep space with nebula + stars
+    case geometric  // Tessellated polygons / crystal facets
+    case watercolor  // Soft bleeding paint washes
+    case stainedGlass  // Bold angular shards with bright edges
+    case waves  // Concentric ripple rings
+    case prism  // Refracted light streaks / rainbow bars
+    case topography  // Contour-map elevation lines
 
     var id: String { rawValue }
 
@@ -168,20 +168,20 @@ enum ColorPalette: String, CaseIterable, Identifiable, Sendable {
     /// Accent color for overlays and pattern details
     var accentCGColor: CGColor {
         switch self {
-        case .warmFlame:    UIColor(red: 1.00, green: 0.70, blue: 0.55, alpha: 1).cgColor
-        case .nightFade:    UIColor(red: 0.80, green: 0.55, blue: 0.90, alpha: 1).cgColor
+        case .warmFlame: UIColor(red: 1.00, green: 0.70, blue: 0.55, alpha: 1).cgColor
+        case .nightFade: UIColor(red: 0.80, green: 0.55, blue: 0.90, alpha: 1).cgColor
         case .frozenDreams: UIColor(red: 0.70, green: 0.65, blue: 0.90, alpha: 1).cgColor
-        case .rainyDay:     UIColor(red: 0.55, green: 0.65, blue: 0.90, alpha: 1).cgColor
-        case .oceanBreeze:  UIColor(red: 0.30, green: 0.80, blue: 0.75, alpha: 1).cgColor
-        case .goldenHour:   UIColor(red: 1.00, green: 0.80, blue: 0.40, alpha: 1).cgColor
-        case .deepForest:   UIColor(red: 0.40, green: 0.80, blue: 0.55, alpha: 1).cgColor
-        case .moonlight:    UIColor(red: 0.45, green: 0.45, blue: 0.75, alpha: 1).cgColor
-        case .cherry:       UIColor(red: 1.00, green: 0.40, blue: 0.50, alpha: 1).cgColor
-        case .auroraGreen:  UIColor(red: 0.30, green: 0.90, blue: 0.70, alpha: 1).cgColor
-        case .desert:       UIColor(red: 0.90, green: 0.70, blue: 0.45, alpha: 1).cgColor
-        case .sakura:       UIColor(red: 1.00, green: 0.70, blue: 0.80, alpha: 1).cgColor
-        case .electric:     UIColor(red: 0.50, green: 0.30, blue: 1.00, alpha: 1).cgColor
-        case .slate:        UIColor(red: 0.55, green: 0.60, blue: 0.70, alpha: 1).cgColor
+        case .rainyDay: UIColor(red: 0.55, green: 0.65, blue: 0.90, alpha: 1).cgColor
+        case .oceanBreeze: UIColor(red: 0.30, green: 0.80, blue: 0.75, alpha: 1).cgColor
+        case .goldenHour: UIColor(red: 1.00, green: 0.80, blue: 0.40, alpha: 1).cgColor
+        case .deepForest: UIColor(red: 0.40, green: 0.80, blue: 0.55, alpha: 1).cgColor
+        case .moonlight: UIColor(red: 0.45, green: 0.45, blue: 0.75, alpha: 1).cgColor
+        case .cherry: UIColor(red: 1.00, green: 0.40, blue: 0.50, alpha: 1).cgColor
+        case .auroraGreen: UIColor(red: 0.30, green: 0.90, blue: 0.70, alpha: 1).cgColor
+        case .desert: UIColor(red: 0.90, green: 0.70, blue: 0.45, alpha: 1).cgColor
+        case .sakura: UIColor(red: 1.00, green: 0.70, blue: 0.80, alpha: 1).cgColor
+        case .electric: UIColor(red: 0.50, green: 0.30, blue: 1.00, alpha: 1).cgColor
+        case .slate: UIColor(red: 0.55, green: 0.60, blue: 0.70, alpha: 1).cgColor
         }
     }
 }

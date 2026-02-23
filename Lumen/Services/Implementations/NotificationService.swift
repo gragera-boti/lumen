@@ -1,6 +1,6 @@
 import Foundation
-import UserNotifications
 import OSLog
+import UserNotifications
 
 @MainActor
 final class NotificationService: NotificationServiceProtocol {
@@ -38,9 +38,10 @@ final class NotificationService: NotificationServiceProtocol {
         let windowEnd = settings.windowEndDate
 
         guard let startHour = windowStart.hour,
-              let startMinute = windowStart.minute,
-              let endHour = windowEnd.hour,
-              let endMinute = windowEnd.minute else { return }
+            let startMinute = windowStart.minute,
+            let endHour = windowEnd.hour,
+            let endMinute = windowEnd.minute
+        else { return }
 
         let startMinutes = startHour * 60 + startMinute
         let endMinutes = endHour * 60 + endMinute
@@ -60,8 +61,9 @@ final class NotificationService: NotificationServiceProtocol {
 
                 let calendar = Calendar.current
                 guard let targetDate = calendar.date(byAdding: .day, value: day, to: .now),
-                      let scheduled = calendar.date(bySettingHour: hour, minute: minute, second: 0, of: targetDate),
-                      scheduled > .now else { continue }
+                    let scheduled = calendar.date(bySettingHour: hour, minute: minute, second: 0, of: targetDate),
+                    scheduled > .now
+                else { continue }
 
                 let affirmationText = affirmationTexts[
                     (day * settings.countPerDay + i) % affirmationTexts.count

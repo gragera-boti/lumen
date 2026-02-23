@@ -71,14 +71,17 @@ struct WatchContentView: View {
     // MARK: - Data
 
     private func loadFromSharedStorage() {
-        guard let containerURL = FileManager.default.containerURL(
-            forSecurityApplicationGroupIdentifier: "group.com.gragera.lumen"
-        ) else { return }
+        guard
+            let containerURL = FileManager.default.containerURL(
+                forSecurityApplicationGroupIdentifier: "group.com.gragera.lumen"
+            )
+        else { return }
 
         let fileURL = containerURL.appendingPathComponent("watch_affirmations.json")
         guard let data = try? Data(contentsOf: fileURL),
-              let affirmations = try? JSONDecoder().decode([WatchAffirmation].self, from: data),
-              !affirmations.isEmpty else {
+            let affirmations = try? JSONDecoder().decode([WatchAffirmation].self, from: data),
+            !affirmations.isEmpty
+        else {
             // Fallback
             currentAffirmation = WatchAffirmation(
                 id: "fallback",
@@ -95,14 +98,17 @@ struct WatchContentView: View {
     }
 
     private func loadNext() {
-        guard let containerURL = FileManager.default.containerURL(
-            forSecurityApplicationGroupIdentifier: "group.com.gragera.lumen"
-        ) else { return }
+        guard
+            let containerURL = FileManager.default.containerURL(
+                forSecurityApplicationGroupIdentifier: "group.com.gragera.lumen"
+            )
+        else { return }
 
         let fileURL = containerURL.appendingPathComponent("watch_affirmations.json")
         guard let data = try? Data(contentsOf: fileURL),
-              let affirmations = try? JSONDecoder().decode([WatchAffirmation].self, from: data),
-              affirmations.count > 1 else { return }
+            let affirmations = try? JSONDecoder().decode([WatchAffirmation].self, from: data),
+            affirmations.count > 1
+        else { return }
 
         let currentId = currentAffirmation?.id ?? ""
         let currentIndex = affirmations.firstIndex { $0.id == currentId } ?? 0

@@ -1,5 +1,5 @@
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 struct FavoritesView: View {
     @State private var viewModel = FavoritesViewModel()
@@ -106,7 +106,12 @@ struct FavoritesView: View {
     }
 
     @ViewBuilder
-    private func favoritesSection(title: String?, icon: String, affirmations: [Affirmation], isUserCreated: Bool) -> some View {
+    private func favoritesSection(
+        title: String?,
+        icon: String,
+        affirmations: [Affirmation],
+        isUserCreated: Bool
+    ) -> some View {
         VStack(alignment: .leading, spacing: LumenTheme.Spacing.sm) {
             if let title {
                 HStack(spacing: 6) {
@@ -154,7 +159,10 @@ struct FavoritesView: View {
                                 viewModel.removeFavorite(affirmation, modelContext: modelContext)
                             }
                         } label: {
-                            Label(isUserCreated ? "Delete" : "Remove", systemImage: isUserCreated ? "trash" : "heart.slash")
+                            Label(
+                                isUserCreated ? "Delete" : "Remove",
+                                systemImage: isUserCreated ? "trash" : "heart.slash"
+                            )
                         }
                     }
                 }
@@ -227,7 +235,8 @@ struct FavoriteRow: View {
                         .font(.caption)
                         .foregroundStyle(.white.opacity(0.45))
                 } else if isUserCreated, let fontStyle = affirmation.fontStyle,
-                          let style = AffirmationFontStyle.from( fontStyle) {
+                    let style = AffirmationFontStyle.from(fontStyle)
+                {
                     Text(style.displayName + " style")
                         .font(.caption)
                         .foregroundStyle(.white.opacity(0.45))
@@ -259,5 +268,8 @@ struct FavoriteRow: View {
         FavoritesView()
     }
     .environment(AppRouter())
-    .modelContainer(for: [Affirmation.self, Favorite.self, CardCustomization.self, UserPreferences.self], inMemory: true)
+    .modelContainer(
+        for: [Affirmation.self, Favorite.self, CardCustomization.self, UserPreferences.self],
+        inMemory: true
+    )
 }

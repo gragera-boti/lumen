@@ -1,4 +1,7 @@
+import Dependencies
+import Foundation
 import Testing
+
 @testable import Lumen
 
 @Suite("ThemeGeneratorViewModel Tests")
@@ -26,8 +29,14 @@ import Testing
                 imagePath: imagePath,
                 thumbnailPath: thumbPath,
                 metadata: GenerationMetadata(
-                    style: "aurora", palette: "warmFlame", mood: "calm",
-                    seed: 42, complexity: 0.5, width: 512, height: 512, durationMs: 50
+                    style: "aurora",
+                    palette: "warmFlame",
+                    mood: "calm",
+                    seed: 42,
+                    complexity: 0.5,
+                    width: 512,
+                    height: 512,
+                    durationMs: 50
                 )
             )
         }
@@ -58,8 +67,14 @@ import Testing
                 imagePath: imagePath,
                 thumbnailPath: thumbPath,
                 metadata: GenerationMetadata(
-                    style: "ai_ethereal", palette: "ai_0", mood: "ethereal",
-                    seed: 42, complexity: 0.5, width: 1170, height: 2532, durationMs: 5000
+                    style: "ai_ethereal",
+                    palette: "ai_0",
+                    mood: "ethereal",
+                    seed: 42,
+                    complexity: 0.5,
+                    width: 1170,
+                    height: 2532,
+                    durationMs: 5000
                 )
             )
         }
@@ -77,6 +92,7 @@ import Testing
 
     private final class MockEntitlementService: EntitlementServiceProtocol, @unchecked Sendable {
         var premium = true
+        func configure() {}
         func isPremium() async -> Bool { premium }
         func purchase(productId: String) async throws {}
         func restorePurchases() async throws {}
@@ -101,13 +117,17 @@ import Testing
     @Test("procedural generate success")
     func proceduralGenerate_success() async {
         let mock = MockGenerator()
-        let ai = MockAIGenerator()
+        let mockAI = MockAIGenerator()
         let analytics = MockAnalytics()
         let entitlement = MockEntitlementService()
-        let vm = ThemeGeneratorViewModel(
-            generator: mock, aiGenerator: ai,
-            analyticsService: analytics, entitlementService: entitlement
-        )
+        let vm = withDependencies {
+            $0.backgroundGenerator = mock
+            $0.aiBackgroundService = mockAI
+            $0.analyticsService = analytics
+            $0.entitlementService = entitlement
+        } operation: {
+            ThemeGeneratorViewModel()
+        }
 
         await vm.generate()
 
@@ -122,12 +142,15 @@ import Testing
     func proceduralGenerate_failure() async {
         let mock = MockGenerator()
         mock.shouldThrow = true
-        let ai = MockAIGenerator()
+        let mockAI = MockAIGenerator()
         let entitlement = MockEntitlementService()
-        let vm = ThemeGeneratorViewModel(
-            generator: mock, aiGenerator: ai,
-            entitlementService: entitlement
-        )
+        let vm = withDependencies {
+            $0.backgroundGenerator = mock
+            $0.aiBackgroundService = mockAI
+            $0.entitlementService = entitlement
+        } operation: {
+            ThemeGeneratorViewModel()
+        }
 
         await vm.generate()
 
@@ -137,10 +160,15 @@ import Testing
     }
 
     @Test("cancel calls both generators")
-    func cancel_callsBothGenerators() {
+    func cancel_callsBothGenerators() async {
         let mock = MockGenerator()
-        let ai = MockAIGenerator()
-        let vm = ThemeGeneratorViewModel(generator: mock, aiGenerator: ai)
+        let mockAI = MockAIGenerator()
+        let vm = withDependencies {
+            $0.backgroundGenerator = mock
+            $0.aiBackgroundService = mockAI
+        } operation: {
+            ThemeGeneratorViewModel()
+        }
 
         await vm.cancelGeneration()
 
@@ -151,19 +179,22 @@ import Testing
     @Test("AI mode requires premium")
     func aiMode_requiresPremium() async {
         let mock = MockGenerator()
-        let ai = MockAIGenerator()
+        let mockAI = MockAIGenerator()
         let entitlement = MockEntitlementService()
         entitlement.premium = false
-        let vm = ThemeGeneratorViewModel(
-            generator: mock, aiGenerator: ai,
-            entitlementService: entitlement
-        )
+        let vm = withDependencies {
+            $0.backgroundGenerator = mock
+            $0.aiBackgroundService = mockAI
+            $0.entitlementService = entitlement
+        } operation: {
+            ThemeGeneratorViewModel()
+        }
         vm.selectedMode = .ai
 
         await vm.generate()
 
         #expect(vm.showPaywallPrompt)
-        #expect(!ai.generateCalled)
+        #expect(!mockAI.generateCalled)
     }
 
     @Test("prompt library has all categories")
@@ -183,7 +214,8 @@ import Testing
     @Test("random prompt returns from correct category")
     func randomPrompt_returnsFromCorrectCategory() {
         for _ in 0..<20 {
-            let category = AIBackgroundPrompt.PromptCategory.allCases.randomElement()!
+            let category = AIBackgroundPrompt.PromptCategory.allCases.randomElement()
+            guard let category else { continue }
             let prompt = AIBackgroundPrompt.random(category: category)
             #expect(prompt.category == category)
         }

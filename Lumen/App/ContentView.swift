@@ -1,5 +1,5 @@
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
@@ -48,16 +48,20 @@ struct ContentView: View {
         .task {
             await bootstrap()
         }
-        .sheet(isPresented: Binding(
-            get: { router.isShowingPaywall },
-            set: { router.isShowingPaywall = $0 }
-        )) {
+        .sheet(
+            isPresented: Binding(
+                get: { router.isShowingPaywall },
+                set: { router.isShowingPaywall = $0 }
+            )
+        ) {
             LumenPaywallView()
         }
-        .sheet(isPresented: Binding(
-            get: { router.isShowingCrisis },
-            set: { router.isShowingCrisis = $0 }
-        )) {
+        .sheet(
+            isPresented: Binding(
+                get: { router.isShowingCrisis },
+                set: { router.isShowingCrisis = $0 }
+            )
+        ) {
             CrisisView()
         }
     }

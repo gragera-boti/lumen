@@ -1,5 +1,5 @@
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 struct PrivacyDataView: View {
     @Environment(\.modelContext) private var modelContext
@@ -13,13 +13,16 @@ struct PrivacyDataView: View {
         List {
             if let prefs = preferences {
                 Section("Analytics") {
-                    Toggle("Opt out of analytics", isOn: Binding(
-                        get: { prefs.analyticsOptOut },
-                        set: {
-                            prefs.analyticsOptOut = $0
-                            save()
-                        }
-                    ))
+                    Toggle(
+                        "Opt out of analytics",
+                        isOn: Binding(
+                            get: { prefs.analyticsOptOut },
+                            set: {
+                                prefs.analyticsOptOut = $0
+                                save()
+                            }
+                        )
+                    )
 
                     Text("When opted out, no usage data is collected.")
                         .font(.caption)

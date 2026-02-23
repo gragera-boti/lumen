@@ -1,5 +1,8 @@
-import Testing
+import Dependencies
+import Foundation
 import SwiftData
+import Testing
+
 @testable import Lumen
 
 @Suite("OnboardingViewModel Tests")
@@ -73,8 +76,8 @@ import SwiftData
     @Test("goBack moves step backward")
     func goBack_movesStepBackward() {
         let vm = OnboardingViewModel()
-        vm.advance() // → categories
-        vm.advance() // → tone
+        vm.advance()  // → categories
+        vm.advance()  // → tone
 
         vm.goBack()
         #expect(vm.currentStep == .categories)
@@ -111,7 +114,11 @@ import SwiftData
     func requestNotificationPermission_granted() async {
         let mockNotification = MockNotificationService()
         mockNotification.shouldGrant = true
-        let vm = OnboardingViewModel(notificationService: mockNotification)
+        let vm = withDependencies {
+            $0.notificationService = mockNotification
+        } operation: {
+            OnboardingViewModel()
+        }
 
         await vm.requestNotificationPermission()
 
@@ -123,7 +130,11 @@ import SwiftData
     func requestNotificationPermission_denied() async {
         let mockNotification = MockNotificationService()
         mockNotification.shouldGrant = false
-        let vm = OnboardingViewModel(notificationService: mockNotification)
+        let vm = withDependencies {
+            $0.notificationService = mockNotification
+        } operation: {
+            OnboardingViewModel()
+        }
 
         await vm.requestNotificationPermission()
 

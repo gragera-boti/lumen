@@ -1,4 +1,7 @@
+import Dependencies
+import Foundation
 import Testing
+
 @testable import Lumen
 
 @Suite("PaywallViewModel Tests")
@@ -13,6 +16,7 @@ import Testing
         var purchaseCalled = false
         var restoreCalled = false
 
+        func configure() {}
         func isPremium() async -> Bool { premium }
 
         func purchase(productId: String) async throws {
@@ -47,9 +51,19 @@ import Testing
     func loadProducts_populatesList() async {
         let mock = MockEntitlementService()
         mock.products = [
-            ProductInfo(id: "monthly", displayName: "Monthly", displayPrice: "$4.99", isSubscription: true, trialDuration: "7 days"),
+            ProductInfo(
+                id: "monthly",
+                displayName: "Monthly",
+                displayPrice: "$4.99",
+                isSubscription: true,
+                trialDuration: "7 days"
+            )
         ]
-        let vm = PaywallViewModel(entitlementService: mock)
+        let vm = withDependencies {
+            $0.entitlementService = mock
+        } operation: {
+            PaywallViewModel()
+        }
 
         await vm.loadProducts()
 
@@ -62,7 +76,11 @@ import Testing
     func loadProducts_setsErrorOnFailure() async {
         let mock = MockEntitlementService()
         mock.shouldThrow = true
-        let vm = PaywallViewModel(entitlementService: mock)
+        let vm = withDependencies {
+            $0.entitlementService = mock
+        } operation: {
+            PaywallViewModel()
+        }
 
         await vm.loadProducts()
 
@@ -73,8 +91,18 @@ import Testing
     @Test("purchase sets purchase success")
     func purchase_setsPurchaseSuccess() async {
         let mock = MockEntitlementService()
-        let product = ProductInfo(id: "monthly", displayName: "Monthly", displayPrice: "$4.99", isSubscription: true, trialDuration: nil)
-        let vm = PaywallViewModel(entitlementService: mock)
+        let product = ProductInfo(
+            id: "monthly",
+            displayName: "Monthly",
+            displayPrice: "$4.99",
+            isSubscription: true,
+            trialDuration: nil
+        )
+        let vm = withDependencies {
+            $0.entitlementService = mock
+        } operation: {
+            PaywallViewModel()
+        }
 
         await vm.purchase(product)
 
@@ -86,8 +114,18 @@ import Testing
     func purchase_setsErrorOnFailure() async {
         let mock = MockEntitlementService()
         mock.shouldThrow = true
-        let product = ProductInfo(id: "monthly", displayName: "Monthly", displayPrice: "$4.99", isSubscription: true, trialDuration: nil)
-        let vm = PaywallViewModel(entitlementService: mock)
+        let product = ProductInfo(
+            id: "monthly",
+            displayName: "Monthly",
+            displayPrice: "$4.99",
+            isSubscription: true,
+            trialDuration: nil
+        )
+        let vm = withDependencies {
+            $0.entitlementService = mock
+        } operation: {
+            PaywallViewModel()
+        }
 
         await vm.purchase(product)
 
@@ -99,7 +137,11 @@ import Testing
     func restore_callsService() async {
         let mock = MockEntitlementService()
         mock.premium = true
-        let vm = PaywallViewModel(entitlementService: mock)
+        let vm = withDependencies {
+            $0.entitlementService = mock
+        } operation: {
+            PaywallViewModel()
+        }
 
         await vm.restore()
 

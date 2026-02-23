@@ -1,5 +1,5 @@
-import SwiftUI
 import RevenueCatUI
+import SwiftUI
 
 struct SubscriptionView: View {
     @Environment(AppRouter.self) private var router
@@ -61,7 +61,10 @@ struct SubscriptionView: View {
             }
 
             Section {
-                Link("subscription.contact_support".localized, destination: URL(string: "mailto:alberto.gragera@gmail.com")!)
+                Link(
+                    "subscription.contact_support".localized,
+                    destination: URL(string: "mailto:alberto.gragera@gmail.com")!
+                )
             }
         }
         .ambientBackground()

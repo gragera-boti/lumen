@@ -1,6 +1,7 @@
-import UIKit
-import SwiftData
+import Dependencies
 import OSLog
+import SwiftData
+import UIKit
 
 // MARK: - CardEditorViewModel
 
@@ -106,9 +107,9 @@ final class CardEditorViewModel {
 
     // MARK: - Private
 
-    private let customizationService: any CardCustomizationServiceProtocol
-    private let backgroundGenerator: any BackgroundGeneratorProtocol
-    private let aiGenerator: any AIBackgroundServiceProtocol
+    @ObservationIgnored @Dependency(\.cardCustomizationService) private var customizationService
+    @ObservationIgnored @Dependency(\.backgroundGenerator) private var backgroundGenerator
+    @ObservationIgnored @Dependency(\.aiBackgroundService) private var aiGenerator
 
     private let initialMode: BackgroundMode
     private let initialStyle: GeneratorStyle
@@ -123,24 +124,21 @@ final class CardEditorViewModel {
 
     init(
         affirmation: Affirmation,
-        existingCustomization: CardCustomization?,
-        customizationService: some CardCustomizationServiceProtocol = CardCustomizationService.shared,
-        backgroundGenerator: some BackgroundGeneratorProtocol = BackgroundGeneratorService.shared,
-        aiGenerator: some AIBackgroundServiceProtocol = AIBackgroundService.shared
+        existingCustomization: CardCustomization?
     ) {
         self.affirmation = affirmation
-        self.customizationService = customizationService
-        self.backgroundGenerator = backgroundGenerator
-        self.aiGenerator = aiGenerator
 
         let usesAI = existingCustomization?.usesAIBackground ?? false
         let savedThemeId = existingCustomization?.savedThemeId
         let mode: BackgroundMode = savedThemeId != nil ? .saved : (usesAI ? .ai : .procedural)
-        let style = existingCustomization?.backgroundStyle
+        let style =
+            existingCustomization?.backgroundStyle
             .flatMap(GeneratorStyle.init(rawValue:)) ?? Self.defaultStyle(for: affirmation)
-        let palette = existingCustomization?.colorPalette
+        let palette =
+            existingCustomization?.colorPalette
             .flatMap(ColorPalette.init(rawValue:)) ?? Self.defaultPalette(for: affirmation)
-        let fontStyle = existingCustomization?.fontStyleOverride
+        let fontStyle =
+            existingCustomization?.fontStyleOverride
             .flatMap(AffirmationFontStyle.init(rawValue:))
             ?? affirmation.fontStyle.flatMap(AffirmationFontStyle.init(rawValue:))
         let text = existingCustomization?.customText ?? affirmation.text
@@ -236,7 +234,8 @@ final class CardEditorViewModel {
                 if fm.fileExists(atPath: thumbPath.path), let t = UIImage(contentsOfFile: thumbPath.path) {
                     thumb = t
                 } else if let data = try? Data(contentsOf: file),
-                          let full = UIImage(data: data) {
+                    let full = UIImage(data: data)
+                {
                     thumb = full.preparingThumbnail(of: CGSize(width: 120, height: 120))
                 } else {
                     continue
@@ -408,7 +407,8 @@ final class CardEditorViewModel {
 
     private static func cleanOldCaches(for affirmationId: String) {
         let fm = FileManager.default
-        guard let contents = try? fm.contentsOfDirectory(at: customizationImagesDir, includingPropertiesForKeys: nil) else { return }
+        guard let contents = try? fm.contentsOfDirectory(at: customizationImagesDir, includingPropertiesForKeys: nil)
+        else { return }
         for file in contents where file.lastPathComponent.hasPrefix(affirmationId) {
             try? fm.removeItem(at: file)
         }

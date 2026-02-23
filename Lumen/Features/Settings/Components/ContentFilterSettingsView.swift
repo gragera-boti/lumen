@@ -1,5 +1,5 @@
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 struct ContentFilterSettingsView: View {
     @Environment(\.modelContext) private var modelContext
@@ -10,30 +10,42 @@ struct ContentFilterSettingsView: View {
     var body: some View {
         List {
             if let prefs = preferences {
-                Section(header: Text("filters.contentTypes".localized), footer: Text("filters.contentTypesFooter".localized)) {
+                Section(
+                    header: Text("filters.contentTypes".localized),
+                    footer: Text("filters.contentTypesFooter".localized)
+                ) {
                     Toggle("filters.spiritual".localized, isOn: binding(for: \.spiritual, prefs: prefs))
                     Toggle("filters.manifestation".localized, isOn: binding(for: \.manifestation, prefs: prefs))
                     Toggle("filters.bodyFocus".localized, isOn: binding(for: \.bodyFocus, prefs: prefs))
                 }
 
-                Section(header: Text("filters.sensitiveTopics".localized), footer: Text("filters.sensitiveFooter".localized)) {
-                    Toggle("filters.includeSensitive".localized, isOn: Binding(
-                        get: { prefs.includeSensitiveTopics },
-                        set: {
-                            prefs.includeSensitiveTopics = $0
-                            save()
-                        }
-                    ))
+                Section(
+                    header: Text("filters.sensitiveTopics".localized),
+                    footer: Text("filters.sensitiveFooter".localized)
+                ) {
+                    Toggle(
+                        "filters.includeSensitive".localized,
+                        isOn: Binding(
+                            get: { prefs.includeSensitiveTopics },
+                            set: {
+                                prefs.includeSensitiveTopics = $0
+                                save()
+                            }
+                        )
+                    )
                 }
 
                 Section(header: Text("filters.intensity".localized)) {
-                    Toggle("filters.gentleMode".localized, isOn: Binding(
-                        get: { prefs.gentleMode },
-                        set: {
-                            prefs.gentleMode = $0
-                            save()
-                        }
-                    ))
+                    Toggle(
+                        "filters.gentleMode".localized,
+                        isOn: Binding(
+                            get: { prefs.gentleMode },
+                            set: {
+                                prefs.gentleMode = $0
+                                save()
+                            }
+                        )
+                    )
 
                     Text("filters.gentleModeDescription".localized)
                         .font(.caption)

@@ -1,7 +1,8 @@
+import Dependencies
 import Foundation
+import OSLog
 import SwiftData
 import UIKit
-import OSLog
 
 @MainActor @Observable
 final class FeedViewModel {
@@ -26,8 +27,6 @@ final class FeedViewModel {
     /// Card customizations keyed by affirmation id.
     var customizations: [String: CardCustomization] = [:]
 
-    private let customizationService: CardCustomizationServiceProtocol
-
     /// Auto-advance timer for feed rotation.
     private var autoAdvanceTask: Task<Void, Never>?
     /// Seconds between auto-advances.
@@ -40,25 +39,12 @@ final class FeedViewModel {
 
     // MARK: - Dependencies
 
-    private let feedService: FeedServiceProtocol
-    private let favoriteService: FavoriteServiceProtocol
-    private let shareService: ShareServiceProtocol
-    private let backgroundGenerator: any BackgroundGeneratorProtocol
+    @ObservationIgnored @Dependency(\.feedService) private var feedService
+    @ObservationIgnored @Dependency(\.favoriteService) private var favoriteService
+    @ObservationIgnored @Dependency(\.shareService) private var shareService
+    @ObservationIgnored @Dependency(\.cardCustomizationService) private var customizationService
+    @ObservationIgnored @Dependency(\.backgroundGenerator) private var backgroundGenerator
     private let logger = Logger(subsystem: "com.gragera.lumen", category: "Feed")
-
-    init(
-        feedService: FeedServiceProtocol = FeedService.shared,
-        favoriteService: FavoriteServiceProtocol = FavoriteService.shared,
-        shareService: ShareServiceProtocol = ShareService.shared,
-        customizationService: CardCustomizationServiceProtocol = CardCustomizationService.shared,
-        backgroundGenerator: some BackgroundGeneratorProtocol = BackgroundGeneratorService.shared
-    ) {
-        self.feedService = feedService
-        self.favoriteService = favoriteService
-        self.shareService = shareService
-        self.customizationService = customizationService
-        self.backgroundGenerator = backgroundGenerator
-    }
 
     // MARK: - Actions
 
@@ -191,7 +177,8 @@ final class FeedViewModel {
         // Regenerate backgrounds for cards whose customizations changed
         Task {
             for (affId, customization) in customizations {
-                let changed = previousCustomizations[affId]?.updatedAt != customization.updatedAt
+                let changed =
+                    previousCustomizations[affId]?.updatedAt != customization.updatedAt
                     || previousCustomizations[affId] == nil
                 if changed {
                     await regenerateBackground(for: affId, customization: customization)
@@ -217,9 +204,10 @@ final class FeedViewModel {
 
         // Fallback: regenerate procedurally
         guard let styleRaw = customization.backgroundStyle,
-              let style = GeneratorStyle(rawValue: styleRaw),
-              let paletteRaw = customization.colorPalette,
-              let palette = ColorPalette(rawValue: paletteRaw) else { return }
+            let style = GeneratorStyle(rawValue: styleRaw),
+            let paletteRaw = customization.colorPalette,
+            let palette = ColorPalette(rawValue: paletteRaw)
+        else { return }
 
         let seed = customization.backgroundSeed ?? 0
         let request = BackgroundRequest(
@@ -237,7 +225,9 @@ final class FeedViewModel {
                 cardBackgrounds[affirmationId] = image
             }
         } catch {
-            logger.error("Failed to regenerate background for \(affirmationId, privacy: .private): \(error.localizedDescription)")
+            logger.error(
+                "Failed to regenerate background for \(affirmationId, privacy: .private): \(error.localizedDescription)"
+            )
         }
     }
 

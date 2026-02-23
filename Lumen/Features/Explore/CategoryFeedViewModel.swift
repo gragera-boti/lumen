@@ -1,7 +1,8 @@
+import Dependencies
 import Foundation
+import OSLog
 import SwiftData
 import UIKit
-import OSLog
 
 @MainActor @Observable
 final class CategoryFeedViewModel {
@@ -22,20 +23,10 @@ final class CategoryFeedViewModel {
 
     // MARK: - Dependencies
 
-    private let favoriteService: FavoriteServiceProtocol
-    private let shareService: ShareServiceProtocol
-    private let customizationService: CardCustomizationServiceProtocol
+    @ObservationIgnored @Dependency(\.favoriteService) private var favoriteService
+    @ObservationIgnored @Dependency(\.shareService) private var shareService
+    @ObservationIgnored @Dependency(\.cardCustomizationService) private var customizationService
     private let logger = Logger(subsystem: "com.gragera.lumen", category: "CategoryFeed")
-
-    init(
-        favoriteService: FavoriteServiceProtocol = FavoriteService.shared,
-        shareService: ShareServiceProtocol = ShareService.shared,
-        customizationService: CardCustomizationServiceProtocol = CardCustomizationService.shared
-    ) {
-        self.favoriteService = favoriteService
-        self.shareService = shareService
-        self.customizationService = customizationService
-    }
 
     // MARK: - Actions
 

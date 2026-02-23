@@ -1,3 +1,4 @@
+import Dependencies
 import Foundation
 import OSLog
 
@@ -10,12 +11,8 @@ final class PaywallViewModel {
     var errorMessage: String?
     var purchaseSuccess = false
 
-    private let entitlementService: EntitlementServiceProtocol
+    @ObservationIgnored @Dependency(\.entitlementService) private var entitlementService
     private let logger = Logger(subsystem: "com.gragera.lumen", category: "Paywall")
-
-    init(entitlementService: EntitlementServiceProtocol = EntitlementService.shared) {
-        self.entitlementService = entitlementService
-    }
 
     func loadProducts() async {
         isLoading = true

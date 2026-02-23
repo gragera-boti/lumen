@@ -1,6 +1,7 @@
+import Dependencies
 import Foundation
-import SwiftData
 import OSLog
+import SwiftData
 
 @MainActor @Observable
 final class SettingsViewModel {
@@ -10,20 +11,10 @@ final class SettingsViewModel {
     var isCloudSyncEnabled = false
     var cloudSyncStatusText = ""
 
-    private let preferencesService: PreferencesServiceProtocol
-    private let entitlementService: EntitlementServiceProtocol
-    private let cloudSyncService: CloudSyncServiceProtocol
+    @ObservationIgnored @Dependency(\.preferencesService) private var preferencesService
+    @ObservationIgnored @Dependency(\.entitlementService) private var entitlementService
+    @ObservationIgnored @Dependency(\.cloudSyncService) private var cloudSyncService
     private let logger = Logger(subsystem: "com.gragera.lumen", category: "Settings")
-
-    init(
-        preferencesService: PreferencesServiceProtocol = PreferencesService.shared,
-        entitlementService: EntitlementServiceProtocol = EntitlementService.shared,
-        cloudSyncService: CloudSyncServiceProtocol = CloudSyncService.shared
-    ) {
-        self.preferencesService = preferencesService
-        self.entitlementService = entitlementService
-        self.cloudSyncService = cloudSyncService
-    }
 
     func load(modelContext: ModelContext) async {
         do {

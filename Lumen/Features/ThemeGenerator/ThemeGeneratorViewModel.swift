@@ -1,7 +1,8 @@
+import Dependencies
 import Foundation
-import UIKit
-import SwiftData
 import OSLog
+import SwiftData
+import UIKit
 
 @MainActor @Observable
 final class ThemeGeneratorViewModel {
@@ -81,29 +82,15 @@ final class ThemeGeneratorViewModel {
 
     // MARK: - Dependencies
 
-    private let generator: BackgroundGeneratorProtocol
-    private let aiGenerator: AIBackgroundServiceProtocol
-    private let analyticsService: AnalyticsServiceProtocol
-    private let preferencesService: PreferencesServiceProtocol
-    private let entitlementService: EntitlementServiceProtocol
+    @ObservationIgnored @Dependency(\.backgroundGenerator) private var generator
+    @ObservationIgnored @Dependency(\.aiBackgroundService) private var aiGenerator
+    @ObservationIgnored @Dependency(\.analyticsService) private var analyticsService
+    @ObservationIgnored @Dependency(\.preferencesService) private var preferencesService
+    @ObservationIgnored @Dependency(\.entitlementService) private var entitlementService
     private let logger = Logger(subsystem: "com.gragera.lumen", category: "ThemeGenerator")
 
     /// Background task ID to keep model loading alive when app is backgrounded
     private var backgroundTaskID: UIBackgroundTaskIdentifier = .invalid
-
-    init(
-        generator: BackgroundGeneratorProtocol = BackgroundGeneratorService.shared,
-        aiGenerator: AIBackgroundServiceProtocol = AIBackgroundService.shared,
-        analyticsService: AnalyticsServiceProtocol = AnalyticsService.shared,
-        preferencesService: PreferencesServiceProtocol = PreferencesService.shared,
-        entitlementService: EntitlementServiceProtocol = EntitlementService.shared
-    ) {
-        self.generator = generator
-        self.aiGenerator = aiGenerator
-        self.analyticsService = analyticsService
-        self.preferencesService = preferencesService
-        self.entitlementService = entitlementService
-    }
 
     // MARK: - Lifecycle
 
@@ -149,7 +136,8 @@ final class ThemeGeneratorViewModel {
             let result = try await generator.generate(request: request)
 
             if let data = try? Data(contentsOf: result.imagePath),
-               let image = UIImage(data: data) {
+                let image = UIImage(data: data)
+            {
                 generatedImage = image
                 savedThemeId = result.themeId
             } else {
@@ -250,7 +238,8 @@ final class ThemeGeneratorViewModel {
             let result = try await aiGenerator.generate(request: request)
 
             if let data = try? Data(contentsOf: result.imagePath),
-               let image = UIImage(data: data) {
+                let image = UIImage(data: data)
+            {
                 generatedImage = image
                 savedThemeId = result.themeId
             } else {
@@ -309,7 +298,8 @@ final class ThemeGeneratorViewModel {
 
     func loadCachedBackground(_ bg: GeneratedBackground) {
         if let data = try? Data(contentsOf: bg.imagePath),
-           let image = UIImage(data: data) {
+            let image = UIImage(data: data)
+        {
             generatedImage = image
             savedThemeId = bg.themeId
             isSaved = false
@@ -369,7 +359,8 @@ final class ThemeGeneratorViewModel {
                 metadataJSON = String(data: data, encoding: .utf8) ?? "{}"
             }
 
-            let name = isAI
+            let name =
+                isAI
                 ? "AI: \(selectedPrompt?.displayName ?? selectedPromptCategory.displayName)"
                 : "\(selectedStyle.displayName) \(selectedPalette.displayName)"
 

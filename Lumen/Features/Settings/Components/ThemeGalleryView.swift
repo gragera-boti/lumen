@@ -1,5 +1,5 @@
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 struct ThemeGalleryView: View {
     @Query(sort: \AppTheme.createdAt, order: .reverse)
@@ -18,7 +18,9 @@ struct ThemeGalleryView: View {
                 ContentUnavailableView(
                     "No Backgrounds Yet",
                     systemImage: "photo.on.rectangle.angled",
-                    description: Text("Generate backgrounds in the Theme Generator and save them to build your collection.")
+                    description: Text(
+                        "Generate backgrounds in the Theme Generator and save them to build your collection."
+                    )
                 )
             } else {
                 themeList
@@ -64,10 +66,13 @@ struct ThemeGalleryView: View {
                 .padding(.vertical, LumenTheme.Spacing.sm)
 
                 // 2-column grid — portrait aspect ratio cards
-                LazyVGrid(columns: [
-                    GridItem(.flexible(), spacing: 12),
-                    GridItem(.flexible(), spacing: 12),
-                ], spacing: 12) {
+                LazyVGrid(
+                    columns: [
+                        GridItem(.flexible(), spacing: 12),
+                        GridItem(.flexible(), spacing: 12),
+                    ],
+                    spacing: 12
+                ) {
                     ForEach(themes) { theme in
                         ThemeCard(
                             theme: theme,
@@ -148,7 +153,7 @@ private struct ThemeCard: View {
                         )
                     }
                 }
-                .aspectRatio(9/16, contentMode: .fit)
+                .aspectRatio(9 / 16, contentMode: .fit)
                 .clipShape(RoundedRectangle(cornerRadius: 12))
                 .overlay(
                     RoundedRectangle(cornerRadius: 12)
@@ -242,7 +247,8 @@ private struct ThemeCard: View {
 
     private func parseGradient() -> [Color] {
         guard let data = theme.dataJSON.data(using: .utf8),
-              let gradient = try? JSONDecoder().decode(GradientData.self, from: data) else {
+            let gradient = try? JSONDecoder().decode(GradientData.self, from: data)
+        else {
             return [.purple.opacity(0.6), .blue.opacity(0.6)]
         }
         return gradient.swiftUIColors

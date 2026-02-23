@@ -1,5 +1,7 @@
-import Testing
+import Foundation
 import SwiftData
+import Testing
+
 @testable import Lumen
 
 @Suite("SettingsViewModel Tests")
@@ -9,10 +11,10 @@ import SwiftData
         var prefs: UserPreferences?
 
         func getOrCreate(modelContext: ModelContext) throws -> UserPreferences {
-            if let p = prefs { return p }
-            let p = UserPreferences()
-            prefs = p
-            return p
+            if let existing = prefs { return existing }
+            let newPrefs = UserPreferences()
+            prefs = newPrefs
+            return newPrefs
         }
 
         func save(modelContext: ModelContext) throws {}
@@ -21,6 +23,7 @@ import SwiftData
     private final class MockEntitlementService: EntitlementServiceProtocol, @unchecked Sendable {
         var premium = false
 
+        func configure() {}
         func isPremium() async -> Bool { premium }
         func purchase(productId: String) async throws {}
         func restorePurchases() async throws {}
@@ -31,6 +34,7 @@ import SwiftData
         func isSyncEnabled() -> Bool { false }
         func setSyncEnabled(_ enabled: Bool) {}
         func syncStatus() async -> CloudSyncStatus { .disabled }
+        func markSynced() {}
     }
 
     @Test("initial state")

@@ -1,5 +1,8 @@
-import Testing
+import Dependencies
+import Foundation
 import SwiftData
+import Testing
+
 @testable import Lumen
 
 @Suite("FavoritesViewModel Tests")
@@ -32,7 +35,11 @@ import SwiftData
 
     @Test("initial state")
     func initialState() {
-        let vm = FavoritesViewModel(widgetService: MockWidgetService())
+        let vm = withDependencies {
+            $0.widgetService = MockWidgetService()
+        } operation: {
+            FavoritesViewModel()
+        }
         #expect(vm.favorites.isEmpty)
         #expect(!vm.isLoading)
         #expect(vm.errorMessage == nil)
