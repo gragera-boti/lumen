@@ -12,7 +12,6 @@
 		09E7BD239B3D1FA3CA1FC600 /* CloudSyncServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D603058BB3D4F43B607E1E2 /* CloudSyncServiceProtocol.swift */; };
 		0F30CDDE50F02C9D211D2CB5 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0EB66A0BBF9659FD3C35EA6 /* NotificationService.swift */; };
 		10B2793B81277534538DD2DA /* AffirmationSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E2BBC1F4F358FFF69E55C8A /* AffirmationSource.swift */; };
-		13F0C870E8933AE53E33D828 /* MoodCheckInView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 003F2C6FA117CA2233B54D56 /* MoodCheckInView.swift */; };
 		14A83F88FCDAA0184B82F77E /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA50C02EA8EAC88F4B4031A /* SettingsView.swift */; };
 		1822369214635093F18DDCD6 /* ThemeGeneratorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CD4BDC81BFBA9E2E8B5A7E4 /* ThemeGeneratorView.swift */; };
 		1842C20A5D76C19D74E492DE /* FeedServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E48968C8CD47ADF9F511CB8E /* FeedServiceTests.swift */; };
@@ -82,7 +81,6 @@
 		848F3C7DFEB8AEC7F017E6BA /* ThemeGalleryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE0618FD66FE5AFEFF5ED8D1 /* ThemeGalleryView.swift */; };
 		84CEFE8DDB01ED42F8F58BDC /* Dislike.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2204AC14B535B01D0C922D5B /* Dislike.swift */; };
 		8729FD979EADEA3709B2385C /* ContentService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FFE70573432E54F05AA6F05 /* ContentService.swift */; };
-		88A0B927E3736A20045DF5E1 /* MoodEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = D620D89712A0BD9D633448F1 /* MoodEntry.swift */; };
 		88F99CA1C8E31587AE9596A0 /* PalettePickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CC5C74314A5EE5A64BA2A65 /* PalettePickerView.swift */; };
 		895962D982997AFEA6D1DEBE /* ReadabilityOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0B5EE50D577AE1C62E4B353 /* ReadabilityOverlay.swift */; };
 		89C6C76CD5BBDFF4D08DCBA1 /* Caveat.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 0B9C3ACAFC7ED4ADBD07140A /* Caveat.ttf */; };
@@ -93,7 +91,6 @@
 		90F0594A13428AF901061CDB /* SubscriptionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1967F37A4E9A58BD7A36BDC8 /* SubscriptionView.swift */; };
 		94ECFB38C1E9D8F05BC500BE /* AbrilFatface-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 35E9F2D16AA3C603CAEF4C32 /* AbrilFatface-Regular.ttf */; };
 		9724A46E4DCB1E43BB20E3C7 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E17B282DE10B2F872172CD5 /* Theme.swift */; };
-		9A5D8D6C39C1CB0100AEB140 /* Mood.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A3FA4C0620E162C828F540D /* Mood.swift */; };
 		9AF63D2058E4DD0B8F91DAE6 /* EntitlementState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E3A581EB814E41725422A82 /* EntitlementState.swift */; };
 		9D453438A1CD1A47785C546B /* FeedServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7103E08C9FD212CBA3F056F6 /* FeedServiceProtocol.swift */; };
 		9ED3A4411B0AC33460861C5F /* CardCustomizationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F59E47608C9498EA5DD2618F /* CardCustomizationService.swift */; };
@@ -123,7 +120,6 @@
 		BA5344D96CA0ED2DB8BC0C91 /* PrivacyDataView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9FF05795EFCCEF901848B77 /* PrivacyDataView.swift */; };
 		BAD1A1227D093D632ABBFF8C /* StylePickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39584179431B9AD103C0604B /* StylePickerView.swift */; };
 		BBC4BA3A50BA971EAEC3CFC4 /* EditAffirmationSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC461EB045472265F71066A6 /* EditAffirmationSheet.swift */; };
-		BD58AD5577D1EF40E219A18E /* MoodServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 445D9FF8DCAC929BB34C4D06 /* MoodServiceProtocol.swift */; };
 		BE2A96CB34B443CE77ACDFBF /* FeedService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F48ED6A0021AF2A1AF1210A /* FeedService.swift */; };
 		C0DD6E85D57924D02F1B3514 /* GradientBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39CFEAD5D7C38FA185D57A68 /* GradientBackground.swift */; };
 		C2BD7B149011A643B5556DED /* FavoriteServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAE869FC08F9D8DEC4B64991 /* FavoriteServiceProtocol.swift */; };
@@ -137,7 +133,6 @@
 		D6C97BA2C1CDB6131615313F /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E17B282DE10B2F872172CD5 /* Theme.swift */; };
 		D7D0F34673AE9BD60E88F7F1 /* VAEDecoder.mlmodelc in Resources */ = {isa = PBXBuildFile; fileRef = 4CEACD81A192E2E8D7B993F2 /* VAEDecoder.mlmodelc */; };
 		D913F64593324E16309F3F5A /* CategoryFeedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 847BB2A49CE49C26DFEE6021 /* CategoryFeedView.swift */; };
-		DCFC4380A72F5BECE700730B /* MoodService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 144F450B8952902480DE3FA6 /* MoodService.swift */; };
 		DD66B64A36318BA8E3CC8E72 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1CDFC7ADFD0F4B0093EB83C /* OnboardingView.swift */; };
 		DEB37D2D66D10DD7A75A7A66 /* AmbientBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E19293A66545189C362BAEA /* AmbientBackground.swift */; };
 		DF1FE89236C0751C6B27DFBA /* HistoryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DC368DEF0428EADF228A41F /* HistoryViewModel.swift */; };
@@ -196,7 +191,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		003F2C6FA117CA2233B54D56 /* MoodCheckInView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoodCheckInView.swift; sourceTree = "<group>"; };
 		01B79DDA0A21159E4AF381FC /* merges.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = merges.txt; sourceTree = "<group>"; };
 		026F3A3BDED5B5FFF6F794B2 /* CardEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardEditorView.swift; sourceTree = "<group>"; };
 		04561061DC6BE31925952705 /* AnalyticsServiceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsServiceProtocol.swift; sourceTree = "<group>"; };
@@ -209,7 +203,6 @@
 		0DC368DEF0428EADF228A41F /* HistoryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryViewModel.swift; sourceTree = "<group>"; };
 		0E19293A66545189C362BAEA /* AmbientBackground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AmbientBackground.swift; sourceTree = "<group>"; };
 		1019A08A853B631B97646448 /* CardCustomizationServiceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardCustomizationServiceProtocol.swift; sourceTree = "<group>"; };
-		144F450B8952902480DE3FA6 /* MoodService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoodService.swift; sourceTree = "<group>"; };
 		166B33AE77B5641DB389A44A /* Logger+Lumen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Logger+Lumen.swift"; sourceTree = "<group>"; };
 		175F95FB40629F40846CA4A8 /* EntitlementServiceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EntitlementServiceProtocol.swift; sourceTree = "<group>"; };
 		18643D3F8FA7775C50FABCAA /* AffirmationDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AffirmationDetailView.swift; sourceTree = "<group>"; };
@@ -219,7 +212,6 @@
 		1E115F0C8A73CF0C7F570D31 /* PlayfairDisplay.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = PlayfairDisplay.ttf; sourceTree = "<group>"; };
 		2204AC14B535B01D0C922D5B /* Dislike.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Dislike.swift; sourceTree = "<group>"; };
 		250920131D81331123D511F0 /* FontPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FontPickerView.swift; sourceTree = "<group>"; };
-		2A3FA4C0620E162C828F540D /* Mood.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Mood.swift; sourceTree = "<group>"; };
 		2A47E2C05B70C6002FA5DBD0 /* BackgroundGeneratorService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundGeneratorService.swift; sourceTree = "<group>"; };
 		2E646BBA83DA2C5632DAD9D2 /* ShareService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareService.swift; sourceTree = "<group>"; };
 		2E9AFB80999BC4D3C509B452 /* LumenWatchApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LumenWatchApp.swift; sourceTree = "<group>"; };
@@ -231,7 +223,6 @@
 		39584179431B9AD103C0604B /* StylePickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StylePickerView.swift; sourceTree = "<group>"; };
 		39CFEAD5D7C38FA185D57A68 /* GradientBackground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GradientBackground.swift; sourceTree = "<group>"; };
 		437588402675EA397F365F8B /* Tone.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tone.swift; sourceTree = "<group>"; };
-		445D9FF8DCAC929BB34C4D06 /* MoodServiceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoodServiceProtocol.swift; sourceTree = "<group>"; };
 		47D19CED4EE2CDE22F4B6687 /* FavoriteServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoriteServiceTests.swift; sourceTree = "<group>"; };
 		4C92F497266C7BEB26219401 /* DislikeServiceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DislikeServiceProtocol.swift; sourceTree = "<group>"; };
 		4C9D1C0371EC79FA3834A1B4 /* AppTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTheme.swift; sourceTree = "<group>"; };
@@ -314,7 +305,6 @@
 		C755874BEA5F8908F4F6D750 /* CategoryChip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryChip.swift; sourceTree = "<group>"; };
 		C7A7EE6E0F45EA37F924144A /* Affirmation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Affirmation.swift; sourceTree = "<group>"; };
 		D5D837D96CC4476A3978AF1D /* DeepLinkHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepLinkHandler.swift; sourceTree = "<group>"; };
-		D620D89712A0BD9D633448F1 /* MoodEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoodEntry.swift; sourceTree = "<group>"; };
 		D8F7C6014C4A01A70F9EBB06 /* CardEditorViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardEditorViewModelTests.swift; sourceTree = "<group>"; };
 		DBAA6BBA8022788DF0EFDEDC /* SeenSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeenSource.swift; sourceTree = "<group>"; };
 		DC15539E0CA93188905411CE /* AppRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppRouter.swift; sourceTree = "<group>"; };
@@ -424,7 +414,6 @@
 				E8F8960BE2AFAA9FFE1E3C93 /* ContentFilter.swift */,
 				5D8515A2945F6C2BDA501C87 /* GeneratorTypes.swift */,
 				5A5FA1329D562CF26FC858AC /* Intensity.swift */,
-				2A3FA4C0620E162C828F540D /* Mood.swift */,
 				80F850AE894B72B52284A597 /* ReminderSettings.swift */,
 				DBAA6BBA8022788DF0EFDEDC /* SeenSource.swift */,
 				AECAE2D6D092D0C863638663 /* ThemeType.swift */,
@@ -465,7 +454,6 @@
 				175F95FB40629F40846CA4A8 /* EntitlementServiceProtocol.swift */,
 				BAE869FC08F9D8DEC4B64991 /* FavoriteServiceProtocol.swift */,
 				7103E08C9FD212CBA3F056F6 /* FeedServiceProtocol.swift */,
-				445D9FF8DCAC929BB34C4D06 /* MoodServiceProtocol.swift */,
 				FACE96D76A83600B270A0923 /* NotificationServiceProtocol.swift */,
 				FAB6C58B2C3CF4BD4FC203FC /* PreferencesServiceProtocol.swift */,
 				E7A87AAF49239276DB8CAE0E /* ShareServiceProtocol.swift */,
@@ -515,7 +503,6 @@
 				4D8D24D4CB575C6E80AE50F9 /* EntitlementService.swift */,
 				079D5BFE0F208911A84DF3A1 /* FavoriteService.swift */,
 				4F48ED6A0021AF2A1AF1210A /* FeedService.swift */,
-				144F450B8952902480DE3FA6 /* MoodService.swift */,
 				F0EB66A0BBF9659FD3C35EA6 /* NotificationService.swift */,
 				FF802257A1911A3C3A64BC0E /* PreferencesService.swift */,
 				2E646BBA83DA2C5632DAD9D2 /* ShareService.swift */,
@@ -633,7 +620,6 @@
 				B520CEDAF14E34BB1C29EA6B /* AffirmationCardView.swift */,
 				ADDD4E0D86AA7F003A32BFE7 /* CustomAffirmationSheet.swift */,
 				BC461EB045472265F71066A6 /* EditAffirmationSheet.swift */,
-				003F2C6FA117CA2233B54D56 /* MoodCheckInView.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -702,7 +688,6 @@
 				2204AC14B535B01D0C922D5B /* Dislike.swift */,
 				6E3A581EB814E41725422A82 /* EntitlementState.swift */,
 				8B3B88ACAB6957ACAF6CA18C /* Favorite.swift */,
-				D620D89712A0BD9D633448F1 /* MoodEntry.swift */,
 				FD0BBC4A21543445FE2043BF /* SeenEvent.swift */,
 				C727C6BA5FCA54A6FC11AA37 /* UserPreferences.swift */,
 			);
@@ -1059,11 +1044,6 @@
 				5376DB941CB1DD04DA904F47 /* Intensity.swift in Sources */,
 				F3A812612D1F1ECEBDFE0F55 /* Logger+Lumen.swift in Sources */,
 				57668778D4085482424AF46C /* LumenApp.swift in Sources */,
-				9A5D8D6C39C1CB0100AEB140 /* Mood.swift in Sources */,
-				13F0C870E8933AE53E33D828 /* MoodCheckInView.swift in Sources */,
-				88A0B927E3736A20045DF5E1 /* MoodEntry.swift in Sources */,
-				DCFC4380A72F5BECE700730B /* MoodService.swift in Sources */,
-				BD58AD5577D1EF40E219A18E /* MoodServiceProtocol.swift in Sources */,
 				0F30CDDE50F02C9D211D2CB5 /* NotificationService.swift in Sources */,
 				B21CE67955F48CC07BED9987 /* NotificationServiceProtocol.swift in Sources */,
 				DD66B64A36318BA8E3CC8E72 /* OnboardingView.swift in Sources */,

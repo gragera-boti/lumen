@@ -10,13 +10,11 @@ struct FeedService: FeedServiceProtocol {
     func nextAffirmation(
         preferences: UserPreferences,
         isPremium: Bool,
-        mood: Mood?,
         modelContext: ModelContext
     ) throws -> Affirmation? {
         let candidates = try fetchCandidates(
             preferences: preferences,
             isPremium: isPremium,
-            mood: mood,
             modelContext: modelContext
         )
 
@@ -25,19 +23,17 @@ struct FeedService: FeedServiceProtocol {
             return try relaxedFetch(preferences: preferences, modelContext: modelContext)
         }
 
-        return weightedPick(from: candidates, preferences: preferences, mood: mood, modelContext: modelContext)
+        return weightedPick(from: candidates, preferences: preferences, modelContext: modelContext)
     }
 
     func dailyAffirmation(
         preferences: UserPreferences,
         isPremium: Bool,
-        mood: Mood?,
         modelContext: ModelContext
     ) throws -> Affirmation? {
         let candidates = try fetchCandidates(
             preferences: preferences,
             isPremium: isPremium,
-            mood: mood,
             modelContext: modelContext
         )
         guard !candidates.isEmpty else { return nil }
@@ -47,15 +43,12 @@ struct FeedService: FeedServiceProtocol {
         return candidates[index]
     }
 
-    /// Batch-load a feed of affirmations in a single pass (avoids repeated queries).
     func loadBatch(
         count: Int,
         preferences: UserPreferences,
         isPremium: Bool,
-        mood: Mood?,
         modelContext: ModelContext
     ) throws -> (daily: Affirmation?, feed: [Affirmation]) {
-        // Single fetch of all data upfront
         let allAffirmations = try modelContext.fetch(FetchDescriptor<Affirmation>())
         let recentSeenIds = try recentlySeenIds(modelContext: modelContext)
         let dislikedIds = try dislikedAffirmationIds(modelContext: modelContext)
@@ -75,10 +68,6 @@ struct FeedService: FeedServiceProtocol {
                 if affirmation.intensity == .high { return false }
                 if affirmation.isAbsolute { return false }
             }
-            if let mood {
-                if affirmation.intensity.rawIntensity > mood.maxIntensity.rawIntensity { return false }
-                if mood.excludeAbsolutes && affirmation.isAbsolute { return false }
-            }
             if affirmation.tone == .spiritual && !includeSpiritual { return false }
             if affirmation.isPremium && !isPremium { return false }
             return true
@@ -95,7 +84,7 @@ struct FeedService: FeedServiceProtocol {
 
         // Weighted batch pick (no duplicates)
         let favoriteTags = (try? recentFavoriteTags(limit: 20, modelContext: modelContext)) ?? []
-        let preferredTones = mood?.preferredTones ?? [preferences.tonePreset]
+        let preferredTones: [Tone] = [preferences.tonePreset]
 
         let scored: [(Affirmation, Double)] = candidates.map { affirmation in
             var score = 1.0
@@ -105,10 +94,6 @@ struct FeedService: FeedServiceProtocol {
             }
             let overlap = Set(affirmation.tags).intersection(favoriteTags).count
             score *= 1.0 + min(Double(overlap), 3.0) * 0.08
-            if let mood, (mood == .struggling || mood == .low) {
-                if affirmation.intensity == .low { score *= 1.2 }
-                if affirmation.tone == .gentle { score *= 1.15 }
-            }
             return (affirmation, score)
         }
 
@@ -159,7 +144,6 @@ struct FeedService: FeedServiceProtocol {
     private func fetchCandidates(
         preferences: UserPreferences,
         isPremium: Bool,
-        mood: Mood?,
         modelContext: ModelContext
     ) throws -> [Affirmation] {
         let selectedIds = preferences.selectedCategoryIds
@@ -170,8 +154,7 @@ struct FeedService: FeedServiceProtocol {
         let recentSeenIds = try recentlySeenIds(modelContext: modelContext)
         let dislikedIds = try dislikedAffirmationIds(modelContext: modelContext)
 
-        let descriptor = FetchDescriptor<Affirmation>()
-        let allAffirmations = try modelContext.fetch(descriptor)
+        let allAffirmations = try modelContext.fetch(FetchDescriptor<Affirmation>())
 
         return allAffirmations.filter { affirmation in
             let hasMatchingCategory = affirmation.categories.contains { selectedIds.contains($0.id) }
@@ -183,10 +166,6 @@ struct FeedService: FeedServiceProtocol {
                 if affirmation.intensity == .high { return false }
                 if affirmation.isAbsolute { return false }
             }
-            if let mood {
-                if affirmation.intensity.rawIntensity > mood.maxIntensity.rawIntensity { return false }
-                if mood.excludeAbsolutes && affirmation.isAbsolute { return false }
-            }
             if affirmation.tone == .spiritual && !includeSpiritual { return false }
             if affirmation.isPremium && !isPremium { return false }
             return true
@@ -197,11 +176,10 @@ struct FeedService: FeedServiceProtocol {
         preferences: UserPreferences,
         modelContext: ModelContext
     ) throws -> Affirmation? {
-        let descriptor = FetchDescriptor<Affirmation>()
-        let all = try modelContext.fetch(descriptor)
+        let allAffirmations = try modelContext.fetch(FetchDescriptor<Affirmation>())
         let selectedIds = preferences.selectedCategoryIds
 
-        let relaxed = all.filter { aff in
+        let relaxed = allAffirmations.filter { aff in
             aff.categories.contains { selectedIds.contains($0.id) }
         }
 
@@ -211,11 +189,10 @@ struct FeedService: FeedServiceProtocol {
     private func weightedPick(
         from candidates: [Affirmation],
         preferences: UserPreferences,
-        mood: Mood?,
         modelContext: ModelContext
     ) -> Affirmation? {
         let favoriteTags = (try? recentFavoriteTags(limit: 20, modelContext: modelContext)) ?? []
-        let preferredTones = mood?.preferredTones ?? [preferences.tonePreset]
+        let preferredTones: [Tone] = [preferences.tonePreset]
 
         let scored: [(Affirmation, Double)] = candidates.map { affirmation in
             var score = 1.0
@@ -225,10 +202,6 @@ struct FeedService: FeedServiceProtocol {
             }
             let overlap = Set(affirmation.tags).intersection(favoriteTags).count
             score *= 1.0 + min(Double(overlap), 3.0) * 0.08
-            if let mood, (mood == .struggling || mood == .low) {
-                if affirmation.intensity == .low { score *= 1.2 }
-                if affirmation.tone == .gentle { score *= 1.15 }
-            }
             return (affirmation, score)
         }
 

@@ -18,7 +18,6 @@ import SwiftData
             AppTheme.self,
             UserPreferences.self,
             EntitlementState.self,
-            MoodEntry.self,
         ])
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
         container = try ModelContainer(for: schema, configurations: [config])
@@ -84,7 +83,7 @@ import SwiftData
         try context.save()
 
         let prefs = makePreferences()
-        let result = try service.nextAffirmation(preferences: prefs, isPremium: false, mood: nil, modelContext: context)
+        let result = try service.nextAffirmation(preferences: prefs, isPremium: false, modelContext: context)
 
         #expect(result != nil)
         #expect(result?.id == aff.id)
@@ -98,7 +97,7 @@ import SwiftData
         try context.save()
 
         let prefs = makePreferences(categoryIds: [cat1.id])
-        let result = try service.nextAffirmation(preferences: prefs, isPremium: false, mood: nil, modelContext: context)
+        let result = try service.nextAffirmation(preferences: prefs, isPremium: false, modelContext: context)
 
         #expect(result == nil)
     }
@@ -110,7 +109,7 @@ import SwiftData
         try context.save()
 
         let prefs = makePreferences(gentleMode: true)
-        let result = try service.nextAffirmation(preferences: prefs, isPremium: false, mood: nil, modelContext: context)
+        let result = try service.nextAffirmation(preferences: prefs, isPremium: false, modelContext: context)
 
         #expect(result == nil)
     }
@@ -122,7 +121,7 @@ import SwiftData
         try context.save()
 
         let prefs = makePreferences(gentleMode: true)
-        let result = try service.nextAffirmation(preferences: prefs, isPremium: false, mood: nil, modelContext: context)
+        let result = try service.nextAffirmation(preferences: prefs, isPremium: false, modelContext: context)
 
         #expect(result == nil)
     }
@@ -134,7 +133,7 @@ import SwiftData
         try context.save()
 
         let prefs = makePreferences(gentleMode: false)
-        let result = try service.nextAffirmation(preferences: prefs, isPremium: false, mood: nil, modelContext: context)
+        let result = try service.nextAffirmation(preferences: prefs, isPremium: false, modelContext: context)
 
         #expect(result?.id == aff.id)
     }
@@ -146,7 +145,7 @@ import SwiftData
         try context.save()
 
         let prefs = makePreferences(includeSensitive: false)
-        let result = try service.nextAffirmation(preferences: prefs, isPremium: false, mood: nil, modelContext: context)
+        let result = try service.nextAffirmation(preferences: prefs, isPremium: false, modelContext: context)
 
         #expect(result == nil)
     }
@@ -158,7 +157,7 @@ import SwiftData
         try context.save()
 
         let prefs = makePreferences(includeSensitive: true)
-        let result = try service.nextAffirmation(preferences: prefs, isPremium: false, mood: nil, modelContext: context)
+        let result = try service.nextAffirmation(preferences: prefs, isPremium: false, modelContext: context)
 
         #expect(result?.id == aff.id)
     }
@@ -170,7 +169,7 @@ import SwiftData
         try context.save()
 
         let prefs = makePreferences()
-        let result = try service.nextAffirmation(preferences: prefs, isPremium: false, mood: nil, modelContext: context)
+        let result = try service.nextAffirmation(preferences: prefs, isPremium: false, modelContext: context)
 
         #expect(result == nil)
     }
@@ -182,7 +181,7 @@ import SwiftData
         try context.save()
 
         let prefs = makePreferences()
-        let result = try service.nextAffirmation(preferences: prefs, isPremium: true, mood: nil, modelContext: context)
+        let result = try service.nextAffirmation(preferences: prefs, isPremium: true, modelContext: context)
 
         #expect(result?.id == aff.id)
     }
@@ -194,7 +193,7 @@ import SwiftData
         try context.save()
 
         let prefs = makePreferences()
-        let result = try service.nextAffirmation(preferences: prefs, isPremium: false, mood: nil, modelContext: context)
+        let result = try service.nextAffirmation(preferences: prefs, isPremium: false, modelContext: context)
 
         #expect(result == nil)
     }
@@ -210,8 +209,8 @@ import SwiftData
         try context.save()
 
         let prefs = makePreferences()
-        let result1 = try service.dailyAffirmation(preferences: prefs, isPremium: false, mood: nil, modelContext: context)
-        let result2 = try service.dailyAffirmation(preferences: prefs, isPremium: false, mood: nil, modelContext: context)
+        let result1 = try service.dailyAffirmation(preferences: prefs, isPremium: false, modelContext: context)
+        let result2 = try service.dailyAffirmation(preferences: prefs, isPremium: false, modelContext: context)
 
         #expect(result1?.id == result2?.id)
     }
@@ -219,7 +218,7 @@ import SwiftData
     @Test("dailyAffirmation returns nil when no candidates")
     func dailyAffirmation_returnsNilWhenNoCandidates() throws {
         let prefs = makePreferences()
-        let result = try service.dailyAffirmation(preferences: prefs, isPremium: false, mood: nil, modelContext: context)
+        let result = try service.dailyAffirmation(preferences: prefs, isPremium: false, modelContext: context)
 
         #expect(result == nil)
     }

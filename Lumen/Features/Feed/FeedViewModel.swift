@@ -13,8 +13,6 @@ final class FeedViewModel {
     var isLoading = false
     var errorMessage: String?
     var showRelaxFiltersPrompt = false
-    var currentMood: Mood?
-    var needsMoodCheckIn = false
     var favoritedIds: Set<String> = []
 
     /// Background images keyed by affirmation id for random rotation.
@@ -45,7 +43,6 @@ final class FeedViewModel {
     private let feedService: FeedServiceProtocol
     private let favoriteService: FavoriteServiceProtocol
     private let shareService: ShareServiceProtocol
-    private let moodService: MoodServiceProtocol
     private let backgroundGenerator: any BackgroundGeneratorProtocol
     private let logger = Logger(subsystem: "com.gragera.lumen", category: "Feed")
 
@@ -53,14 +50,12 @@ final class FeedViewModel {
         feedService: FeedServiceProtocol = FeedService.shared,
         favoriteService: FavoriteServiceProtocol = FavoriteService.shared,
         shareService: ShareServiceProtocol = ShareService.shared,
-        moodService: MoodServiceProtocol = MoodService.shared,
         customizationService: CardCustomizationServiceProtocol = CardCustomizationService.shared,
         backgroundGenerator: some BackgroundGeneratorProtocol = BackgroundGeneratorService.shared
     ) {
         self.feedService = feedService
         self.favoriteService = favoriteService
         self.shareService = shareService
-        self.moodService = moodService
         self.customizationService = customizationService
         self.backgroundGenerator = backgroundGenerator
     }
@@ -76,21 +71,12 @@ final class FeedViewModel {
         // Load active theme IDs for rotation
         await loadActiveThemes(modelContext: modelContext)
 
-        // Check if user already logged mood today
-        if let existing = try? moodService.todaysMood(modelContext: modelContext) {
-            currentMood = existing.mood
-            needsMoodCheckIn = false
-        } else {
-            needsMoodCheckIn = true
-        }
-
         // Single-pass batch load (one fetch of all data instead of 20+ repeated queries)
         do {
             let result = try feedService.loadBatch(
                 count: 20,
                 preferences: preferences,
                 isPremium: isPremium,
-                mood: currentMood,
                 modelContext: modelContext
             )
 
@@ -116,20 +102,6 @@ final class FeedViewModel {
         }
     }
 
-    func recordMood(_ mood: Mood, preferences: UserPreferences, isPremium: Bool, modelContext: ModelContext) async {
-        do {
-            try moodService.recordMood(mood, modelContext: modelContext)
-            currentMood = mood
-            needsMoodCheckIn = false
-            logger.info("Mood set to \(mood.rawValue), reloading feed")
-
-            // Reload feed with mood-tuned selection
-            await loadFeed(preferences: preferences, isPremium: isPremium, modelContext: modelContext)
-        } catch {
-            logger.error("Failed to record mood: \(error.localizedDescription)")
-        }
-    }
-
     func loadMoreIfNeeded(preferences: UserPreferences, isPremium: Bool, modelContext: ModelContext) {
         guard currentIndex >= cards.count - 5 else { return }
 
@@ -138,7 +110,6 @@ final class FeedViewModel {
                 if let next = try feedService.nextAffirmation(
                     preferences: preferences,
                     isPremium: isPremium,
-                    mood: currentMood,
                     modelContext: modelContext
                 ) {
                     cards.append(next)

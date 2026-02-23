@@ -21,7 +21,6 @@ struct LumenApp: App {
             AppTheme.self,
             UserPreferences.self,
             EntitlementState.self,
-            MoodEntry.self,
             CardCustomization.self,
         ])
 

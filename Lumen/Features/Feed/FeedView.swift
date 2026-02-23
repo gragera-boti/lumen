@@ -65,22 +65,6 @@ struct FeedView: View {
     private var topBarOverlay: some View {
         VStack(spacing: 0) {
             HStack {
-                if let mood = viewModel.currentMood, !viewModel.needsMoodCheckIn {
-                    Button {
-                        withAnimation(.spring(response: 0.35)) {
-                            viewModel.needsMoodCheckIn = true
-                        }
-                    } label: {
-                        Text(mood.emoji)
-                            .font(.title2)
-                            .frame(width: 40, height: 40)
-                            .background(.white.opacity(0.2), in: Circle())
-                    }
-                    .accessibilityLabel("Change mood")
-                    .accessibilityHint("Opens mood check-in")
-                    .padding(.leading, LumenTheme.Spacing.lg)
-                }
-
                 Spacer()
 
                 Button {
@@ -98,21 +82,6 @@ struct FeedView: View {
                 .padding(.trailing, LumenTheme.Spacing.lg)
             }
             .padding(.top, 54)
-
-            if viewModel.needsMoodCheckIn {
-                MoodCheckInView { mood in
-                    Task {
-                        await viewModel.recordMood(
-                            mood,
-                            preferences: preferences,
-                            isPremium: isPremium,
-                            modelContext: modelContext
-                        )
-                    }
-                }
-                .padding(.top, LumenTheme.Spacing.md)
-                .transition(.move(edge: .top).combined(with: .opacity))
-            }
 
             Spacer()
         }

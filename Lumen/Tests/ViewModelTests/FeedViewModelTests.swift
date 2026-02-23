@@ -13,17 +13,17 @@ import SwiftData
         var dailyResult: Affirmation?
         var callCount = 0
 
-        func nextAffirmation(preferences: UserPreferences, isPremium: Bool, mood: Mood?, modelContext: ModelContext) throws -> Affirmation? {
+        func nextAffirmation(preferences: UserPreferences, isPremium: Bool, modelContext: ModelContext) throws -> Affirmation? {
             defer { callCount += 1 }
             guard callCount < affirmations.count else { return nil }
             return affirmations[callCount]
         }
 
-        func dailyAffirmation(preferences: UserPreferences, isPremium: Bool, mood: Mood?, modelContext: ModelContext) throws -> Affirmation? {
+        func dailyAffirmation(preferences: UserPreferences, isPremium: Bool, modelContext: ModelContext) throws -> Affirmation? {
             dailyResult
         }
 
-        func loadBatch(count: Int, preferences: UserPreferences, isPremium: Bool, mood: Mood?, modelContext: ModelContext) throws -> (daily: Affirmation?, feed: [Affirmation]) {
+        func loadBatch(count: Int, preferences: UserPreferences, isPremium: Bool, modelContext: ModelContext) throws -> (daily: Affirmation?, feed: [Affirmation]) {
             (dailyResult, affirmations)
         }
 

@@ -57,3 +57,12 @@
 - Favorites tab: split "My Affirmations" + "Favorites" sections
 - CloudKit sync hidden until entitlement configured (CKContainer.default() crash fix)
 - AffirmationFontStyle enum + fontStyle field added to Affirmation model
+
+## 2026-02-23
+- Typography overhaul complete: 10 custom Google Fonts, weighted random assignment, legacy mapping
+- `redesign/immersive-ui` merged → `main` (commit `314a59f`), pushed to origin
+- Immersive dark UI: ambient background, glassmorphic cards, no light mode
+- Card customization with procedural + AI backgrounds, cached to Documents/
+- Detail view action bar matches Feed; Slideshow minimal
+- Sensitive content filter live-refreshes in Explore
+- See `memory/2026-02-23.md` for full details

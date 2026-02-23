@@ -16,9 +16,9 @@ struct CustomizationRefreshTests {
     private final class MockFeedService: FeedServiceProtocol {
         var batch: (daily: Affirmation?, feed: [Affirmation]) = (nil, [])
 
-        func nextAffirmation(preferences: UserPreferences, isPremium: Bool, mood: Mood?, modelContext: ModelContext) throws -> Affirmation? { nil }
-        func dailyAffirmation(preferences: UserPreferences, isPremium: Bool, mood: Mood?, modelContext: ModelContext) throws -> Affirmation? { nil }
-        func loadBatch(count: Int, preferences: UserPreferences, isPremium: Bool, mood: Mood?, modelContext: ModelContext) throws -> (daily: Affirmation?, feed: [Affirmation]) { batch }
+        func nextAffirmation(preferences: UserPreferences, isPremium: Bool, modelContext: ModelContext) throws -> Affirmation? { nil }
+        func dailyAffirmation(preferences: UserPreferences, isPremium: Bool, modelContext: ModelContext) throws -> Affirmation? { nil }
+        func loadBatch(count: Int, preferences: UserPreferences, isPremium: Bool, modelContext: ModelContext) throws -> (daily: Affirmation?, feed: [Affirmation]) { batch }
         func recordSeen(affirmation: Affirmation, source: SeenSource, modelContext: ModelContext) throws {}
     }
 
@@ -31,11 +31,6 @@ struct CustomizationRefreshTests {
         @MainActor func renderShareImage(text: String, gradientColors: [SwiftUI.Color], size: CGSize, showWatermark: Bool) -> UIImage? { nil }
     }
 
-    private final class MockMoodService: MoodServiceProtocol {
-        func recordMood(_ mood: Mood, modelContext: ModelContext) throws {}
-        func todaysMood(modelContext: ModelContext) throws -> MoodEntry? { nil }
-        func moodHistory(limit: Int, modelContext: ModelContext) throws -> [MoodEntry] { [] }
-    }
 
     private actor MockBackgroundGenerator: BackgroundGeneratorProtocol {
         var generateCallCount = 0
@@ -80,7 +75,7 @@ struct CustomizationRefreshTests {
         let schema = Schema([
             Affirmation.self, Category.self, Favorite.self, SeenEvent.self,
             Dislike.self, AppTheme.self, UserPreferences.self,
-            EntitlementState.self, MoodEntry.self, CardCustomization.self,
+            EntitlementState.self, CardCustomization.self,
         ])
         container = try ModelContainer(for: schema, configurations: [
             ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
@@ -100,7 +95,6 @@ struct CustomizationRefreshTests {
             feedService: MockFeedService(),
             favoriteService: MockFavoriteService(),
             shareService: MockShareService(),
-            moodService: MockMoodService(),
             customizationService: CardCustomizationService.shared
         )
         vm.cards = [affirmation]
@@ -144,7 +138,6 @@ struct CustomizationRefreshTests {
             feedService: MockFeedService(),
             favoriteService: MockFavoriteService(),
             shareService: MockShareService(),
-            moodService: MockMoodService(),
             customizationService: CardCustomizationService.shared
         )
         vm.cards = [affirmation]
@@ -171,7 +164,6 @@ struct CustomizationRefreshTests {
             feedService: MockFeedService(),
             favoriteService: MockFavoriteService(),
             shareService: MockShareService(),
-            moodService: MockMoodService(),
             customizationService: CardCustomizationService.shared,
             backgroundGenerator: mockGenerator
         )
@@ -260,7 +252,6 @@ struct CustomizationRefreshTests {
             feedService: MockFeedService(),
             favoriteService: MockFavoriteService(),
             shareService: MockShareService(),
-            moodService: MockMoodService(),
             customizationService: CardCustomizationService.shared
         )
         feedVM.cards = [affirmation]
@@ -300,7 +291,6 @@ struct CustomizationRefreshTests {
             feedService: MockFeedService(),
             favoriteService: MockFavoriteService(),
             shareService: MockShareService(),
-            moodService: MockMoodService(),
             customizationService: CardCustomizationService.shared
         )
         feedVM.cards = [affirmation]
