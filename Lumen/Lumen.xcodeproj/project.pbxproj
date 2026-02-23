@@ -27,11 +27,11 @@
 		1CF192A48F930BC95BC7C23E /* AnalyticsServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88940B14EE69D30BB82FA8E3 /* AnalyticsServiceProtocol.swift */; };
 		1F54F9BD9D42771766DB7C3D /* OnboardingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BFE08A012E524DA0177D778 /* OnboardingViewModel.swift */; };
 		1FD6CF61E5DE894E11E2AF9E /* UserPreferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = C03CFB6175EA6A45BE046ADD /* UserPreferences.swift */; };
-		244B616BD4459D8DBA8FC409 /* Unet.mlmodelc in Resources */ = {isa = PBXBuildFile; fileRef = C8C4FBC7032DCD9A1BBE8FD6 /* Unet.mlmodelc */; settings = {ASSET_TAGS = ("ai-model", ); }; };
+		244B616BD4459D8DBA8FC409 /* Unet.mlmodelc in Resources */ = {isa = PBXBuildFile; fileRef = C8C4FBC7032DCD9A1BBE8FD6 /* Unet.mlmodelc */; };
 		24538F73EB62CFE9CFCCB3F5 /* Tone.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6979E87ABDDF559650246620 /* Tone.swift */; };
 		27799EF74A04D4CF704A8895 /* HistoryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DE9EAD14CD4CC42AAC7DBF9 /* HistoryViewModel.swift */; };
 		27F1D859662BBB2EB3832A41 /* AIBackgroundPrompt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21E0D6A986779E0455B0C7B8 /* AIBackgroundPrompt.swift */; };
-		2E2AF3260744128020C58F3F /* vocab.json in Resources */ = {isa = PBXBuildFile; fileRef = F28F92103554051B352FAE8A /* vocab.json */; settings = {ASSET_TAGS = ("ai-model", ); }; };
+		2E2AF3260744128020C58F3F /* vocab.json in Resources */ = {isa = PBXBuildFile; fileRef = F28F92103554051B352FAE8A /* vocab.json */; };
 		2F39A651DD7DD8EDF7E6B82C /* FeedViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B438BA93FB245C460E2837C /* FeedViewModelTests.swift */; };
 		31C2E593C8892118D3C60AB0 /* BackgroundGeneratorServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 906321285338E137193EAB8B /* BackgroundGeneratorServiceTests.swift */; };
 		324918B5409C9BDB6EABC053 /* FontPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F9EDD35C53FBEDDCEB0B971 /* FontPickerView.swift */; };
@@ -84,7 +84,7 @@
 		6B78FAA561B5CD21DC457E35 /* RevenueCat.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 765A189010C2332A0C9FE2B1 /* RevenueCat.framework */; };
 		6F6D9B2BF442FBC108921D31 /* RevenueCat_RevenueCatUI.bundle in Dependencies */ = {isa = PBXBuildFile; fileRef = AD32263929BF904E5B6833B3 /* RevenueCat_RevenueCatUI.bundle */; };
 		6FFA457B004AA3FCB53E0638 /* BackgroundGeneratorService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C4EC73D6B7A67156E198F6F /* BackgroundGeneratorService.swift */; };
-		71D439121FC980511069E500 /* VAEDecoder.mlmodelc in Resources */ = {isa = PBXBuildFile; fileRef = 8050B65EB96151A5B5BEA82F /* VAEDecoder.mlmodelc */; settings = {ASSET_TAGS = ("ai-model", ); }; };
+		71D439121FC980511069E500 /* VAEDecoder.mlmodelc in Resources */ = {isa = PBXBuildFile; fileRef = 8050B65EB96151A5B5BEA82F /* VAEDecoder.mlmodelc */; };
 		7566E104DB0469B0DD2E8653 /* CategoryChip.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7005968D361B33F685D80619 /* CategoryChip.swift */; };
 		75E0C6448D3B1B0BB798583B /* CloudSyncService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73662858A5FAF253C8FB4531 /* CloudSyncService.swift */; };
 		75FA62F55C0E3A843C568F0C /* ThemesSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BAE51957F483717ED71CC80 /* ThemesSettingsView.swift */; };
@@ -121,7 +121,7 @@
 		A29F86C9078386E474B3D37F /* CormorantGaramond-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = FF4DFBA0A53958AF6BE40E83 /* CormorantGaramond-SemiBold.ttf */; };
 		A2AFBB491CBB559009647664 /* ThemeType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B1151FA89285F333EC43F04 /* ThemeType.swift */; };
 		A300D388A4D2314E9739988A /* RemindersSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 255CDC9A6B2E90A8D55E568C /* RemindersSettingsView.swift */; };
-		A305E825A3A1526759B8041D /* TextEncoder.mlmodelc in Resources */ = {isa = PBXBuildFile; fileRef = 4A03583E3B2D560AE24449B4 /* TextEncoder.mlmodelc */; settings = {ASSET_TAGS = ("ai-model", ); }; };
+		A305E825A3A1526759B8041D /* TextEncoder.mlmodelc in Resources */ = {isa = PBXBuildFile; fileRef = 4A03583E3B2D560AE24449B4 /* TextEncoder.mlmodelc */; };
 		A3D80917ED089AB3392A5B46 /* ThemeGalleryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11D08B258DDEF8838B49196 /* ThemeGalleryView.swift */; };
 		A4F2ECFF5C82A6DD4EDC93C5 /* WidgetService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 647B4CA3AAC59E7972B92323 /* WidgetService.swift */; };
 		A5367C6F2AC691013453F44E /* IssueReportingPackageSupport.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C9D76DE05EEC7E7497E02471 /* IssueReportingPackageSupport.framework */; };
@@ -138,7 +138,7 @@
 		B2AE2430F2780F448708D134 /* RevenueCat_RevenueCat.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 245638FF32FC4654ED83B3F9 /* RevenueCat_RevenueCat.bundle */; };
 		B8BBBF9E563454CB832D93B5 /* DancingScript.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 507D8B4F5805BE560825061B /* DancingScript.ttf */; };
 		B92A8F299CD4FF5D73540EEC /* WatchContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 318006F54333DAB915A3993E /* WatchContentView.swift */; };
-		BB1DB98D268B0846EC69463E /* merges.txt in Resources */ = {isa = PBXBuildFile; fileRef = C6ABDBD6A6A9122321D35592 /* merges.txt */; settings = {ASSET_TAGS = ("ai-model", ); }; };
+		BB1DB98D268B0846EC69463E /* merges.txt in Resources */ = {isa = PBXBuildFile; fileRef = C6ABDBD6A6A9122321D35592 /* merges.txt */; };
 		BBC120CAED380A40BF49614B /* AnalyticsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA128F797A9C0DBBAA6A84BE /* AnalyticsService.swift */; };
 		BD649A11C95A145296B8E209 /* NotificationServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = F61E1325C200BF3AB0252A39 /* NotificationServiceProtocol.swift */; };
 		BEF994A33C02E272BA5E4542 /* AffirmationFontStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45A49DC082ABAC412A421DCB /* AffirmationFontStyle.swift */; };
@@ -1076,9 +1076,6 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
-				KnownAssetTags = (
-					"ai-model",
-				);
 				TargetAttributes = {
 					2E79081A5FDB7B19AC8C41BB = {
 						TestTargetID = 3604D51825E37895FA8BE7E6;

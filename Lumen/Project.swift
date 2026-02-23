@@ -46,11 +46,7 @@ let project = Project(
                 "Theme/**",
             ],
             resources: [
-                .glob(pattern: "Resources/**", excluding: ["Resources/CoreMLStableDiffusion/**"]),
-                .glob(
-                    pattern: "Resources/CoreMLStableDiffusion/**",
-                    tags: ["ai-model"]
-                ),
+                .glob(pattern: "Resources/**"),
             ],
             entitlements: .file(path: "Lumen.entitlements"),
             dependencies: [

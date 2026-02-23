@@ -229,7 +229,8 @@ final class CardEditorViewModel {
                 // Skip thumbnails
                 guard !themeId.hasSuffix("_thumb") else { continue }
                 // Load thumbnail if exists, else use full image scaled down
-                let thumbPath = file.deletingPathExtension().appendingPathExtension("thumb.\(file.pathExtension)")
+                let thumbFilename = "\(themeId)_thumb.\(file.pathExtension)"
+                let thumbPath = file.deletingLastPathComponent().appendingPathComponent(thumbFilename)
                 let thumb: UIImage?
                 if fm.fileExists(atPath: thumbPath.path), let t = UIImage(contentsOfFile: thumbPath.path) {
                     thumb = t

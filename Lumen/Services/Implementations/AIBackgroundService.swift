@@ -101,13 +101,22 @@ actor AIBackgroundService: AIBackgroundServiceProtocol {
             let phaseHandler = self.loadPhaseHandler
 
             phaseHandler?("Creating pipeline…", 0.05)
-            let pipe = try StableDiffusionPipeline(
-                resourcesAt: modelURL,
-                controlNet: [],
-                configuration: config,
-                disableSafety: true,
-                reduceMemory: true
-            )
+            let pipe = try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<StableDiffusionPipeline, Error>) in
+                DispatchQueue.global(qos: .userInitiated).async {
+                    do {
+                        let p = try StableDiffusionPipeline(
+                            resourcesAt: modelURL,
+                            controlNet: [],
+                            configuration: config,
+                            disableSafety: true,
+                            reduceMemory: true
+                        )
+                        continuation.resume(returning: p)
+                    } catch {
+                        continuation.resume(throwing: error)
+                    }
+                }
+            }
 
             logger.info("Pipeline created, loading resources…")
 
@@ -116,7 +125,18 @@ actor AIBackgroundService: AIBackgroundServiceProtocol {
             // a "Loading models…" phase so the UI shows an indeterminate bar
             // with a descriptive message instead of appearing stuck.
             phaseHandler?("Loading AI models (this takes a moment the first time)…", 0.1)
-            try pipe.loadResources()
+            // loadResources() is synchronous and CPU-heavy — run off the cooperative pool
+            // to avoid starving other Swift concurrency tasks
+            try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+                DispatchQueue.global(qos: .userInitiated).async {
+                    do {
+                        try pipe.loadResources()
+                        continuation.resume()
+                    } catch {
+                        continuation.resume(throwing: error)
+                    }
+                }
+            }
 
             phaseHandler?("Ready", 1.0)
             self.pipeline = pipe
@@ -394,23 +414,35 @@ actor AIBackgroundService: AIBackgroundServiceProtocol {
         let scaledImage: CIImage
         if let filter = CIFilter(name: "CILanczosScaleTransform") {
             filter.setValue(ciImage, forKey: kCIInputImageKey)
-            filter.setValue(scale, forKey: kCIInputScaleKey)
+            filter.setValue(Float(scale), forKey: kCIInputScaleKey)
             filter.setValue(1.0, forKey: kCIInputAspectRatioKey)  // Uniform — no distortion
             scaledImage = filter.outputImage ?? ciImage.transformed(by: CGAffineTransform(scaleX: scale, y: scale))
         } else {
             scaledImage = ciImage.transformed(by: CGAffineTransform(scaleX: scale, y: scale))
         }
 
-        // Center-crop to target size
+        // Center-crop to target size, clamped to scaled bounds to avoid out-of-bounds CIContext failures
         let scaledWidth = sourceWidth * scale
         let scaledHeight = sourceHeight * scale
-        let cropX = (scaledWidth - targetSize.width) / 2
-        let cropY = (scaledHeight - targetSize.height) / 2
-        let cropRect = CGRect(x: cropX, y: cropY, width: targetSize.width, height: targetSize.height)
+        let cropW = min(targetSize.width, scaledWidth)
+        let cropH = min(targetSize.height, scaledHeight)
+        let cropX = max(0, (scaledWidth - cropW) / 2)
+        let cropY = max(0, (scaledHeight - cropH) / 2)
+        let cropRect = CGRect(x: cropX, y: cropY, width: cropW, height: cropH)
 
-        guard let outputCG = context.createCGImage(scaledImage, from: cropRect) else {
+        guard let croppedCG = context.createCGImage(scaledImage, from: cropRect) else {
             return UIImage(cgImage: cgImage)
         }
+
+        // If the cropped image is slightly smaller than target (rounding), scale to exact target
+        if abs(cropW - targetSize.width) > 1 || abs(cropH - targetSize.height) > 1 {
+            let renderer = UIGraphicsImageRenderer(size: targetSize)
+            return renderer.image { _ in
+                UIImage(cgImage: croppedCG).draw(in: CGRect(origin: .zero, size: targetSize))
+            }
+        }
+
+        let outputCG = croppedCG
 
         return UIImage(cgImage: outputCG)
     }
