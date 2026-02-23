@@ -58,15 +58,24 @@
 - CloudKit sync hidden until entitlement configured (CKContainer.default() crash fix)
 - AffirmationFontStyle enum + fontStyle field added to Affirmation model
 
-## 2026-02-23
-- **Tooling modernization session**: Tuist (replaced XcodeGen), swift-format, SwiftLint, swift-dependencies, Periphery
-- All 10 ViewModels migrated from init-based DI to `@Dependency` (Point-Free swift-dependencies)
-- All 14 services registered in `DependencyRegistrations.swift` with proper `@MainActor` handling
+## 2026-02-23 (continued)
+- **Tooling modernization complete**: Tuist, swift-format, SwiftLint, swift-dependencies, Periphery
+- Migrated all 10 ViewModels to `@Dependency` pattern
+- All 14 services registered via `DependencyRegistrations.swift`
+- Build succeeds (zero errors), 100 tests run (92 pass, 8 pre-existing failures)
+- Pre-existing test failures: 5 FeedService filter tests, 3 ThemeGenerator mock data issues
+- Fixed 7 of 8 pre-existing test failures → **99/100 tests passing**
+- FeedService.relaxedFetch now respects content safety filters
+- ThemeGenerator mocks generate valid 1x1 UIImages
+- BackgroundGeneratorService split: 1185 → 4 files (core/natural/geometric/overlays)
+- All 14 force unwraps eliminated
+- Periphery scan done: removed dead code (AffirmationCardView, Date+Formatting, auto-advance, stale mocks)
+- Entitlements typo fixed: `group.roup.com.gragera.lumen` → `group.com.gragera.lumen`
+- Zero SwiftLint errors, 27 warnings (short var names in drawing code, acceptable)
 - swift-snapshot-testing added as dependency (not yet scaffolded)
-- Build: zero errors on iOS; 100 tests run (92 pass, 8 pre-existing failures)
-- Pre-existing test failures: 5 FeedService filter predicate tests, 3 ThemeGenerator mock data issues
-- Entitlements typo spotted: `group.roup.com.gragera.lumen` should be `group.com.gragera.lumen` — not fixed yet
 - `project.yml.deprecated` kept for reference
+
+## 2026-02-23
 - Typography overhaul complete: 10 custom Google Fonts, weighted random assignment, legacy mapping
 - `redesign/immersive-ui` merged → `main` (commit `314a59f`), pushed to origin
 - Immersive dark UI: ambient background, glassmorphic cards, no light mode
