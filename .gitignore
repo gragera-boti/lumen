@@ -32,3 +32,14 @@ Pods/
 # Secrets
 *.storekit
 Lumen/Resources/CoreMLStableDiffusion/
+
+# Tuist
+*.xcworkspace/
+*.xcodeproj/
+Derived/
+.tuist-bin/
+.tuist-version/
+Tuist/.build/
+
+# Build logs and scripts
+xcodebuild_output.txt

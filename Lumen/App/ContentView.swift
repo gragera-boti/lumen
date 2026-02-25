@@ -166,8 +166,6 @@ struct ContentView: View {
             PrivacyDataView()
         case .crisis:
             CrisisView()
-        case .themeGenerator:
-            ThemeGeneratorView()
         case .themeGallery:
             ThemeGalleryView()
         case .history:

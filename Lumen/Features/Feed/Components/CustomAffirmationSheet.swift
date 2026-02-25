@@ -11,6 +11,8 @@ struct CustomAffirmationSheet: View {
     @State private var errorMessage: String?
     @State private var suggestions: [String] = []
     @State private var isLoadingSuggestions = true
+    
+    @State private var createdAffirmation: Affirmation?
 
     private let maxLength = 200
     private let minLength = 5
@@ -45,13 +47,23 @@ struct CustomAffirmationSheet: View {
                     Button("Cancel") { dismiss() }
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Save") { save() }
+                    Button("Next") { saveAndProceed() }
                         .fontWeight(.semibold)
                         .disabled(!isValid)
                 }
             }
             .task {
                 await loadSuggestions()
+            }
+            .navigationDestination(item: $createdAffirmation) { affirmation in
+                CardEditorView(
+                    affirmation: affirmation,
+                    existingCustomization: nil,
+                    isEmbedded: true,
+                    onSaveComplete: {
+                        dismiss()
+                    }
+                )
             }
         }
     }
@@ -220,7 +232,7 @@ struct CustomAffirmationSheet: View {
 
     // MARK: - Save
 
-    private func save() {
+    private func saveAndProceed() {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard trimmed.count >= minLength else {
             errorMessage = "Too short — write at least \(minLength) characters"
@@ -248,7 +260,8 @@ struct CustomAffirmationSheet: View {
 
         do {
             try modelContext.save()
-            dismiss()
+            // Instead of dismissing, proceed to the background editor!
+            createdAffirmation = affirmation
         } catch {
             errorMessage = "Couldn't save. Try again."
         }

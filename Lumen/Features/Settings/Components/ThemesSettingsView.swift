@@ -5,6 +5,8 @@ struct ThemesSettingsView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(AppRouter.self) private var router
     @Query(sort: \AppTheme.createdAt, order: .reverse) private var themes: [AppTheme]
+    
+    @State private var newAffirmationToEdit: Affirmation?
 
     private var activeCount: Int {
         themes.filter(\.isInRotation).count
@@ -59,7 +61,14 @@ struct ThemesSettingsView: View {
                     .padding(.horizontal, LumenTheme.Spacing.md)
 
                 PrimaryButton(title: "Generate new background") {
-                    router.navigate(to: .themeGenerator, in: .settings)
+                    newAffirmationToEdit = Affirmation(
+                        id: "user_\(UUID().uuidString)",
+                        text: "",
+                        tone: .gentle,
+                        intensity: .low,
+                        source: .user,
+                        tags: ["custom"]
+                    )
                 }
                 .padding(.horizontal, LumenTheme.Spacing.md)
 
@@ -74,6 +83,13 @@ struct ThemesSettingsView: View {
         }
         .ambientBackground()
         .navigationTitle("settings.themes".localized)
+        .sheet(item: $newAffirmationToEdit) { affirmation in
+            CardEditorView(
+                affirmation: affirmation,
+                existingCustomization: nil,
+                isCreatingNew: true
+            )
+        }
     }
 }
 

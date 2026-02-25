@@ -35,6 +35,18 @@ let project = Project(
             infoPlist: .extendingDefault(with: [
                 "CFBundleDisplayName": "Lumen",
                 "UILaunchScreen": [:],
+                "UIAppFonts": [
+                    "AbrilFatface-Regular.ttf",
+                    "Caveat.ttf",
+                    "CormorantGaramond-Bold.ttf",
+                    "CormorantGaramond-SemiBold.ttf",
+                    "DancingScript.ttf",
+                    "JosefinSans.ttf",
+                    "PlayfairDisplay.ttf",
+                    "Righteous-Regular.ttf",
+                    "ZillaSlab-Bold.ttf",
+                    "ZillaSlab-SemiBold.ttf"
+                ]
             ]),
             sources: [
                 "App/**",
@@ -53,7 +65,6 @@ let project = Project(
                 .target(name: "LumenWidgets"),
                 .external(name: "RevenueCat"),
                 .external(name: "RevenueCatUI"),
-                .external(name: "StableDiffusion"),
                 .external(name: "Dependencies"),
             ],
             settings: .settings(base: [

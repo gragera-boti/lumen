@@ -219,15 +219,6 @@ struct FavoriteRow: View {
                         .font(.subheadline)
                         .foregroundStyle(.white)
                         .lineLimit(2)
-
-                    if isUserCreated {
-                        Text("You")
-                            .font(.system(size: 9, weight: .bold))
-                            .foregroundStyle(.white)
-                            .padding(.horizontal, 5)
-                            .padding(.vertical, 2)
-                            .background(Capsule().fill(LumenTheme.Colors.primary))
-                    }
                 }
 
                 if !affirmation.categories.isEmpty {

@@ -13,6 +13,10 @@ enum AffirmationFontStyle: String, CaseIterable, Identifiable, Codable {
     case righteous  // Righteous — retro-futuristic display
     case rounded  // SF Rounded — soft, approachable (system)
     case heavy  // SF Pro Heavy — powerful, assertive (system)
+    case mono // SF Mono — typewriter, clean UI
+    case serifModern // SF Serif — modern editorial
+    case marker // Marker Felt — playful, raw expressiveness
+
 
     var id: String { rawValue }
 
@@ -47,6 +51,9 @@ enum AffirmationFontStyle: String, CaseIterable, Identifiable, Codable {
         case .righteous: "Expressive"
         case .rounded: "Rounded"
         case .heavy: "Bold"
+        case .mono: "Mono"
+        case .serifModern: "Classic"
+        case .marker: "Marker"
         }
     }
 
@@ -73,6 +80,12 @@ enum AffirmationFontStyle: String, CaseIterable, Identifiable, Codable {
             .system(size: size, weight: .semibold, design: .rounded)
         case .heavy:
             .system(size: size, weight: .heavy, design: .default)
+        case .mono:
+            .system(size: size, weight: .semibold, design: .monospaced)
+        case .serifModern:
+            .system(size: size, weight: .semibold, design: .serif)
+        case .marker:
+            .custom("MarkerFelt-Wide", size: size)
         }
     }
 
@@ -115,6 +128,12 @@ enum AffirmationFontStyle: String, CaseIterable, Identifiable, Codable {
             .system(size: size, weight: .bold, design: .rounded)
         case .heavy:
             .system(size: size, weight: .heavy, design: .default)
+        case .mono:
+            .system(size: size, weight: .bold, design: .monospaced)
+        case .serifModern:
+            .system(size: size, weight: .bold, design: .serif)
+        case .marker:
+            .custom("MarkerFelt-Wide", size: size)
         }
     }
 }

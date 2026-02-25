@@ -188,9 +188,6 @@ struct ThemeGeneratorView: View {
 
     private var aiControls: some View {
         VStack(spacing: LumenTheme.Spacing.lg) {
-            // Model status banner
-            aiModelBanner
-
             // Category picker
             VStack(alignment: .leading, spacing: LumenTheme.Spacing.sm) {
                 Text("Style")
@@ -249,76 +246,6 @@ struct ThemeGeneratorView: View {
             if !viewModel.cachedAIBackgrounds.isEmpty {
                 cachedSection
             }
-        }
-    }
-
-    // MARK: - AI Model Banner
-
-    private var aiModelBanner: some View {
-        VStack(spacing: LumenTheme.Spacing.sm) {
-            HStack(spacing: LumenTheme.Spacing.sm) {
-                Image(systemName: aiModelIcon)
-                    .foregroundStyle(aiModelIconColor)
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("AI Model")
-                        .font(.subheadline.weight(.semibold))
-                    Text(viewModel.aiLoadState.statusText)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-                Spacer()
-                aiModelAction
-            }
-
-            // Progress bar
-            if let progress = viewModel.aiLoadState.progress, progress > 0 {
-                ProgressView(value: progress)
-                    .tint(LumenTheme.Colors.primary)
-            } else if viewModel.aiLoadState.isWorking {
-                // Indeterminate progress for model loading / early generation
-                ProgressView()
-                    .progressViewStyle(.linear)
-                    .tint(LumenTheme.Colors.primary)
-            }
-        }
-        .padding(LumenTheme.Spacing.md)
-        .background(
-            RoundedRectangle(cornerRadius: LumenTheme.Radii.card)
-                .fill(Color(.systemGray6))
-        )
-    }
-
-    private var aiModelIcon: String {
-        switch viewModel.aiLoadState {
-        case .ready: "checkmark.circle.fill"
-        case .failed: "exclamationmark.triangle.fill"
-        default: "cpu"
-        }
-    }
-
-    private var aiModelIconColor: Color {
-        switch viewModel.aiLoadState {
-        case .ready: .green
-        case .failed: .red
-        default: .orange
-        }
-    }
-
-    @ViewBuilder
-    private var aiModelAction: some View {
-        switch viewModel.aiLoadState {
-        case .idle, .failed:
-            Button("Load") {
-                Task { await viewModel.loadAIModel() }
-            }
-            .font(.subheadline.weight(.medium))
-            .buttonStyle(.bordered)
-        case .ready:
-            Image(systemName: "checkmark")
-                .foregroundStyle(.green)
-                .font(.subheadline.weight(.semibold))
-        default:
-            EmptyView()  // progress bar handles visual feedback
         }
     }
 

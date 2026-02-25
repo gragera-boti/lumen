@@ -4,7 +4,7 @@ import SwiftUI
 struct FeedView: View {
     @State private var viewModel = FeedViewModel()
     @Environment(\.modelContext) private var modelContext
-    @State private var showCustomAffirmation = false
+    @State private var newAffirmationToEdit: Affirmation?
 
     // Crossfade transition state
     @State private var textOpacity: Double = 1.0
@@ -34,12 +34,16 @@ struct FeedView: View {
         .toolbarBackground(.hidden, for: .tabBar)
         .ignoresSafeArea()
         .sheet(
-            isPresented: $showCustomAffirmation,
+            item: $newAffirmationToEdit,
             onDismiss: {
                 viewModel.insertLatestUserAffirmation(modelContext: modelContext)
             }
-        ) {
-            CustomAffirmationSheet()
+        ) { affirmation in
+            CardEditorView(
+                affirmation: affirmation,
+                existingCustomization: nil,
+                isCreatingNew: true
+            )
         }
         .sheet(item: $viewModel.editingAffirmation) { affirmation in
             CardEditorView(
@@ -70,7 +74,14 @@ struct FeedView: View {
                 Spacer()
 
                 Button {
-                    showCustomAffirmation = true
+                    newAffirmationToEdit = Affirmation(
+                        id: "user_\(UUID().uuidString)",
+                        text: "",
+                        tone: .gentle,
+                        intensity: .low,
+                        source: .user,
+                        tags: ["custom"]
+                    )
                 } label: {
                     Image(systemName: "plus")
                         .font(.body.weight(.semibold))

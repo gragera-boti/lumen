@@ -1,33 +1,72 @@
 import SwiftData
 import SwiftUI
+import Dependencies
 
 struct ThemeGalleryView: View {
+    enum GalleryTab {
+        case active
+        case aiHistory
+    }
+
     @Query(sort: \AppTheme.createdAt, order: .reverse)
     private var themes: [AppTheme]
 
     @Environment(\.modelContext) private var modelContext
     @State private var themeToDelete: AppTheme?
+    
+    @State private var selectedTab: GalleryTab = .active
+    @State private var aiHistory: [GeneratedBackground] = []
+    @State private var isLoadingAI = true
+    
+    @Dependency(\.aiBackgroundService) private var aiBackgroundService: any AIBackgroundServiceProtocol
 
     private var activeCount: Int {
         themes.filter(\.isInRotation).count
     }
 
     var body: some View {
-        Group {
-            if themes.isEmpty {
-                ContentUnavailableView(
-                    "No Backgrounds Yet",
-                    systemImage: "photo.on.rectangle.angled",
-                    description: Text(
-                        "Generate backgrounds in the Theme Generator and save them to build your collection."
-                    )
-                )
-            } else {
-                themeList
+        VStack(spacing: 0) {
+            Picker("Gallery View", selection: $selectedTab) {
+                Text("Saved").tag(GalleryTab.active)
+                Text("AI History").tag(GalleryTab.aiHistory)
             }
+            .pickerStyle(.segmented)
+            .padding(LumenTheme.Spacing.md)
+
+            Group {
+                switch selectedTab {
+                case .active:
+                    if themes.isEmpty {
+                        ContentUnavailableView(
+                            "No Backgrounds Yet",
+                            systemImage: "photo.on.rectangle.angled",
+                            description: Text(
+                                "Generate backgrounds in the Theme Generator and save them to build your collection."
+                            )
+                        )
+                    } else {
+                        themeList
+                    }
+                case .aiHistory:
+                    if isLoadingAI {
+                        ProgressView()
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    } else if aiHistory.isEmpty {
+                        ContentUnavailableView(
+                            "No AI History",
+                            systemImage: "sparkles",
+                            description: Text("Generate AI backgrounds to see them here.")
+                        )
+                    } else {
+                        aiHistoryList
+                    }
+                }
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .ambientBackground()
         .navigationTitle("My Backgrounds")
+        .navigationBarTitleDisplayMode(.inline)
         .confirmationDialog(
             "Delete this background?",
             isPresented: Binding(
@@ -44,6 +83,11 @@ struct ThemeGalleryView: View {
             }
         } message: {
             Text("This can't be undone.")
+        }
+        .task {
+            // Load AI history asynchronously
+            aiHistory = await aiBackgroundService.cachedBackgrounds()
+            isLoadingAI = false
         }
     }
 
@@ -84,6 +128,39 @@ struct ThemeGalleryView: View {
                 .padding(.horizontal, LumenTheme.Spacing.md)
                 .padding(.bottom, 100)
             }
+        }
+    }
+
+    private var aiHistoryList: some View {
+        ScrollView {
+            LazyVGrid(
+                columns: [
+                    GridItem(.flexible(), spacing: 12),
+                    GridItem(.flexible(), spacing: 12),
+                ],
+                spacing: 12
+            ) {
+                ForEach(aiHistory, id: \.themeId) { bg in
+                    VStack(spacing: 0) {
+                        ZStack(alignment: .topTrailing) {
+                            if let image = UIImage(contentsOfFile: bg.thumbnailPath.path) {
+                                Image(uiImage: image)
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                                    .frame(minWidth: 0, maxWidth: .infinity)
+                                    .aspectRatio(9 / 16, contentMode: .fit)
+                                    .clipShape(RoundedRectangle(cornerRadius: LumenTheme.Radii.md))
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: LumenTheme.Radii.md)
+                                            .strokeBorder(Color.white.opacity(0.1), lineWidth: 1)
+                                    )
+                            }
+                        }
+                    }
+                }
+            }
+            .padding(.horizontal, LumenTheme.Spacing.md)
+            .padding(.bottom, 100)
         }
     }
 

@@ -43,7 +43,7 @@ import Testing
         #expect(!result.themeId.isEmpty)
         #expect(FileManager.default.fileExists(atPath: result.imagePath.path))
         let stepCount = tracker.steps.count
-        #expect(stepCount >= 4, "Should have received at least 4 step callbacks, got \(stepCount)")
+        #expect(stepCount == 2, "Should have received exactly 2 step callbacks (start/end), got \(stepCount)")
         print("✅ Generated: \(result.themeId), steps reported: \(stepCount), duration: \(result.metadata.durationMs)ms")
 
         await service.setStepProgressHandler(nil)

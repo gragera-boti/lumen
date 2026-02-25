@@ -1,4 +1,5 @@
 import Dependencies
+import NaturalLanguage
 import OSLog
 import SwiftData
 import UIKit
@@ -68,6 +69,7 @@ final class CardEditorViewModel {
     // MARK: - Public State
 
     let affirmation: Affirmation
+    let isCreatingNew: Bool
 
     var backgroundMode: BackgroundMode
     var selectedStyle: GeneratorStyle
@@ -84,11 +86,17 @@ final class CardEditorViewModel {
 
     var previewImage: UIImage?
     var isGeneratingPreview: Bool = false
+    var errorMessage: String?
     var savedBackgrounds: [SavedBackgroundItem] = []
     var selectedSavedBackground: SavedBackgroundItem?
+    
+    // ML Suggestions
+    var suggestions: [String] = []
+    var isLoadingSuggestions = false
 
     /// Path to the last generated image (for caching on save).
     private var lastGeneratedImagePath: URL?
+    private var generatedThemeId: String?
 
     /// Only user-authored affirmations allow text editing.
     var canEditText: Bool { affirmation.source == .user }
@@ -124,9 +132,11 @@ final class CardEditorViewModel {
 
     init(
         affirmation: Affirmation,
-        existingCustomization: CardCustomization?
+        existingCustomization: CardCustomization?,
+        isCreatingNew: Bool = false
     ) {
         self.affirmation = affirmation
+        self.isCreatingNew = isCreatingNew
 
         let usesAI = existingCustomization?.usesAIBackground ?? false
         let savedThemeId = existingCustomization?.savedThemeId
@@ -207,44 +217,47 @@ final class CardEditorViewModel {
     }
 
     /// Load saved backgrounds from the themes directories.
-    func loadSavedBackgrounds() {
-        var items: [SavedBackgroundItem] = []
+    func loadSavedBackgrounds() async {
+        let items = await Task.detached { () -> [SavedBackgroundItem] in
+            var items: [SavedBackgroundItem] = []
 
-        let searchDirs: [URL] = [
-            FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first?
-                .appendingPathComponent("themes/generated"),
-            FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first?
-                .appendingPathComponent("themes/ai"),
-            FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.gragera.lumen")?
-                .appendingPathComponent("themes/generated"),
-            FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.gragera.lumen")?
-                .appendingPathComponent("themes/ai"),
-        ].compactMap { $0 }
+            let searchDirs: [URL] = [
+                FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first?
+                    .appendingPathComponent("themes/generated"),
+                FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first?
+                    .appendingPathComponent("themes/ai"),
+                FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.gragera.lumen")?
+                    .appendingPathComponent("themes/generated"),
+                FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.gragera.lumen")?
+                    .appendingPathComponent("themes/ai"),
+            ].compactMap { $0 }
 
-        let fm = FileManager.default
-        for dir in searchDirs {
-            guard let files = try? fm.contentsOfDirectory(at: dir, includingPropertiesForKeys: nil) else { continue }
-            for file in files where file.pathExtension == "png" || file.pathExtension == "jpg" {
-                let themeId = file.deletingPathExtension().lastPathComponent
-                // Skip thumbnails
-                guard !themeId.hasSuffix("_thumb") else { continue }
-                // Load thumbnail if exists, else use full image scaled down
-                let thumbFilename = "\(themeId)_thumb.\(file.pathExtension)"
-                let thumbPath = file.deletingLastPathComponent().appendingPathComponent(thumbFilename)
-                let thumb: UIImage?
-                if fm.fileExists(atPath: thumbPath.path), let t = UIImage(contentsOfFile: thumbPath.path) {
-                    thumb = t
-                } else if let data = try? Data(contentsOf: file),
-                    let full = UIImage(data: data)
-                {
-                    thumb = full.preparingThumbnail(of: CGSize(width: 120, height: 120))
-                } else {
-                    continue
+            let fm = FileManager.default
+            for dir in searchDirs {
+                guard let files = try? fm.contentsOfDirectory(at: dir, includingPropertiesForKeys: nil) else { continue }
+                for file in files where file.pathExtension == "png" || file.pathExtension == "jpg" {
+                    let themeId = file.deletingPathExtension().lastPathComponent
+                    // Skip thumbnails
+                    guard !themeId.hasSuffix("_thumb") else { continue }
+                    // Load thumbnail if exists, else use full image scaled down
+                    let thumbFilename = "\(themeId)_thumb.\(file.pathExtension)"
+                    let thumbPath = file.deletingLastPathComponent().appendingPathComponent(thumbFilename)
+                    let thumb: UIImage?
+                    if fm.fileExists(atPath: thumbPath.path), let t = UIImage(contentsOfFile: thumbPath.path) {
+                        thumb = t
+                    } else if let data = try? Data(contentsOf: file),
+                        let full = UIImage(data: data)
+                    {
+                        thumb = full.preparingThumbnail(of: CGSize(width: 120, height: 120))
+                    } else {
+                        continue
+                    }
+                    guard let thumbnail = thumb else { continue }
+                    items.append(SavedBackgroundItem(id: themeId, thumbnail: thumbnail, fullImagePath: file))
                 }
-                guard let thumbnail = thumb else { continue }
-                items.append(SavedBackgroundItem(id: themeId, thumbnail: thumbnail, fullImagePath: file))
             }
-        }
+            return items
+        }.value
 
         savedBackgrounds = items
 
@@ -311,6 +324,28 @@ final class CardEditorViewModel {
         if canEditText {
             affirmation.text = customText
         }
+        
+        // If creating a brand new affirmation, insert it and favorite it!
+        if isCreatingNew {
+            modelContext.insert(affirmation)
+            let favorite = Favorite(affirmation: affirmation)
+            modelContext.insert(favorite)
+        }
+        
+        // Also save to global Themes if this is a newly generated AI background!
+        if backgroundMode == .ai, let themeId = generatedThemeId {
+            let prompt = selectedPrompt ?? .random(category: selectedPromptCategory)
+            let theme = AppTheme(
+                id: themeId,
+                name: "AI Background",
+                type: .generatedImage,
+                isPremium: true,
+                dataJSON: "{\"promptId\":\"\(prompt.id)\"}",
+                isActive: true
+            )
+            modelContext.insert(theme)
+            customization.savedThemeId = themeId
+        }
 
         Logger.viewModel.debug("Saved card customization for \(self.affirmation.id, privacy: .private)")
     }
@@ -374,8 +409,14 @@ final class CardEditorViewModel {
             let result = try await aiGenerator.generate(request: request)
             previewImage = UIImage(contentsOfFile: result.imagePath.path)
             lastGeneratedImagePath = result.imagePath
+            generatedThemeId = result.themeId
+            Logger.viewModel.info("Generated AI preview (ID: \(result.themeId, privacy: .private))")
+        } catch is CancellationError {
+            Logger.viewModel.info("AI preview cancelled")
         } catch {
             Logger.viewModel.error("AI preview failed: \(error.localizedDescription)")
+            let desc = String(describing: error)
+            errorMessage = "AI generation failed: \(desc.prefix(200))"
         }
     }
 
@@ -436,4 +477,93 @@ final class CardEditorViewModel {
     private static func defaultSeed(for affirmation: Affirmation) -> UInt32 {
         UInt32(abs(affirmation.id.hashValue) & 0xFFFF_FFFF)
     }
+
+    // MARK: - ML Suggestions
+
+    func loadSuggestions(modelContext: ModelContext) async {
+        guard isCreatingNew else { return }
+        isLoadingSuggestions = true
+        defer { isLoadingSuggestions = false }
+
+        // Fetch favorited affirmation texts
+        let favoriteTexts = fetchFavoriteTexts(modelContext: modelContext)
+        guard favoriteTexts.count >= 3 else { return }
+
+        // Use NaturalLanguage embedding to find themes in favorites
+        await generateSuggestions(from: favoriteTexts)
+    }
+
+    private func fetchFavoriteTexts(modelContext: ModelContext) -> [String] {
+        do {
+            let descriptor = FetchDescriptor<Favorite>(
+                sortBy: [SortDescriptor(\.favoritedAt, order: .reverse)]
+            )
+            let favorites = try modelContext.fetch(descriptor)
+            return favorites.compactMap { $0.affirmation?.text }.prefix(20).map { $0 }
+        } catch {
+            return []
+        }
+    }
+
+    private func generateSuggestions(from favoriteTexts: [String]) async {
+        var starters: [String: Int] = [:]
+        var themes: [String] = []
+        let tagger = NLTagger(tagSchemes: [.lemma, .nameType])
+
+        for text in favoriteTexts {
+            let words = text.split(separator: " ").prefix(3).joined(separator: " ")
+            if words.count > 2 {
+                starters[words, default: 0] += 1
+            }
+
+            tagger.string = text
+            tagger.enumerateTags(in: text.startIndex..<text.endIndex, unit: .word, scheme: .lemma) { tag, range in
+                if let lemma = tag?.rawValue, lemma.count > 3 {
+                    let word = String(text[range]).lowercased()
+                    if !Self.stopWords.contains(word) && !Self.stopWords.contains(lemma.lowercased()) {
+                        themes.append(lemma)
+                    }
+                }
+                return true
+            }
+        }
+
+        let themeCounts = Dictionary(themes.map { ($0, 1) }, uniquingKeysWith: +)
+        let topThemes = themeCounts.sorted { $0.value > $1.value }.prefix(5).map { $0.key }
+        var generated: [String] = []
+
+        let templates = [
+            "I embrace my {theme} with gratitude",
+            "Every day, my {theme} grows stronger",
+            "I am worthy of {theme} and joy",
+            "My {theme} inspires those around me",
+            "I choose {theme} in every moment",
+        ]
+
+        for (i, theme) in topThemes.prefix(3).enumerated() {
+            if i < templates.count {
+                let suggestion = templates[i].replacingOccurrences(of: "{theme}", with: theme.lowercased())
+                generated.append(suggestion)
+            }
+        }
+
+        let topStarters = starters.sorted { $0.value > $1.value }.prefix(2)
+        for starter in topStarters {
+            if !generated.contains(where: { $0.hasPrefix(starter.key) }) {
+                if let theme = topThemes.first {
+                    generated.append("\(starter.key) \(theme.lowercased()) guides my path")
+                }
+            }
+        }
+
+        suggestions = Array(generated.prefix(5))
+    }
+
+    private static let stopWords: Set<String> = [
+        "i", "my", "me", "am", "is", "are", "the", "a", "an", "and", "or",
+        "to", "in", "of", "for", "with", "that", "this", "have", "has",
+        "can", "will", "do", "be", "it", "not", "but", "all", "each",
+        "every", "from", "into", "through", "than", "more", "most",
+        "own", "being", "been", "was", "were", "their", "them", "they",
+    ]
 }

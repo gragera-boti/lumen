@@ -8,19 +8,46 @@ struct CardEditorView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
 
+    private let isEmbedded: Bool
+    private let onSaveComplete: (() -> Void)?
     @State private var viewModel: CardEditorViewModel
 
-    init(affirmation: Affirmation, existingCustomization: CardCustomization?) {
+    init(
+        affirmation: Affirmation, 
+        existingCustomization: CardCustomization?, 
+        isCreatingNew: Bool = false,
+        isEmbedded: Bool = false,
+        onSaveComplete: (() -> Void)? = nil
+    ) {
+        self.isEmbedded = isEmbedded
+        self.onSaveComplete = onSaveComplete
         _viewModel = State(
             initialValue: CardEditorViewModel(
                 affirmation: affirmation,
-                existingCustomization: existingCustomization
+                existingCustomization: existingCustomization,
+                isCreatingNew: isCreatingNew
             )
         )
     }
 
     var body: some View {
-        NavigationStack {
+        Group {
+            if isEmbedded {
+                content
+            } else {
+                NavigationStack {
+                    content
+                        .toolbar {
+                            ToolbarItem(placement: .cancellationAction) {
+                                Button("Cancel") { dismiss() }
+                            }
+                        }
+                }
+            }
+        }
+    }
+
+    private var content: some View {
             ScrollView {
                 VStack(spacing: LumenTheme.Spacing.lg) {
                     previewCard
@@ -41,15 +68,11 @@ struct CardEditorView: View {
             .ambientBackground()
             .navigationTitle("Customize Card")
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
-                }
-            }
             .task {
-                viewModel.loadSavedBackgrounds()
+                await viewModel.loadSavedBackgrounds()
                 await viewModel.checkAIModelStatus()
                 await viewModel.generatePreview()
+                await viewModel.loadSuggestions(modelContext: modelContext)
             }
             .onChange(of: viewModel.selectedStyle) { _, _ in
                 Task { await viewModel.generatePreview() }
@@ -60,7 +83,17 @@ struct CardEditorView: View {
             .onChange(of: viewModel.backgroundSeed) { _, _ in
                 Task { await viewModel.generatePreview() }
             }
-        }
+            .alert(
+                "general.error".localized,
+                isPresented: Binding(
+                    get: { viewModel.errorMessage != nil },
+                    set: { if !$0 { viewModel.errorMessage = nil } }
+                )
+            ) {
+                Button("general.ok".localized) { viewModel.errorMessage = nil }
+            } message: {
+                Text(viewModel.errorMessage ?? "")
+            }
     }
 
     // MARK: - Preview Card
@@ -226,11 +259,7 @@ struct CardEditorView: View {
 
     private var aiBackgroundSection: some View {
         VStack(spacing: LumenTheme.Spacing.lg) {
-            // Model status banner
-            aiModelBanner
-
-            if viewModel.isModelReady {
-                // Category picker
+            // Category picker
                 VStack(alignment: .leading, spacing: LumenTheme.Spacing.sm) {
                     sectionHeader("Style", icon: "sparkles")
 
@@ -345,79 +374,6 @@ struct CardEditorView: View {
                 .accessibilityLabel("Generate AI background")
 
                 shuffleButton
-            }
-        }
-    }
-
-    // MARK: - AI Model Banner
-
-    private var aiModelBanner: some View {
-        VStack(spacing: LumenTheme.Spacing.sm) {
-            HStack(spacing: LumenTheme.Spacing.sm) {
-                Image(systemName: aiModelIcon)
-                    .foregroundStyle(aiModelIconColor)
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("AI Model")
-                        .font(.subheadline.weight(.semibold))
-                    Text(viewModel.aiLoadState.statusText)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-                Spacer()
-                aiModelAction
-            }
-
-            if let progress = viewModel.aiLoadState.progress, progress > 0 {
-                ProgressView(value: progress)
-                    .tint(LumenTheme.Colors.primary)
-            } else if viewModel.aiLoadState.isWorking {
-                ProgressView()
-                    .progressViewStyle(.linear)
-                    .tint(LumenTheme.Colors.primary)
-            }
-        }
-        .padding(LumenTheme.Spacing.md)
-        .background(
-            RoundedRectangle(cornerRadius: LumenTheme.Radii.card)
-                .fill(LumenTheme.Colors.glassBackground)
-                .overlay(
-                    RoundedRectangle(cornerRadius: LumenTheme.Radii.card)
-                        .strokeBorder(LumenTheme.Colors.glassBorder, lineWidth: 0.5)
-                )
-        )
-    }
-
-    private var aiModelIcon: String {
-        switch viewModel.aiLoadState {
-        case .ready: "checkmark.circle.fill"
-        case .failed: "exclamationmark.triangle.fill"
-        default: "cpu"
-        }
-    }
-
-    private var aiModelIconColor: Color {
-        switch viewModel.aiLoadState {
-        case .ready: .green
-        case .failed: .red
-        default: .orange
-        }
-    }
-
-    @ViewBuilder
-    private var aiModelAction: some View {
-        switch viewModel.aiLoadState {
-        case .idle, .failed:
-            Button("Load") {
-                Task { await viewModel.loadAIModel() }
-            }
-            .font(.subheadline.weight(.medium))
-            .buttonStyle(.bordered)
-        case .ready:
-            Image(systemName: "checkmark")
-                .foregroundStyle(.green)
-                .font(.subheadline.weight(.semibold))
-        default:
-            EmptyView()
         }
     }
 
@@ -483,7 +439,50 @@ struct CardEditorView: View {
                         viewModel.customText.count > 180 ? .orange : .secondary
                     )
             }
+
+            if viewModel.isCreatingNew && !viewModel.suggestions.isEmpty {
+                suggestionsSection
+            }
         }
+    }
+
+    // MARK: - ML Suggestions Section
+
+    private var suggestionsSection: some View {
+        VStack(alignment: .leading, spacing: LumenTheme.Spacing.sm) {
+            HStack {
+                Image(systemName: "sparkles")
+                    .foregroundStyle(.purple)
+                Text("Inspired by your favorites")
+                    .font(.headline)
+            }
+
+            ForEach(viewModel.suggestions, id: \.self) { suggestion in
+                Button {
+                    withAnimation {
+                        viewModel.customText = suggestion
+                    }
+                } label: {
+                    HStack {
+                        Text(suggestion)
+                            .font(.subheadline)
+                            .foregroundStyle(.primary)
+                            .multilineTextAlignment(.leading)
+                            .lineLimit(3)
+                        Spacer()
+                        Image(systemName: "arrow.up.left")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    .padding(12)
+                    .background(
+                        RoundedRectangle(cornerRadius: LumenTheme.Radii.sm)
+                            .fill(LumenTheme.Colors.glassBackground)
+                    )
+                }
+            }
+        }
+        .padding(.top, LumenTheme.Spacing.sm)
     }
 
     // MARK: - Action Bar
@@ -508,7 +507,11 @@ struct CardEditorView: View {
 
             Button {
                 try? viewModel.save(modelContext: modelContext)
-                dismiss()
+                if let onSaveComplete = onSaveComplete {
+                    onSaveComplete()
+                } else {
+                    dismiss()
+                }
             } label: {
                 Text("Save")
                     .font(.body.weight(.semibold))

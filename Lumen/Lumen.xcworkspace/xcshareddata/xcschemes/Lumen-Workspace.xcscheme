@@ -224,20 +224,6 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "09C6A9BD73DF33739BF62BC3"
-               BuildableName = "StableDiffusion.framework"
-               BlueprintName = "StableDiffusion"
-               ReferencedContainer = "container:Tuist/.build/tuist-derived/stable-diffusion/stable-diffusion.xcodeproj">
-            </BuildableReference>
-         </BuildActionEntry>
-         <BuildActionEntry
-            buildForTesting = "YES"
-            buildForRunning = "YES"
-            buildForProfiling = "YES"
-            buildForArchiving = "YES"
-            buildForAnalyzing = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
                BlueprintIdentifier = "6D1BFFAE456610AE81A4206D"
                BuildableName = "XCTestDynamicOverlay.framework"
                BlueprintName = "XCTestDynamicOverlay"

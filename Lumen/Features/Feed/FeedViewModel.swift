@@ -44,6 +44,8 @@ final class FeedViewModel {
     // MARK: - Actions
 
     func loadFeed(preferences: UserPreferences, isPremium: Bool, modelContext: ModelContext) async {
+        guard cards.isEmpty else { return }
+
         // Only show loading spinner on first load (no existing cards)
         let isFirstLoad = cards.isEmpty
         if isFirstLoad { isLoading = true }
@@ -243,6 +245,9 @@ final class FeedViewModel {
             let insertIndex = min(currentIndex + 1, cards.count)
             cards.insert(newest, at: insertIndex)
             currentIndex = insertIndex
+            
+            // Reload customizations to ensure newly created typography/backgrounds apply
+            reloadCustomizations(modelContext: modelContext)
         } catch {
             logger.error("Failed to insert user affirmation: \(error.localizedDescription)")
         }

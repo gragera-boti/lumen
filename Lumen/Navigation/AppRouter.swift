@@ -56,7 +56,6 @@ enum AppDestination: Hashable {
     case subscription
     case privacyData
     case crisis
-    case themeGenerator
     case themeGallery
     case history
 }

@@ -18,24 +18,20 @@ final class ThemeGeneratorViewModel {
     /// Unified loading state — one source of truth
     enum AILoadState: Equatable {
         case idle
-        case downloading(progress: Double)
-        case loadingModel(phase: String, progress: Double)
         case ready
         case generating(promptName: String, step: Int, totalSteps: Int)
         case failed(String)
 
         var isWorking: Bool {
             switch self {
-            case .downloading, .loadingModel, .generating: true
+            case .generating: true
             default: false
             }
         }
 
         var statusText: String {
             switch self {
-            case .idle: "Tap Load to download the AI model"
-            case .downloading(let p): "Downloading AI model… \(Int(p * 100))%"
-            case .loadingModel(let phase, _): phase
+            case .idle: "Ready to generate"
             case .ready: "AI model ready"
             case .generating(let name, let step, let total):
                 step > 0 ? "Generating \"\(name)\"… Step \(step)/\(total)" : "Generating \"\(name)\"…"
@@ -45,8 +41,6 @@ final class ThemeGeneratorViewModel {
 
         var progress: Double? {
             switch self {
-            case .downloading(let p): p
-            case .loadingModel(_, let p): p
             case .generating(_, let step, let total) where total > 0:
                 Double(step) / Double(total)
             default: nil
@@ -158,40 +152,8 @@ final class ThemeGeneratorViewModel {
     // MARK: - AI Model Loading
 
     func loadAIModel() async {
-        guard !aiLoadState.isWorking else { return }
-
-        beginBackgroundTask()
-        defer { endBackgroundTask() }
-
-        // Wire up download progress for ODR
-        await aiGenerator.setDownloadProgressHandler { [weak self] progress in
-            Task { @MainActor [weak self] in
-                self?.aiLoadState = .downloading(progress: progress)
-            }
-        }
-
-        // Wire up load phase progress
-        await aiGenerator.setLoadPhaseHandler { [weak self] phase, progress in
-            Task { @MainActor [weak self] in
-                self?.aiLoadState = .loadingModel(phase: phase, progress: progress)
-            }
-        }
-
-        aiLoadState = .loadingModel(phase: "Preparing…", progress: 0)
-
-        do {
-            try await aiGenerator.loadModel()
-            aiLoadState = .ready
-            logger.info("AI model loaded successfully")
-        } catch {
-            logger.error("AI model load failed: \(error)")
-            let desc = String(describing: error)
-            aiLoadState = .failed("Load failed: \(desc.prefix(150))")
-            errorMessage = "AI model error: \(desc.prefix(200))"
-        }
-
-        await aiGenerator.setDownloadProgressHandler(nil)
-        await aiGenerator.setLoadPhaseHandler(nil)
+        // No longer needed for API generation, assume immediately ready
+        aiLoadState = .ready
     }
 
     // MARK: - AI Generation

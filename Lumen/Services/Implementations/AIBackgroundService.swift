@@ -1,7 +1,5 @@
 import CoreImage
-import CoreML
 import OSLog
-import StableDiffusion
 import UIKit
 
 /// On-device AI background generator using Core ML Stable Diffusion.
@@ -20,14 +18,12 @@ actor AIBackgroundService: AIBackgroundServiceProtocol {
 
     private let logger = Logger(subsystem: "com.gragera.lumen", category: "AIBackground")
 
-    private var pipeline: StableDiffusionPipeline?
-    private var isLoading = false
     private var currentTask: Task<GeneratedBackground, Error>?
 
     // MARK: - Model Lifecycle
 
     func isModelReady() async -> Bool {
-        pipeline != nil
+        true // Always ready since we're using an API
     }
 
     /// Progress callback for ODR download (0.0–1.0), observed from ViewModel
@@ -48,190 +44,17 @@ actor AIBackgroundService: AIBackgroundServiceProtocol {
         _loadPhaseHandler = handler
     }
 
-    private var downloadProgressHandler: (@Sendable (Double) -> Void)? {
-        _downloadProgressHandler
-    }
-
-    private var stepProgressHandler: (@Sendable (Int, Int) -> Void)? {
-        _stepProgressHandler
-    }
-
-    private var loadPhaseHandler: (@Sendable (String, Double) -> Void)? {
-        _loadPhaseHandler
-    }
-
     func loadModel() async throws {
-        guard pipeline == nil, !isLoading else { return }
-        isLoading = true
-        defer { isLoading = false }
-
-        logger.info("Loading Stable Diffusion model…")
-
-        // Resolve model URL — bundled in Debug, ODR in Release
-        let modelURL = try await resolveModelResources()
-
-        let config = MLModelConfiguration()
-        config.computeUnits = .cpuAndNeuralEngine
-
-        do {
-            logger.info("Creating pipeline from: \(modelURL.path)")
-
-            // List what's in the model directory
-            let contents = (try? FileManager.default.contentsOfDirectory(atPath: modelURL.path)) ?? []
-            logger.info(
-                "Model directory contents (\(contents.count) items): \(contents.filter { $0.hasSuffix(".mlmodelc") || $0.hasSuffix(".json") || $0.hasSuffix(".txt") }.joined(separator: ", "))"
-            )
-
-            // Check available memory before loading
-            let memInfo = ProcessInfo.processInfo.physicalMemory
-            let taskInfo = mach_task_self_
-            var info = task_vm_info_data_t()
-            var count = mach_msg_type_number_t(MemoryLayout<task_vm_info_data_t>.size / MemoryLayout<natural_t>.size)
-            let kr = withUnsafeMutablePointer(to: &info) { ptr in
-                ptr.withMemoryRebound(to: integer_t.self, capacity: Int(count)) { intPtr in
-                    task_info(taskInfo, task_flavor_t(TASK_VM_INFO), intPtr, &count)
-                }
-            }
-            if kr == KERN_SUCCESS {
-                let usedMB = info.phys_footprint / (1024 * 1024)
-                let totalMB = memInfo / (1024 * 1024)
-                logger.info("Memory before model load: \(usedMB)MB used / \(totalMB)MB total")
-            }
-
-            let phaseHandler = self.loadPhaseHandler
-
-            phaseHandler?("Creating pipeline…", 0.05)
-            let pipe = try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<StableDiffusionPipeline, Error>) in
-                DispatchQueue.global(qos: .userInitiated).async {
-                    do {
-                        let p = try StableDiffusionPipeline(
-                            resourcesAt: modelURL,
-                            controlNet: [],
-                            configuration: config,
-                            disableSafety: true,
-                            reduceMemory: true
-                        )
-                        continuation.resume(returning: p)
-                    } catch {
-                        continuation.resume(throwing: error)
-                    }
-                }
-            }
-
-            logger.info("Pipeline created, loading resources…")
-
-            // loadResources() loads TextEncoder + Unet + Decoder sequentially.
-            // We can't get per-model progress from the public API, but we signal
-            // a "Loading models…" phase so the UI shows an indeterminate bar
-            // with a descriptive message instead of appearing stuck.
-            phaseHandler?("Loading AI models (this takes a moment the first time)…", 0.1)
-            // loadResources() is synchronous and CPU-heavy — run off the cooperative pool
-            // to avoid starving other Swift concurrency tasks
-            try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
-                DispatchQueue.global(qos: .userInitiated).async {
-                    do {
-                        try pipe.loadResources()
-                        continuation.resume()
-                    } catch {
-                        continuation.resume(throwing: error)
-                    }
-                }
-            }
-
-            phaseHandler?("Ready", 1.0)
-            self.pipeline = pipe
-            logger.info("All model resources loaded successfully")
-        } catch {
-            logger.error("Model load failed: \(error)")
-            logger.error("Model load error description: \(error.localizedDescription)")
-            throw AIBackgroundError.modelLoadFailed(error.localizedDescription)
-        }
-    }
-
-    // MARK: - Resource Resolution (Bundle vs ODR)
-
-    private func resolveModelResources() async throws -> URL {
-        // Try named subdirectory first
-        if let bundleURL = Bundle.main.url(forResource: "CoreMLStableDiffusion", withExtension: nil) {
-            logger.info("Model found in bundle subdirectory")
-            return bundleURL
-        }
-
-        // Try bundle root (XcodeGen flattens resources)
-        if Bundle.main.url(forResource: "Unet", withExtension: "mlmodelc") != nil {
-            logger.info("Model found at bundle root")
-            return Bundle.main.bundleURL
-        }
-
-        // Fall back to On-Demand Resource request (Release builds)
-        logger.info("Model not in bundle, requesting via On-Demand Resources…")
-        return try await requestODRResources()
-    }
-
-    private var odrRequest: NSBundleResourceRequest?
-
-    private func requestODRResources() async throws -> URL {
-        let request = NSBundleResourceRequest(tags: ["ai-model"])
-        self.odrRequest = request  // retain to keep resources available
-
-        // Check if already available
-        let isAvailable = await request.conditionallyBeginAccessingResources()
-        if isAvailable {
-            logger.info("ODR resources already cached")
-            return resolveModelURL(in: request.bundle)
-        }
-
-        // Download with progress
-        logger.info("Downloading AI model via ODR…")
-        downloadProgressHandler?(0.0)
-
-        // Capture handler outside actor isolation for KVO callback
-        let handler = downloadProgressHandler
-
-        // Observe progress
-        let observation = request.progress.observe(\.fractionCompleted) { progress, _ in
-            let fraction = progress.fractionCompleted
-            handler?(fraction)
-        }
-
-        do {
-            try await request.beginAccessingResources()
-            observation.invalidate()
-            handler?(1.0)
-            logger.info("ODR download complete")
-            return resolveModelURL(in: request.bundle)
-        } catch {
-            observation.invalidate()
-            handler?(0.0)
-            logger.error("ODR download failed: \(error.localizedDescription)")
-            throw AIBackgroundError.modelLoadFailed("Failed to download AI model: \(error.localizedDescription)")
-        }
-    }
-
-    private func resolveModelURL(in bundle: Bundle) -> URL {
-        // ODR resources land in the bundle, find the directory
-        if let url = bundle.url(forResource: "CoreMLStableDiffusion", withExtension: nil) {
-            return url
-        }
-        // Fallback: search for Unet.mlmodelc and use its parent
-        if let unetURL = bundle.url(forResource: "Unet", withExtension: "mlmodelc") {
-            return unetURL.deletingLastPathComponent()
-        }
-        return bundle.bundleURL
+        // No-op for API
     }
 
     func unloadModel() async {
-        pipeline = nil
         logger.info("Model unloaded")
     }
 
     // MARK: - Generation
 
     func generate(request: AIBackgroundRequest) async throws -> GeneratedBackground {
-        guard let pipe = pipeline else {
-            throw AIBackgroundError.modelNotLoaded
-        }
-
         let task = Task<GeneratedBackground, Error> {
             try Task.checkCancellation()
 
@@ -239,38 +62,73 @@ actor AIBackgroundService: AIBackgroundServiceProtocol {
             let seed = request.seed ?? UInt32.random(in: 0...UInt32.max)
 
             logger.info(
-                "Generating AI background: '\(request.prompt.displayName)', seed=\(seed), steps=\(request.stepCount)"
+                "Generating AI background: '\(request.prompt.displayName)', seed=\(seed)"
             )
 
-            var pipelineConfig = StableDiffusionPipeline.Configuration(prompt: request.prompt.prompt)
-            pipelineConfig.negativePrompt = request.prompt.negativePrompt
-            pipelineConfig.seed = seed
-            pipelineConfig.stepCount = request.stepCount
-            pipelineConfig.guidanceScale = 7.5
-            pipelineConfig.schedulerType = .dpmSolverMultistepScheduler
-
-            let stepHandler = self.stepProgressHandler
-            // Signal step 0 to indicate we're about to start (models will lazy-load)
-            self.logger.info("Starting generation — models will lazy-load on first use")
-            stepHandler?(0, request.stepCount)
-
-            let images = try pipe.generateImages(configuration: pipelineConfig) { progress in
-                // step is 0-indexed from the library, add 1 for display
-                let displayStep = progress.step + 1
-                self.logger.info("Generation step \(displayStep)/\(progress.stepCount)")
-                stepHandler?(displayStep, progress.stepCount)
-                return !Task.isCancelled
+            // Make sure the step handler gets called at least to give UI feedback
+            _stepProgressHandler?(0, request.stepCount)
+            
+            // Prepare prompt and hit Pollinations API
+            // Prepare prompt and POST request for Together AI FLUX.1
+            let rawPrompt = request.prompt.prompt
+            let promptHint = "\(rawPrompt), 9:16 vertical poster background, no text, no words"
+            
+            guard let url = URL(string: "https://api.together.xyz/v1/images/generations") else {
+                throw AIBackgroundError.generationFailed("Invalid API URL")
             }
+            
+            var requestURL = URLRequest(url: url)
+            requestURL.httpMethod = "POST"
+            requestURL.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            requestURL.setValue("Bearer \(APIKeys.togetherAI)", forHTTPHeaderField: "Authorization")
+            
+            let jsonPayload: [String: Any] = [
+                "model": "black-forest-labs/FLUX.1-schnell",
+                "prompt": promptHint,
+                "width": 768,
+                "height": 1344,
+                "steps": 4,
+                "n": 1,
+                "response_format": "b64_json"
+            ]
+            
+            requestURL.httpBody = try? JSONSerialization.data(withJSONObject: jsonPayload)
+            
+            // Fetch the image
+            let (data, response) = try await URLSession.shared.data(for: requestURL)
+            guard let httpResponse = response as? HTTPURLResponse else {
+                throw AIBackgroundError.generationFailed("Invalid response from API")
+            }
+            
+            guard httpResponse.statusCode == 200 else {
+                let errorBody = String(data: data, encoding: .utf8) ?? ""
+                throw AIBackgroundError.generationFailed("Together API returned \(httpResponse.statusCode): \(errorBody)")
+            }
+
+            // Parse JSON to get the Base64 image
+            guard let jsonResponse = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+                  let dataArray = jsonResponse["data"] as? [[String: Any]],
+                  let firstResult = dataArray.first,
+                  let b64String = firstResult["b64_json"] as? String else {
+                throw AIBackgroundError.generationFailed("Failed to parse Base64 image from Together response")
+            }
+            
+            guard let imageData = Data(base64Encoded: b64String) else {
+                throw AIBackgroundError.generationFailed("Failed to decode Base64 image data")
+            }
+            
+            guard let downloadedImage = UIImage(data: imageData),
+                  let cgImage = downloadedImage.cgImage else {
+                throw AIBackgroundError.generationFailed("Failed to create image from decoded data")
+            }
+            
+            _stepProgressHandler?(request.stepCount, request.stepCount)
 
             try Task.checkCancellation()
 
-            guard let cgImage = images.first, let unwrapped = cgImage else {
-                throw AIBackgroundError.generationFailed("No image produced")
-            }
-
-            // Upscale from 512×512 to device resolution
+            // Upscale or just process to native device size
             let nativeSize = request.device.nativeSize
-            let upscaledImage = upscale(cgImage: unwrapped, to: nativeSize)
+            let upscaledImage = upscale(cgImage: cgImage, to: nativeSize)
 
             let durationMs = Int((CFAbsoluteTimeGetCurrent() - startTime) * 1000)
 
@@ -278,7 +136,7 @@ actor AIBackgroundService: AIBackgroundServiceProtocol {
             let themeId = "ai_\(UUID().uuidString.prefix(8))"
             let (imagePath, thumbPath) = try saveToDisk(
                 image: upscaledImage,
-                thumbnail: UIImage(cgImage: unwrapped),
+                thumbnail: UIImage(cgImage: cgImage),
                 themeId: themeId
             )
 
@@ -287,7 +145,7 @@ actor AIBackgroundService: AIBackgroundServiceProtocol {
                 palette: request.prompt.id,
                 mood: request.prompt.category.rawValue,
                 seed: seed,
-                complexity: Float(request.stepCount) / 20.0,
+                complexity: 0.5,
                 width: Int(nativeSize.width),
                 height: Int(nativeSize.height),
                 durationMs: durationMs
@@ -295,12 +153,17 @@ actor AIBackgroundService: AIBackgroundServiceProtocol {
 
             logger.info("AI background generated: \(themeId) in \(durationMs)ms")
 
-            return GeneratedBackground(
+            let generatedBackground = GeneratedBackground(
                 themeId: themeId,
                 imagePath: imagePath,
                 thumbnailPath: thumbPath,
                 metadata: metadata
             )
+
+            // Save to manifest so it appears in AI History
+            try saveManifest([generatedBackground])
+
+            return generatedBackground
         }
 
         currentTask = task
