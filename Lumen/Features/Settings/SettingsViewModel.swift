@@ -70,7 +70,7 @@ final class SettingsViewModel {
         cloudSyncService.setSyncEnabled(enabled)
         isCloudSyncEnabled = enabled
         if enabled {
-            cloudSyncStatusText = "iCloud sync enabled — syncs on next launch"
+            cloudSyncStatusText = "iCloud sync enabled — syncing now"
         } else {
             cloudSyncStatusText = CloudSyncStatus.disabled.displayText
         }

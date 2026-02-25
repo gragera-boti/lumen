@@ -83,7 +83,10 @@ final class ContentService: ContentServiceProtocol {
 
             for catId in ba.categoryIds {
                 if let category = categoryMap[catId] {
-                    affirmation.categories.append(category)
+                    if affirmation.categories == nil {
+                        affirmation.categories = []
+                    }
+                    affirmation.categories?.append(category)
                 }
             }
         }

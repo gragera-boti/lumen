@@ -3,11 +3,11 @@ import SwiftData
 
 @Model
 final class EntitlementState {
-    @Attribute(.unique) var id: Int = 1
-    var isPremium: Bool
+    var id: Int = 1
+    var isPremium: Bool = false
     var productId: String?
     var expiresAt: Date?
-    var updatedAt: Date
+    var updatedAt: Date = Date.now
 
     init(
         isPremium: Bool = false,

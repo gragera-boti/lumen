@@ -4,7 +4,7 @@ import SwiftData
 @Model
 final class Favorite {
     var affirmation: Affirmation?
-    var favoritedAt: Date
+    var favoritedAt: Date = Date.now
 
     init(affirmation: Affirmation, favoritedAt: Date = .now) {
         self.affirmation = affirmation

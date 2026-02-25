@@ -221,8 +221,8 @@ struct FavoriteRow: View {
                         .lineLimit(2)
                 }
 
-                if !affirmation.categories.isEmpty {
-                    Text(affirmation.categories.map(\.name).joined(separator: ", "))
+                if !(affirmation.categories?.isEmpty ?? true) {
+                    Text(affirmation.categories?.map(\.name).joined(separator: ", ") ?? "")
                         .font(.caption)
                         .foregroundStyle(.white.opacity(0.45))
                 } else if isUserCreated, let fontStyle = affirmation.fontStyle,

@@ -13,6 +13,7 @@ let baseSettings: SettingsDictionary = [
     "ENABLE_USER_SCRIPT_SANDBOXING": "YES",
     "DEVELOPMENT_TEAM": .string(teamId),
     "CODE_SIGN_STYLE": "Automatic",
+    "CODE_SIGN_ALLOW_ENTITLEMENTS_MODIFICATION": "YES",
 ]
 
 // MARK: - Project
@@ -35,6 +36,7 @@ let project = Project(
             infoPlist: .extendingDefault(with: [
                 "CFBundleDisplayName": "Lumen",
                 "UILaunchScreen": [:],
+                "UIBackgroundModes": ["remote-notification"],
                 "UIAppFonts": [
                     "AbrilFatface-Regular.ttf",
                     "Caveat.ttf",
@@ -60,7 +62,13 @@ let project = Project(
             resources: [
                 .glob(pattern: "Resources/**"),
             ],
-            entitlements: .file(path: "Lumen.entitlements"),
+            entitlements: .dictionary([
+                "aps-environment": "development",
+                "com.apple.developer.icloud-container-environment": "Development",
+                "com.apple.developer.icloud-services": ["CloudKit"],
+                "com.apple.developer.icloud-container-identifiers": ["iCloud.\(bundleIdPrefix).lumen"],
+                "com.apple.security.application-groups": ["group.\(bundleIdPrefix).lumen"]
+            ]),
             dependencies: [
                 .target(name: "LumenWidgets"),
                 .external(name: "RevenueCat"),

@@ -91,9 +91,9 @@ struct AffirmationDetailView: View {
                     .padding(.horizontal, LumenTheme.Spacing.xl)
                     .accessibilityAddTraits(.isHeader)
 
-                if !affirmation.categories.isEmpty {
+                if !(affirmation.categories?.isEmpty ?? true) {
                     HStack(spacing: LumenTheme.Spacing.xs) {
-                        ForEach(affirmation.categories, id: \.id) { category in
+                        ForEach(affirmation.categories ?? [], id: \.id) { category in
                             Text(category.name)
                                 .font(.caption)
                                 .foregroundStyle(.white.opacity(0.8))

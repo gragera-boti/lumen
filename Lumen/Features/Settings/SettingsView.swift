@@ -14,7 +14,7 @@ struct SettingsView: View {
                 remindersSection(prefs)
                 appearanceSection
                 subscriptionSection
-                // cloudSyncSection — hidden until CloudKit container is configured in ASC
+                cloudSyncSection
                 historySection
                 helpSection
                 developerSection
@@ -120,7 +120,6 @@ struct SettingsView: View {
         }
     }
 
-    // periphery:ignore - hidden until CloudKit container is configured
     private var cloudSyncSection: some View {
         Section {
             HStack {

@@ -3,29 +3,29 @@ import SwiftData
 
 @Model
 final class Affirmation {
-    @Attribute(.unique) var id: String
-    var locale: String
-    var text: String
-    var tone: Tone
-    var intensity: Intensity
-    var isAbsolute: Bool
-    var isSensitiveTopic: Bool
-    var isPremium: Bool
-    var source: AffirmationSource
-    var tags: [String]
-    var createdAt: Date
-    var updatedAt: Date
+    var id: String = ""
+    var locale: String = "en-GB"
+    var text: String = ""
+    var tone: Tone = Tone.gentle
+    var intensity: Intensity = Intensity.low
+    var isAbsolute: Bool = false
+    var isSensitiveTopic: Bool = false
+    var isPremium: Bool = false
+    var source: AffirmationSource = AffirmationSource.curated
+    var tags: [String] = []
+    var createdAt: Date = Date.now
+    var updatedAt: Date = Date.now
 
     /// Optional font style for user-created affirmations (e.g. "serif", "rounded", "handwritten").
     var fontStyle: String?
 
-    var categories: [Category]
+    var categories: [Category]?
 
     @Relationship(deleteRule: .cascade, inverse: \Favorite.affirmation)
     var favorite: Favorite?
 
     @Relationship(deleteRule: .cascade, inverse: \SeenEvent.affirmation)
-    var seenEvents: [SeenEvent]
+    var seenEvents: [SeenEvent]?
 
     @Relationship(deleteRule: .cascade, inverse: \Dislike.affirmation)
     var dislike: Dislike?

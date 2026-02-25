@@ -342,6 +342,7 @@
 		7971A5410CB663B9078861D4 /* FavoritesViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoritesViewModelTests.swift; sourceTree = "<group>"; };
 		7BAE51957F483717ED71CC80 /* ThemesSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemesSettingsView.swift; sourceTree = "<group>"; };
 		7C429C410688C39C6892A6E7 /* CardCustomization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardCustomization.swift; sourceTree = "<group>"; };
+		7D1E4B27AF24063BEC894280 /* Lumen.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Lumen.entitlements; sourceTree = "<group>"; };
 		81100947B0F294C702327868 /* FavoriteServiceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoriteServiceProtocol.swift; sourceTree = "<group>"; };
 		81F31C90F5519FF4AD996621 /* ExploreViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExploreViewModel.swift; sourceTree = "<group>"; };
 		82F5AE7BC4BDBCBBED957B9E /* PrivacyDataView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivacyDataView.swift; sourceTree = "<group>"; };
@@ -414,7 +415,6 @@
 		E8D0850EF4D053E2993133D2 /* AIBackgroundService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIBackgroundService.swift; sourceTree = "<group>"; };
 		ECC6F5C1428BB725A943CF29 /* CardCustomizationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardCustomizationService.swift; sourceTree = "<group>"; };
 		F3A594120AC482F3D2504C3C /* FavoritesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoritesViewModel.swift; sourceTree = "<group>"; };
-		F3FF81EC0DB5A92261968C6C /* Lumen.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Lumen.entitlements; sourceTree = "<group>"; };
 		F59A42990A7C7E9C84C77D2E /* Logger+Lumen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Logger+Lumen.swift"; sourceTree = "<group>"; };
 		F61E1325C200BF3AB0252A39 /* NotificationServiceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationServiceProtocol.swift; sourceTree = "<group>"; };
 		FA968950EF0C0AB6A694B0AA /* Lumen.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Lumen.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -481,7 +481,6 @@
 				9D1C0BF56588F02C7C114BA4 /* Services */,
 				B96EDB6FF41EA971D3E6366F /* Tests */,
 				9B3AFBFFA7CE2F58EA81FEEC /* Theme */,
-				F3FF81EC0DB5A92261968C6C /* Lumen.entitlements */,
 			);
 			name = Project;
 			sourceTree = "<group>";
@@ -649,6 +648,14 @@
 			path = LumenWidgets;
 			sourceTree = "<group>";
 		};
+		59DB38863D34562BD074C7A4 /* Entitlements */ = {
+			isa = PBXGroup;
+			children = (
+				7D1E4B27AF24063BEC894280 /* Lumen.entitlements */,
+			);
+			path = Entitlements;
+			sourceTree = "<group>";
+		};
 		5BA4BE1272FC631C78EF427C /* Paywall */ = {
 			isa = PBXGroup;
 			children = (
@@ -750,6 +757,7 @@
 		7CE8FCCB7EE7390E4FBE1C84 /* Derived */ = {
 			isa = PBXGroup;
 			children = (
+				59DB38863D34562BD074C7A4 /* Entitlements */,
 				D9D4FE881557148A7B81FBCE /* InfoPlists */,
 				E9D0E206E5B9A41F6498B73F /* Sources */,
 			);
@@ -1388,6 +1396,7 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_ALLOW_ENTITLEMENTS_MODIFICATION = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
 				DEAD_CODE_STRIPPING = YES;
@@ -1447,7 +1456,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = Lumen.entitlements;
+				CODE_SIGN_ENTITLEMENTS = Derived/Entitlements/Lumen.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = "Derived/InfoPlists/Lumen-Info.plist";
@@ -1603,6 +1612,7 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_ALLOW_ENTITLEMENTS_MODIFICATION = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
 				DEAD_CODE_STRIPPING = YES;
@@ -1665,7 +1675,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = Lumen.entitlements;
+				CODE_SIGN_ENTITLEMENTS = Derived/Entitlements/Lumen.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = "Derived/InfoPlists/Lumen-Info.plist";

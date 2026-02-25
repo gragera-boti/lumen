@@ -59,7 +59,7 @@ struct FeedService: FeedServiceProtocol {
         let includeSpiritual = preferences.contentFilters.spiritual
 
         let candidates = allAffirmations.filter { affirmation in
-            let hasMatchingCategory = affirmation.categories.contains { selectedIds.contains($0.id) }
+            let hasMatchingCategory = affirmation.categories?.contains { selectedIds.contains($0.id) } ?? false
             guard hasMatchingCategory else { return false }
             guard !recentSeenIds.contains(affirmation.id) else { return false }
             guard !dislikedIds.contains(affirmation.id) else { return false }
@@ -157,7 +157,7 @@ struct FeedService: FeedServiceProtocol {
         let allAffirmations = try modelContext.fetch(FetchDescriptor<Affirmation>())
 
         return allAffirmations.filter { affirmation in
-            let hasMatchingCategory = affirmation.categories.contains { selectedIds.contains($0.id) }
+            let hasMatchingCategory = affirmation.categories?.contains { selectedIds.contains($0.id) } ?? false
             guard hasMatchingCategory else { return false }
             guard !recentSeenIds.contains(affirmation.id) else { return false }
             guard !dislikedIds.contains(affirmation.id) else { return false }
@@ -185,7 +185,7 @@ struct FeedService: FeedServiceProtocol {
 
         // Relaxed: ignore seen/disliked history, but still respect content safety filters
         let relaxed = allAffirmations.filter { aff in
-            let hasMatchingCategory = aff.categories.contains { selectedIds.contains($0.id) }
+            let hasMatchingCategory = aff.categories?.contains { selectedIds.contains($0.id) } ?? false
             guard hasMatchingCategory else { return false }
             if aff.isSensitiveTopic && !includeSensitive { return false }
             if gentleMode {

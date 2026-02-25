@@ -56,7 +56,7 @@ final class CategoryFeedViewModel {
             let allAffirmations = try modelContext.fetch(descriptor)
 
             cards = allAffirmations.filter { affirmation in
-                let belongsToCategory = affirmation.categories.contains { $0.id == categoryId }
+                let belongsToCategory = affirmation.categories?.contains { $0.id == categoryId } ?? false
                 guard belongsToCategory else { return false }
 
                 if affirmation.isSensitiveTopic && !includeSensitive { return false }

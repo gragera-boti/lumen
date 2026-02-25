@@ -3,19 +3,19 @@ import SwiftData
 
 @Model
 final class UserPreferences {
-    @Attribute(.unique) var id: Int = 1
-    var locale: String
-    var tonePreset: Tone
-    var gentleMode: Bool
-    var selectedCategoryIds: [String]
-    var includeSensitiveTopics: Bool
-    var contentFiltersData: Data
-    var remindersData: Data
-    var voiceData: Data
+    var id: Int = 1
+    var locale: String = "en-GB"
+    var tonePreset: Tone = Tone.gentle
+    var gentleMode: Bool = true
+    var selectedCategoryIds: [String] = []
+    var includeSensitiveTopics: Bool = false
+    var contentFiltersData: Data = Data()
+    var remindersData: Data = Data()
+    var voiceData: Data = Data()
     var themeId: String?
-    var analyticsOptOut: Bool
-    var hasCompletedOnboarding: Bool
-    var updatedAt: Date
+    var analyticsOptOut: Bool = false
+    var hasCompletedOnboarding: Bool = false
+    var updatedAt: Date = Date.now
 
     init(
         locale: String = "en-GB",

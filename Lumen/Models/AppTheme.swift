@@ -4,16 +4,16 @@ import SwiftUI
 
 @Model
 final class AppTheme {
-    @Attribute(.unique) var id: String
-    var name: String
-    var type: ThemeType
-    var isPremium: Bool
-    var dataJSON: String
+    var id: String = ""
+    var name: String = ""
+    var type: ThemeType = ThemeType.curatedImage
+    var isPremium: Bool = false
+    var dataJSON: String = ""
     /// Whether this theme is in the active rotation shown in the feed.
     /// Uses optional to allow lightweight migration from older schema.
     var isActive: Bool?
-    var createdAt: Date
-    var updatedAt: Date
+    var createdAt: Date = Date.now
+    var updatedAt: Date = Date.now
 
     /// Whether this theme participates in feed rotation. Defaults to true for migrated rows.
     var isInRotation: Bool {

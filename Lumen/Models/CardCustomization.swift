@@ -12,10 +12,8 @@ import SwiftData
 /// - `customText` is only settable when the affirmation's source is `.user`.
 @Model
 final class CardCustomization {
-    #Unique<CardCustomization>([\.affirmationId])
-
     /// The ID of the affirmation this customization applies to.
-    var affirmationId: String
+    var affirmationId: String = ""
 
     /// Background style override (`GeneratorStyle` raw value, `nil` = use default).
     var backgroundStyle: String?
@@ -33,7 +31,7 @@ final class CardCustomization {
     var aiPromptId: String?
 
     /// Whether this card uses an AI-generated background instead of procedural.
-    var usesAIBackground: Bool
+    var usesAIBackground: Bool = false
 
     /// ID of a saved theme (from My Backgrounds) applied to this card.
     var savedThemeId: String?
@@ -45,10 +43,10 @@ final class CardCustomization {
     var customText: String?
 
     /// Date this customization was created.
-    var createdAt: Date
+    var createdAt: Date = Date.now
 
     /// Date this customization was last updated.
-    var updatedAt: Date
+    var updatedAt: Date = Date.now
 
     init(
         affirmationId: String,

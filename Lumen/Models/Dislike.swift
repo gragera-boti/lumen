@@ -4,7 +4,7 @@ import SwiftData
 @Model
 final class Dislike {
     var affirmation: Affirmation?
-    var dislikedAt: Date
+    var dislikedAt: Date = Date.now
     var reason: String?
 
     init(affirmation: Affirmation, dislikedAt: Date = .now, reason: String? = nil) {

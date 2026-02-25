@@ -24,7 +24,7 @@ final class HistoryViewModel {
             self.text = seenEvent.affirmation?.text ?? "Unknown"
             self.seenAt = seenEvent.seenAt
             self.source = seenEvent.source
-            self.categoryNames = seenEvent.affirmation?.categories.map(\.name).joined(separator: ", ") ?? ""
+            self.categoryNames = seenEvent.affirmation?.categories?.map(\.name).joined(separator: ", ") ?? ""
         }
     }
 

@@ -3,18 +3,18 @@ import SwiftData
 
 @Model
 final class Category {
-    @Attribute(.unique) var id: String
-    var locale: String
-    var name: String
-    var categoryDescription: String
-    var icon: String
-    var isPremium: Bool
-    var isSensitive: Bool
-    var sortOrder: Int
-    var updatedAt: Date
+    var id: String = ""
+    var locale: String = "en-GB"
+    var name: String = ""
+    var categoryDescription: String = ""
+    var icon: String = "sparkles"
+    var isPremium: Bool = false
+    var isSensitive: Bool = false
+    var sortOrder: Int = 0
+    var updatedAt: Date = Date.now
 
     @Relationship(inverse: \Affirmation.categories)
-    var affirmations: [Affirmation]
+    var affirmations: [Affirmation]?
 
     init(
         id: String,
