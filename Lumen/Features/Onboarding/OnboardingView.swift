@@ -53,50 +53,52 @@ struct OnboardingView: View {
         let viewModel: OnboardingViewModel
 
         var body: some View {
-            VStack(spacing: LumenTheme.Spacing.lg) {
-                Spacer()
+            ZStack {
+                BackgroundVideoView(videoName: "onboarding_background", videoExtension: "mp4")
+                    .ignoresSafeArea()
 
-                Image(systemName: "sparkle")
-                    .font(.system(size: 80))
-                    .foregroundStyle(
-                        LinearGradient(
-                            colors: LumenTheme.Colors.gradients[0],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
+                // Dark gradient overlay to ensure text legibility
+                LinearGradient(
+                    colors: [.black.opacity(0.1), .black.opacity(0.6), .black.opacity(0.9)],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .ignoresSafeArea()
+
+                VStack(spacing: LumenTheme.Spacing.lg) {
+                    Spacer()
+
+                    Image(systemName: "sparkle")
+                        .font(.system(size: 80))
+                        .foregroundStyle(
+                            LinearGradient(
+                                colors: LumenTheme.Colors.gradients[0],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
                         )
-                    )
-                    .shadow(color: LumenTheme.Colors.gradients[0].first?.opacity(0.5) ?? .clear, radius: 12)
-                    .symbolEffect(.pulse)
+                        .shadow(color: LumenTheme.Colors.gradients[0].first?.opacity(0.5) ?? .clear, radius: 12)
+                        .symbolEffect(.pulse)
 
-                Text("onboarding.welcome.headline".localized)
-                    .font(.system(.largeTitle, design: .serif, weight: .bold))
-                    .foregroundStyle(.white)
-
-                Text("onboarding.welcome.subtitle".localized)
-                    .font(.title2)
-                    .foregroundStyle(.white.opacity(0.9))
-                    .multilineTextAlignment(.center)
-
-                Spacer()
-
-                VStack(spacing: LumenTheme.Spacing.sm) {
-                    Text("onboarding.welcome.disclaimer".localized)
-                        .font(.footnote)
-                        .foregroundStyle(.white.opacity(0.7))
+                    Text("onboarding.welcome.headline".localized)
+                        .font(.system(size: 48, weight: .bold, design: .serif))
+                        .foregroundStyle(.white)
                         .multilineTextAlignment(.center)
 
-                    Button("onboarding.welcome.helpButton".localized) {
-                        // Show crisis sheet
-                    }
-                    .font(.footnote.bold())
-                    .foregroundStyle(.white)
-                }
+                    Text("onboarding.welcome.subtitle".localized)
+                        .font(.title3.weight(.medium))
+                        .foregroundStyle(.white.opacity(0.9))
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, LumenTheme.Spacing.lg)
 
-                PrimaryButton(title: "onboarding.welcome.continueButton".localized) {
-                    viewModel.advance()
+                    Spacer()
+
+                    PrimaryButton(title: "onboarding.welcome.continueButton".localized) {
+                        viewModel.advance()
+                    }
+                    .padding(.horizontal, LumenTheme.Spacing.lg)
+                    .padding(.bottom, LumenTheme.Spacing.xxl)
                 }
-                .padding(.horizontal, LumenTheme.Spacing.lg)
-                .padding(.bottom, LumenTheme.Spacing.xxl)
             }
         }
     }
