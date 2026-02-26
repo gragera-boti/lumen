@@ -214,6 +214,7 @@ struct CategoryFeedView: View {
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             indexChange()
+            viewModel.recordSeen(modelContext: modelContext)
 
             withAnimation(.easeInOut(duration: 0.6)) {
                 textOpacity = 1

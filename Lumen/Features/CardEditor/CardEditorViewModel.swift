@@ -90,6 +90,9 @@ final class CardEditorViewModel {
     var savedBackgrounds: [SavedBackgroundItem] = []
     var selectedSavedBackground: SavedBackgroundItem?
     
+    // Paywall trigger
+    var showPaywallPrompt = false
+    
     // ML Suggestions
     var suggestions: [String] = []
     var isLoadingSuggestions = false
@@ -118,6 +121,7 @@ final class CardEditorViewModel {
     @ObservationIgnored @Dependency(\.cardCustomizationService) private var customizationService
     @ObservationIgnored @Dependency(\.backgroundGenerator) private var backgroundGenerator
     @ObservationIgnored @Dependency(\.aiBackgroundService) private var aiGenerator
+    @ObservationIgnored @Dependency(\.entitlementService) private var entitlementService
 
     private let initialMode: BackgroundMode
     private let initialStyle: GeneratorStyle
@@ -394,6 +398,13 @@ final class CardEditorViewModel {
     }
 
     private func generateAIPreview() async {
+        // AI backgrounds are premium-only
+        let isPremium = await entitlementService.isPremium()
+        if !isPremium {
+            showPaywallPrompt = true
+            return
+        }
+
         guard isModelReady else { return }
 
         let prompt = selectedPrompt ?? AIBackgroundPrompt.random(category: selectedPromptCategory)

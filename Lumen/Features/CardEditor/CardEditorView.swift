@@ -7,6 +7,7 @@ import SwiftUI
 struct CardEditorView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
+    @Environment(AppRouter.self) private var router
 
     private let isEmbedded: Bool
     private let onSaveComplete: (() -> Void)?
@@ -93,6 +94,12 @@ struct CardEditorView: View {
                 Button("general.ok".localized) { viewModel.errorMessage = nil }
             } message: {
                 Text(viewModel.errorMessage ?? "")
+            }
+            .onChange(of: viewModel.showPaywallPrompt) { _, show in
+                if show {
+                    router.isShowingPaywall = true
+                    viewModel.showPaywallPrompt = false
+                }
             }
     }
 
@@ -553,5 +560,6 @@ struct CardEditorView: View {
         ),
         existingCustomization: nil
     )
+    .environment(AppRouter())
     .modelContainer(for: [Affirmation.self, CardCustomization.self], inMemory: true)
 }

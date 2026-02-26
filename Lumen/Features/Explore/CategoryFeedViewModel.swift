@@ -26,6 +26,7 @@ final class CategoryFeedViewModel {
     @ObservationIgnored @Dependency(\.favoriteService) private var favoriteService
     @ObservationIgnored @Dependency(\.shareService) private var shareService
     @ObservationIgnored @Dependency(\.cardCustomizationService) private var customizationService
+    @ObservationIgnored @Dependency(\.feedService) private var feedService
     private let logger = Logger(subsystem: "com.gragera.lumen", category: "CategoryFeed")
 
     // MARK: - Actions
@@ -70,6 +71,15 @@ final class CategoryFeedViewModel {
         } catch {
             logger.error("Category feed load error: \(error.localizedDescription)")
             errorMessage = error.localizedDescription
+        }
+    }
+
+    func recordSeen(modelContext: ModelContext) {
+        guard let card = currentCard else { return }
+        do {
+            try feedService.recordSeen(affirmation: card, source: .category, modelContext: modelContext)
+        } catch {
+            logger.error("Record seen error: \(error.localizedDescription)")
         }
     }
 
