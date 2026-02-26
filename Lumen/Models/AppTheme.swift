@@ -4,7 +4,7 @@ import SwiftUI
 
 @Model
 final class AppTheme {
-    var id: String = ""
+    @Attribute(.unique) var id: String = ""
     var name: String = ""
     var type: ThemeType = ThemeType.curatedImage
     var isPremium: Bool = false

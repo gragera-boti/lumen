@@ -3,7 +3,7 @@ import SwiftData
 
 @Model
 final class Affirmation {
-    var id: String = ""
+    @Attribute(.unique) var id: String = ""
     var locale: String = "en-GB"
     var text: String = ""
     var tone: Tone = Tone.gentle

@@ -34,7 +34,8 @@ final class OnboardingViewModel {
 
     func loadCategories(modelContext: ModelContext) {
         do {
-            categories = try contentService.fetchCategories(modelContext: modelContext, locale: "en-GB")
+            let fetchedCategories = try contentService.fetchCategories(modelContext: modelContext, locale: "en-GB")
+            categories = fetchedCategories.filter { !$0.isPremium }
         } catch {
             logger.error("Failed to load categories: \(error.localizedDescription)")
             errorMessage = error.localizedDescription

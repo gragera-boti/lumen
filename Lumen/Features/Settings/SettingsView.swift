@@ -39,6 +39,10 @@ struct SettingsView: View {
 
     private func contentSection(_ prefs: UserPreferences) -> some View {
         Section("settings.content".localized) {
+            NavigationLink(value: AppDestination.manageCategories) {
+                Label("Manage Categories", systemImage: "list.bullet")
+            }
+
             NavigationLink(value: AppDestination.contentFilterSettings) {
                 Label("settings.contentFilters".localized, systemImage: "slider.horizontal.3")
             }
@@ -177,17 +181,13 @@ struct SettingsView: View {
         }
     }
 
-    #if DEBUG
-        private var developerSection: some View {
-            Section("Developer") {
-                Button("Reset Onboarding") {
-                    viewModel.resetOnboarding(modelContext: modelContext)
-                }
+    private var developerSection: some View {
+        Section("Developer") {
+            Button("Reset Onboarding") {
+                viewModel.resetOnboarding(modelContext: modelContext)
             }
         }
-    #else
-        private var developerSection: some View { EmptyView() }
-    #endif
+    }
 
     private var helpSection: some View {
         Section("settings.help".localized) {

@@ -3,7 +3,7 @@ import SwiftData
 
 @Model
 final class Category {
-    var id: String = ""
+    @Attribute(.unique) var id: String = ""
     var locale: String = "en-GB"
     var name: String = ""
     var categoryDescription: String = ""

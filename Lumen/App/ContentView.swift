@@ -1,6 +1,10 @@
 import SwiftData
 import SwiftUI
 
+extension Notification.Name {
+    static let onboardingReset = Notification.Name("onboardingReset")
+}
+
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(AppRouter.self) private var router
@@ -63,6 +67,9 @@ struct ContentView: View {
             )
         ) {
             CrisisView()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .onboardingReset)) { _ in
+            reloadPreferences()
         }
     }
 
@@ -170,6 +177,8 @@ struct ContentView: View {
             ThemeGalleryView()
         case .history:
             HistoryView()
+        case .manageCategories:
+            ManageCategoriesView()
         }
     }
 

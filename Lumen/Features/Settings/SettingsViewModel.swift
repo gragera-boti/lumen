@@ -59,6 +59,7 @@ final class SettingsViewModel {
                 prefs.updatedAt = .now
                 try preferencesService.save(modelContext: modelContext)
                 logger.info("Onboarding reset")
+                NotificationCenter.default.post(name: .onboardingReset, object: nil)
             }
         } catch {
             logger.error("Reset onboarding error: \(error.localizedDescription)")

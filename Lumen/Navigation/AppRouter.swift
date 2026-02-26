@@ -58,4 +58,5 @@ enum AppDestination: Hashable {
     case crisis
     case themeGallery
     case history
+    case manageCategories
 }

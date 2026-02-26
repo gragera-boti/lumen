@@ -8,11 +8,6 @@ struct OnboardingView: View {
 
     var body: some View {
         ZStack {
-            AnimatedGradientBackground(colors: [
-                LumenTheme.Colors.gentleAccent,
-                LumenTheme.Colors.softPurple,
-            ])
-
             VStack {
                 // Progress indicator
                 if viewModel.currentStep != .welcome {
@@ -25,28 +20,28 @@ struct OnboardingView: View {
                     .padding(.top, LumenTheme.Spacing.md)
                 }
 
-                TabView(
-                    selection: Binding(
-                        get: { viewModel.currentStep },
-                        set: { _ in }
-                    )
-                ) {
-                    WelcomeStepView(viewModel: viewModel)
-                        .tag(OnboardingStep.welcome)
-
-                    CategoryStepView(viewModel: viewModel)
-                        .tag(OnboardingStep.categories)
-
-                    ToneStepView(viewModel: viewModel)
-                        .tag(OnboardingStep.tone)
-
-                    RemindersStepView(viewModel: viewModel, onComplete: onComplete)
-                        .tag(OnboardingStep.reminders)
+                ZStack {
+                    switch viewModel.currentStep {
+                    case .welcome:
+                        WelcomeStepView(viewModel: viewModel)
+                            .transition(.opacity)
+                    case .categories:
+                        CategoryStepView(viewModel: viewModel)
+                            .transition(.opacity)
+                    case .tone:
+                        ToneStepView(viewModel: viewModel)
+                            .transition(.opacity)
+                    case .reminders:
+                        RemindersStepView(viewModel: viewModel, onComplete: onComplete)
+                            .transition(.opacity)
+                    case .done:
+                        EmptyView()
+                    }
                 }
-                .tabViewStyle(.page(indexDisplayMode: .never))
                 .animation(.easeInOut, value: viewModel.currentStep)
             }
         }
+        .ambientBackground()
         .task {
             viewModel.loadCategories(modelContext: modelContext)
         }
@@ -62,8 +57,15 @@ struct OnboardingView: View {
                 Spacer()
 
                 Image(systemName: "sparkle")
-                    .font(.system(size: 60))
-                    .foregroundStyle(.white)
+                    .font(.system(size: 80))
+                    .foregroundStyle(
+                        LinearGradient(
+                            colors: LumenTheme.Colors.gradients[0],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .shadow(color: LumenTheme.Colors.gradients[0].first?.opacity(0.5) ?? .clear, radius: 12)
                     .symbolEffect(.pulse)
 
                 Text("onboarding.welcome.headline".localized)
@@ -71,7 +73,7 @@ struct OnboardingView: View {
                     .foregroundStyle(.white)
 
                 Text("onboarding.welcome.subtitle".localized)
-                    .font(.title3)
+                    .font(.title2)
                     .foregroundStyle(.white.opacity(0.9))
                     .multilineTextAlignment(.center)
 
@@ -125,13 +127,7 @@ struct OnboardingView: View {
                         .font(.subheadline)
                         .foregroundStyle(.white.opacity(0.7))
 
-                    LazyVGrid(
-                        columns: [
-                            GridItem(.flexible()),
-                            GridItem(.flexible()),
-                        ],
-                        spacing: LumenTheme.Spacing.md
-                    ) {
+                    VStack(spacing: LumenTheme.Spacing.md) {
                         ForEach(coreCategories, id: \.id) { category in
                             CategoryChip(
                                 category: category,
@@ -141,7 +137,7 @@ struct OnboardingView: View {
                             }
                         }
                     }
-                    .padding(.horizontal, LumenTheme.Spacing.md)
+                    .padding(.horizontal, LumenTheme.Spacing.lg)
 
                     if !sensitiveCategories.isEmpty {
                         Divider()
@@ -152,13 +148,7 @@ struct OnboardingView: View {
                             .font(.subheadline)
                             .foregroundStyle(.white.opacity(0.7))
 
-                        LazyVGrid(
-                            columns: [
-                                GridItem(.flexible()),
-                                GridItem(.flexible()),
-                            ],
-                            spacing: LumenTheme.Spacing.md
-                        ) {
+                        VStack(spacing: LumenTheme.Spacing.md) {
                             ForEach(sensitiveCategories, id: \.id) { category in
                                 CategoryChip(
                                     category: category,
@@ -168,7 +158,7 @@ struct OnboardingView: View {
                                 }
                             }
                         }
-                        .padding(.horizontal, LumenTheme.Spacing.md)
+                        .padding(.horizontal, LumenTheme.Spacing.lg)
                     }
 
                     PrimaryButton(
@@ -232,8 +222,16 @@ struct OnboardingView: View {
                 Spacer()
 
                 Image(systemName: "bell.fill")
-                    .font(.system(size: 48))
-                    .foregroundStyle(.white)
+                    .font(.system(size: 80))
+                    .foregroundStyle(
+                        LinearGradient(
+                            colors: LumenTheme.Colors.gradients[2],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .shadow(color: LumenTheme.Colors.gradients[2].first?.opacity(0.5) ?? .clear, radius: 12)
+                    .symbolEffect(.bounce, value: viewModel.remindersPerDay)
 
                 Text("onboarding.reminders.title".localized)
                     .font(LumenTheme.Typography.headlineFont)
@@ -241,10 +239,12 @@ struct OnboardingView: View {
 
                 VStack(spacing: LumenTheme.Spacing.md) {
                     Stepper(
-                        "onboarding.reminders.perDay".localized(with: viewModel.remindersPerDay),
                         value: $viewModel.remindersPerDay,
                         in: 0...12
-                    )
+                    ) {
+                        Text("onboarding.reminders.perDay".localized(with: viewModel.remindersPerDay))
+                            .font(.title3)
+                    }
                     .foregroundStyle(.white)
                     .padding()
                     .background(.white.opacity(0.15), in: RoundedRectangle(cornerRadius: LumenTheme.Radii.md))
