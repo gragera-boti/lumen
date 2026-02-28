@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "ai_bg_pastel_skies.png",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

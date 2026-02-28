@@ -55,7 +55,7 @@ import Testing
             tags: ["test"]
         )
         context.insert(aff)
-        aff.categories.append(category)
+        aff.categories = [category]
         return aff
     }
 

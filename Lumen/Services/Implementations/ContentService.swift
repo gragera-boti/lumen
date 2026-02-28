@@ -14,6 +14,9 @@ final class ContentService: ContentServiceProtocol {
         isBootstrapping = true
         defer { isBootstrapping = false }
 
+        // Ensure curated backgrounds are loaded for both new and existing users
+        try loadCuratedBackgroundThemes(modelContext: modelContext)
+
         // Deduplicate Categories before counting
         let allCategories = try modelContext.fetch(FetchDescriptor<Category>())
         var seenCatIds = Set<String>()
@@ -157,6 +160,49 @@ final class ContentService: ContentServiceProtocol {
                 type: .gradient,
                 isPremium: false,
                 dataJSON: String(data: json, encoding: .utf8) ?? "{}"
+            )
+            modelContext.insert(theme)
+        }
+    }
+
+    private func loadCuratedBackgroundThemes(modelContext: ModelContext) throws {
+        // Ensure that preexisting users also get the new curated backgrounds
+        let allThemes = try modelContext.fetch(FetchDescriptor<AppTheme>())
+        let existingIds = Set(allThemes.map { $0.id })
+
+        let backgrounds: [(String, String)] = [
+            ("ai_bg_morning_veil", "Morning Veil"),
+            ("ai_bg_cloud_whisper", "Cloud Whisper"),
+            ("ai_bg_nebula_heart", "Nebula Heart"),
+            ("ai_bg_aurora_borealis", "Aurora Borealis"),
+            ("ai_bg_underwater_garden", "Underwater Garden"),
+            ("ai_bg_prism_light", "Prism Light"),
+            ("ai_bg_neon_dusk", "Neon Dusk"),
+            ("ai_bg_ocean_current", "Ocean Current"),
+            ("ai_bg_golden_hour", "Golden Hour"),
+            ("ai_bg_copper_sunset", "Copper Sunset"),
+            ("ai_bg_starry_night", "Starry Night"),
+            ("ai_bg_mystic_forest", "Mystic Forest"),
+            ("ai_bg_desert_mirage", "Desert Mirage"),
+            ("ai_bg_pastel_skies", "Pastel Skies"),
+            ("ai_bg_crystal_cave", "Crystal Cave"),
+            ("ai_bg_autumn_leaves", "Autumn Leaves"),
+            ("ai_bg_snowy_peaks", "Snowy Peaks"),
+            ("ai_bg_zen_garden", "Zen Garden"),
+            ("ai_bg_cosmic_dust", "Cosmic Dust"),
+            ("ai_bg_ethereal_glow", "Ethereal Glow")
+        ]
+
+        for (id, name) in backgrounds {
+            if existingIds.contains(id) { continue }
+            
+            let theme = AppTheme(
+                id: id,
+                name: name,
+                type: .curatedImage,
+                isPremium: false,
+                dataJSON: "{}", // Or embed some default info
+                isActive: true
             )
             modelContext.insert(theme)
         }

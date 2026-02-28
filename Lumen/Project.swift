@@ -32,7 +32,7 @@ let project = Project(
             destinations: .iOS,
             product: .app,
             bundleId: "\(bundleIdPrefix).lumen",
-            deploymentTargets: .iOS("26.0"),
+            deploymentTargets: .iOS("18.0"),
             infoPlist: .extendingDefault(with: [
                 "CFBundleDisplayName": "Lumen",
                 "UILaunchScreen": [:],
@@ -88,7 +88,7 @@ let project = Project(
             destinations: .iOS,
             product: .appExtension,
             bundleId: "\(bundleIdPrefix).lumen.widgets",
-            deploymentTargets: .iOS("26.0"),
+            deploymentTargets: .iOS("18.0"),
             infoPlist: .file(path: "LumenWidgets/Info.plist"),
             sources: [
                 "LumenWidgets/**",
@@ -111,7 +111,7 @@ let project = Project(
             destinations: [.appleWatch],
             product: .app,
             bundleId: "\(bundleIdPrefix).lumen.watchkitapp",
-            deploymentTargets: .watchOS("26.0"),
+            deploymentTargets: .watchOS("18.0"),
             infoPlist: .extendingDefault(with: [
                 "CFBundleDisplayName": "Lumen",
                 "WKCompanionAppBundleIdentifier": "\(bundleIdPrefix).lumen",
@@ -132,7 +132,7 @@ let project = Project(
             destinations: .iOS,
             product: .unitTests,
             bundleId: "\(bundleIdPrefix).lumen.tests",
-            deploymentTargets: .iOS("26.0"),
+            deploymentTargets: .iOS("18.0"),
             sources: [
                 "Tests/**",
             ],

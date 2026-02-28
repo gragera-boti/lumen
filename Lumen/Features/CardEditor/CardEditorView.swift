@@ -70,7 +70,7 @@ struct CardEditorView: View {
             .navigationTitle("Customize Card")
             .navigationBarTitleDisplayMode(.inline)
             .task {
-                await viewModel.loadSavedBackgrounds()
+                await viewModel.loadSavedBackgrounds(modelContext: modelContext)
                 await viewModel.checkAIModelStatus()
                 await viewModel.generatePreview()
                 await viewModel.loadSuggestions(modelContext: modelContext)

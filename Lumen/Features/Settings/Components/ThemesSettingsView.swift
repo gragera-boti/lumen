@@ -146,6 +146,11 @@ private struct ThemeThumbnail: View {
                 }
             }
         }
+        // Fallback for bundled curated backgrounds like 'ai_bg_morning_veil'
+        if let bundled = UIImage(named: theme.id) {
+            return bundled
+        }
+
         return nil
     }
 

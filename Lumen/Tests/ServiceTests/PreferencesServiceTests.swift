@@ -12,7 +12,7 @@ import Testing
 
     init() throws {
         let schema = Schema([
-            Affirmation.self, Category.self, Favorite.self,
+            Affirmation.self, Lumen.Category.self, Favorite.self,
             SeenEvent.self, Dislike.self, AppTheme.self,
             UserPreferences.self, EntitlementState.self,
         ])

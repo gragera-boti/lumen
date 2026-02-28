@@ -28,7 +28,7 @@ final class CardEditorViewModel {
     struct SavedBackgroundItem: Identifiable {
         let id: String  // themeId
         let thumbnail: UIImage
-        let fullImagePath: URL
+        let fullImagePath: URL?
     }
 
     // MARK: - AI Load State (mirrors ThemeGeneratorViewModel)
@@ -220,63 +220,99 @@ final class CardEditorViewModel {
         }
     }
 
-    /// Load saved backgrounds from the themes directories.
-    func loadSavedBackgrounds() async {
-        let items = await Task.detached { () -> [SavedBackgroundItem] in
-            var items: [SavedBackgroundItem] = []
+    /// Load saved backgrounds from the database and resolve their image paths.
+    func loadSavedBackgrounds(modelContext: ModelContext) async {
+        do {
+            let descriptor = FetchDescriptor<AppTheme>(
+                sortBy: [SortDescriptor(\.createdAt, order: .reverse)]
+            )
+            let allThemes = try modelContext.fetch(descriptor)
+            let themes = allThemes.filter { $0.type == .curatedImage || $0.type == .generatedImage }
+            
+            // Extract lightweight values to avoid Swift 6 concurrency boundary checking errors with AppTheme models
+            let themeData = themes.map { (id: $0.id, isCurated: $0.type == .curatedImage) }
 
-            let searchDirs: [URL] = [
-                FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first?
-                    .appendingPathComponent("themes/generated"),
-                FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first?
-                    .appendingPathComponent("themes/ai"),
-                FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.gragera.lumen")?
-                    .appendingPathComponent("themes/generated"),
-                FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.gragera.lumen")?
-                    .appendingPathComponent("themes/ai"),
-            ].compactMap { $0 }
+            let items = await Task.detached { () -> [SavedBackgroundItem] in
+                var results: [SavedBackgroundItem] = []
+                let fm = FileManager.default
 
-            let fm = FileManager.default
-            for dir in searchDirs {
-                guard let files = try? fm.contentsOfDirectory(at: dir, includingPropertiesForKeys: nil) else { continue }
-                for file in files where file.pathExtension == "png" || file.pathExtension == "jpg" {
-                    let themeId = file.deletingPathExtension().lastPathComponent
-                    // Skip thumbnails
-                    guard !themeId.hasSuffix("_thumb") else { continue }
-                    // Load thumbnail if exists, else use full image scaled down
-                    let thumbFilename = "\(themeId)_thumb.\(file.pathExtension)"
-                    let thumbPath = file.deletingLastPathComponent().appendingPathComponent(thumbFilename)
-                    let thumb: UIImage?
-                    if fm.fileExists(atPath: thumbPath.path), let t = UIImage(contentsOfFile: thumbPath.path) {
-                        thumb = t
-                    } else if let data = try? Data(contentsOf: file),
-                        let full = UIImage(data: data)
-                    {
-                        thumb = full.preparingThumbnail(of: CGSize(width: 120, height: 120))
-                    } else {
+                let dirs: [URL] = [
+                    fm.containerURL(forSecurityApplicationGroupIdentifier: "group.com.gragera.lumen")?
+                        .appendingPathComponent("themes/ai"),
+                    fm.containerURL(forSecurityApplicationGroupIdentifier: "group.com.gragera.lumen")?
+                        .appendingPathComponent("themes/generated"),
+                    fm.urls(for: .applicationSupportDirectory, in: .userDomainMask).first?
+                        .appendingPathComponent("themes/ai"),
+                    fm.urls(for: .applicationSupportDirectory, in: .userDomainMask).first?
+                        .appendingPathComponent("themes/generated"),
+                ].compactMap { $0 }
+
+                for data in themeData {
+                    // Try to load a bundled asset if it's curated
+                    if data.isCurated, let image = UIImage(named: data.id) {
+                        // For curated images, just pass down the original image. The view can use it directly.
+                        results.append(SavedBackgroundItem(id: data.id, thumbnail: image, fullImagePath: nil))
                         continue
                     }
-                    guard let thumbnail = thumb else { continue }
-                    items.append(SavedBackgroundItem(id: themeId, thumbnail: thumbnail, fullImagePath: file))
+
+                    // For generated themes, find the file on disk
+                    var resolvedURL: URL? = nil
+                    var thumbnailImg: UIImage? = nil
+
+                    for dir in dirs {
+                        let jpgFile = dir.appendingPathComponent("\(data.id).jpg")
+                        let pngFile = dir.appendingPathComponent("\(data.id).png")
+
+                        if fm.fileExists(atPath: jpgFile.path) { resolvedURL = jpgFile }
+                        else if fm.fileExists(atPath: pngFile.path) { resolvedURL = pngFile }
+
+                        if let url = resolvedURL {
+                            let thumbJpg = dir.appendingPathComponent("\(data.id)_thumb.jpg")
+                            let thumbPng = dir.appendingPathComponent("\(data.id)_thumb.png")
+
+                            if fm.fileExists(atPath: thumbJpg.path), let t = UIImage(contentsOfFile: thumbJpg.path) {
+                                thumbnailImg = t
+                            } else if fm.fileExists(atPath: thumbPng.path), let t = UIImage(contentsOfFile: thumbPng.path) {
+                                thumbnailImg = t
+                            } else if let data = try? Data(contentsOf: url), let full = UIImage(data: data) {
+                                thumbnailImg = full.preparingThumbnail(of: CGSize(width: 120, height: 120))
+                            }
+                            break // Found the file
+                        }
+                    }
+
+                    if let thumb = thumbnailImg {
+                        results.append(SavedBackgroundItem(id: data.id, thumbnail: thumb, fullImagePath: resolvedURL))
+                    }
                 }
+                return results
+            }.value
+
+            savedBackgrounds = items
+
+            // Restore selection if editing an existing customization with a saved theme
+            if let savedId = initialSavedThemeId {
+                selectedSavedBackground = items.first { $0.id == savedId }
             }
-            return items
-        }.value
-
-        savedBackgrounds = items
-
-        // Restore selection if editing an existing customization with a saved theme
-        if let savedId = initialSavedThemeId {
-            selectedSavedBackground = items.first { $0.id == savedId }
+        } catch {
+            Logger.viewModel.error("Failed to load AppThemes for My Backgrounds: \(error.localizedDescription)")
         }
     }
 
     /// Select a saved background as the card's background.
     func selectSavedBackground(_ item: SavedBackgroundItem) {
         selectedSavedBackground = item
-        if let image = UIImage(contentsOfFile: item.fullImagePath.path) {
-            previewImage = image
-            lastGeneratedImagePath = item.fullImagePath
+        if let path = item.fullImagePath {
+            if let image = UIImage(contentsOfFile: path.path) {
+                previewImage = image
+                lastGeneratedImagePath = path
+            }
+        } else {
+            // Treat as bundled curated image
+            if let image = UIImage(named: item.id) {
+                previewImage = image
+                lastGeneratedImagePath = nil
+            }
         }
     }
 

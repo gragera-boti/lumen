@@ -342,6 +342,11 @@ final class FeedViewModel {
             }
         }
 
+        // Fallback for bundled curated backgrounds like 'ai_bg_morning_veil'
+        if let bundled = UIImage(named: themeId) {
+            return bundled
+        }
+
         return nil
     }
 
