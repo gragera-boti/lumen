@@ -84,7 +84,7 @@ struct CategoryFeedView: View {
         .toolbarBackground(.hidden, for: .tabBar)
         .ignoresSafeArea()
         .task(id: "\(preferences.includeSensitiveTopics)-\(preferences.gentleMode)") {
-            viewModel.loadCategory(
+            await viewModel.loadCategory(
                 categoryId: categoryId,
                 preferences: preferences,
                 isPremium: isPremium,
@@ -110,13 +110,23 @@ struct CategoryFeedView: View {
             ZStack {
                 // Background
                 if let current = currentAffirmation {
-                    LinearGradient(
-                        colors: gradientColors(for: current),
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                    .opacity(backgroundOpacity)
-                    .animation(.easeInOut(duration: 1.0), value: viewModel.currentIndex)
+                    if let bgImage = viewModel.backgroundImage(for: current) {
+                        Image(uiImage: bgImage)
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: geo.size.width, height: geo.size.height)
+                            .clipped()
+                            .opacity(backgroundOpacity)
+                            .animation(.easeInOut(duration: 1.0), value: viewModel.currentIndex)
+                    } else {
+                        LinearGradient(
+                            colors: gradientColors(for: current),
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                        .opacity(backgroundOpacity)
+                        .animation(.easeInOut(duration: 1.0), value: viewModel.currentIndex)
+                    }
                 }
 
                 ReadabilityOverlay()

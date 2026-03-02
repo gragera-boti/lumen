@@ -16,6 +16,11 @@ final class CategoryFeedViewModel {
     var editingAffirmation: Affirmation?
     var customizations: [String: CardCustomization] = [:]
 
+    /// Background images keyed by affirmation id for random rotation.
+    var cardBackgrounds: [String: UIImage] = [:]
+    /// Active theme IDs for rotation.
+    private var activeThemeIds: [String] = []
+
     var currentCard: Affirmation? {
         guard currentIndex >= 0, currentIndex < cards.count else { return nil }
         return cards[currentIndex]
@@ -36,7 +41,10 @@ final class CategoryFeedViewModel {
         preferences: UserPreferences,
         isPremium: Bool,
         modelContext: ModelContext
-    ) {
+    ) async {
+        // Load active theme IDs for rotation
+        await loadActiveThemes(modelContext: modelContext)
+
         isLoading = true
         defer { isLoading = false }
 
@@ -68,6 +76,9 @@ final class CategoryFeedViewModel {
             }.shuffled()
 
             currentIndex = 0
+
+            // Assign random backgrounds from active themes
+            await assignBackgrounds(for: cards)
         } catch {
             logger.error("Category feed load error: \(error.localizedDescription)")
             errorMessage = error.localizedDescription
@@ -128,5 +139,94 @@ final class CategoryFeedViewModel {
             size: CGSize(width: 1080, height: 1920),
             showWatermark: !isPremium
         )
+    }
+
+    func backgroundImage(for affirmation: Affirmation) -> UIImage? {
+        cardBackgrounds[affirmation.id]
+    }
+
+    // MARK: - Theme Rotation
+
+    /// Load active theme IDs from SwiftData.
+    private func loadActiveThemes(modelContext: ModelContext) async {
+        do {
+            let descriptor = FetchDescriptor<AppTheme>(
+                predicate: #Predicate<AppTheme> { $0.isActive == true || $0.isActive == nil }
+            )
+            let themes = try modelContext.fetch(descriptor)
+            activeThemeIds = themes.map(\.id)
+            logger.info("Loaded \(themes.count) active themes for rotation")
+        } catch {
+            logger.error("Failed to load active themes: \(error.localizedDescription)")
+            activeThemeIds = []
+        }
+    }
+
+    /// Assign a random background image to each card from the active theme pool.
+    private func assignBackgrounds(for affirmations: [Affirmation]) async {
+        guard !activeThemeIds.isEmpty else {
+            cardBackgrounds = [:]
+            return
+        }
+
+        let themeIds = activeThemeIds
+        let assignments: [(String, String)] = affirmations.map { aff in
+            let themeId = themeIds[abs(aff.id.hashValue) % themeIds.count]
+            return (aff.id, themeId)
+        }
+
+        // Load images off main thread
+        let loaded: [(String, UIImage)] = await Task.detached {
+            assignments.compactMap { (affId, themeId) in
+                guard let image = Self.loadThemeImage(themeId: themeId) else { return nil }
+                return (affId, image)
+            }
+        }.value
+
+        var backgrounds: [String: UIImage] = [:]
+        for (affId, image) in loaded {
+            backgrounds[affId] = image
+        }
+        cardBackgrounds = backgrounds
+    }
+
+    /// Resolve a theme image from disk (generated or AI).
+    private nonisolated static func loadThemeImage(themeId: String) -> UIImage? {
+        let searchDirs: [URL] = [
+            FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.gragera.lumen")?
+                .appendingPathComponent("themes/generated"),
+            FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.gragera.lumen")?
+                .appendingPathComponent("themes/ai"),
+            FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first?
+                .appendingPathComponent("themes/generated"),
+            FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first?
+                .appendingPathComponent("themes/ai"),
+        ].compactMap { $0 }
+
+        let extensions = ["png", "jpg"]
+
+        for dir in searchDirs {
+            for ext in extensions {
+                let imagePath = dir.appendingPathComponent("\(themeId).\(ext)")
+                if let data = try? Data(contentsOf: imagePath), let image = UIImage(data: data) {
+                    // Downscale to screen size
+                    let screenScale = 2.0
+                    let targetWidth = 430.0 * screenScale
+                    let scale = targetWidth / image.size.width
+                    let targetSize = CGSize(width: targetWidth, height: image.size.height * scale)
+                    let renderer = UIGraphicsImageRenderer(size: targetSize)
+                    return renderer.image { _ in
+                        image.draw(in: CGRect(origin: .zero, size: targetSize))
+                    }
+                }
+            }
+        }
+
+        // Fallback for bundled curated backgrounds like 'ai_bg_morning_veil'
+        if let bundled = UIImage(named: themeId) {
+            return bundled
+        }
+
+        return nil
     }
 }
