@@ -113,6 +113,7 @@ struct SettingsView: View {
                     }
                 }
             }
+            .accessibilityIdentifier("paywall_subscription_button")
         }
     }
 

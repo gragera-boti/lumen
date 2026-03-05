@@ -1,0 +1,381 @@
+Top level ::CompositeIO is deprecated, require 'multipart/post' and use `Multipart::Post::CompositeReadIO` instead!
+Top level ::Parts is deprecated, require 'multipart/post' and use `Multipart::Post::Parts` instead!
+[18:11:44]: [33mGet started using a Gemfile for fastlane https://docs.fastlane.tools/getting-started/ios/setup/#use-a-gemfile[0m
+[18:11:45]: [32mSuccessfully loaded '/Users/gragera/code/antigravity/lumen/Lumen/fastlane/Snapfile' 📄[0m
+
++----------------------------------------------------------------+
+|           Detected Values from './fastlane/Snapfile'           |
++----------------------------+-----------------------------------+
+| devices                    | ["iPhone 16 Pro Max", "iPhone SE  |
+|                            | (3rd generation)"]                |
+| languages                  | ["en-US"]                         |
+| scheme                     | LumenUITests                      |
+| workspace                  | Lumen.xcworkspace                 |
+| output_directory           | ./screenshots                     |
+| clear_previous_screenshots | true                              |
+| override_status_bar        | true                              |
++----------------------------+-----------------------------------+
+
+
++-----------------------------------------------------------------------------+
+|                        [32mSummary for snapshot 2.232.2[0m                         |
++--------------------------------------+--------------------------------------+
+| workspace                            | Lumen.xcworkspace                    |
+| devices                              | ["iPhone 16 Pro Max", "iPhone SE     |
+|                                      | (3rd generation)"]                   |
+| languages                            | ["en-US"]                            |
+| launch_arguments                     | [""]                                 |
+| output_directory                     | /Users/gragera/code/antigravity/lum  |
+|                                      | en/Lumen/screenshots                 |
+| output_simulator_logs                | false                                |
+| skip_open_summary                    | false                                |
+| skip_helper_version_check            | false                                |
+| clear_previous_screenshots           | true                                 |
+| reinstall_app                        | false                                |
+| erase_simulator                      | false                                |
+| headless                             | true                                 |
+| override_status_bar                  | true                                 |
+| localize_simulator                   | false                                |
+| buildlog_path                        | ~/Library/Logs/snapshot              |
+| clean                                | false                                |
+| scheme                               | LumenUITests                         |
+| number_of_retries                    | 1                                    |
+| stop_after_first_error               | false                                |
+| result_bundle                        | false                                |
+| concurrent_simulators                | true                                 |
+| disable_slide_to_type                | false                                |
+| skip_package_dependencies_resolutio  | false                                |
+| n                                    |                                      |
+| disable_package_automatic_updates    | false                                |
+| skip_package_repository_fetches      | false                                |
+| xcodebuild_formatter                 | xcpretty                             |
+| use_system_scm                       | false                                |
+| xcode_path                           | /Applications/Xcode.app              |
++--------------------------------------+--------------------------------------+
+
+[18:11:45]: [33mClearing previously generated screenshots[0m
+[18:11:46]: [32mBuilding and running project - this might take some time...[0m
+[18:11:46]: [33mResolving Swift Package Manager dependencies...[0m
+[18:11:46]: [36m$ xcodebuild -resolvePackageDependencies -workspace Lumen.xcworkspace -scheme LumenUITests[0m
+[18:11:46]: ▸ [35mCommand line invocation:[0m
+[18:11:46]: ▸ [35m    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -resolvePackageDependencies -workspace Lumen.xcworkspace -scheme LumenUITests[0m
+[18:11:46]: ▸ [35mresolved source packages: [0m
+[18:11:46]: [36m$ xcodebuild -showBuildSettings -workspace Lumen.xcworkspace -scheme LumenUITests 2>&1[0m
+[18:11:50]: Patching simulators '/Users/gragera/Library/Preferences/com.apple.iphonesimulator.plist' to scale to 100%
+[18:11:53]: [33mUsing device named 'iPhone 16 Pro Max' with version '18.4' because no match was found for version '26.2'[0m
+[18:11:54]: Launch Simulator iPhone 16 Pro Max
+[18:11:54]: [36m$ xcrun simctl bootstatus 4CD12F2F-1ECE-4C27-9CF1-E0FAF3808833 -b &> /dev/null[0m
+[18:12:01]: Waiting 0 seconds for device to fully boot before overriding status bar... Set 'SNAPSHOT_SIMULATOR_WAIT_FOR_BOOT_TIMEOUT' environment variable to adjust timeout
+[18:12:01]: Overriding Status Bar
+[18:12:01]: [36m$ xcrun simctl status_bar 4CD12F2F-1ECE-4C27-9CF1-E0FAF3808833 override --time 09:41 --dataNetwork wifi --wifiMode active --wifiBars 3 --cellularMode active --operatorName '' --cellularBars 4 --batteryState charged --batteryLevel 100 &> /dev/null[0m
+[18:12:02]: [33mRunning snapshot on: iPhone 16 Pro Max[0m
+[18:12:02]: [36m$ set -o pipefail && xcodebuild -workspace Lumen.xcworkspace -scheme LumenUITests -derivedDataPath /var/folders/18/5c2c3ltj1pb44k9z077hpy740000gn/T/snapshot_derived20260305-75367-nfhnvg -destination 'platform=iOS Simulator,name=iPhone 16 Pro Max,OS=18.4' FASTLANE_SNAPSHOT=YES FASTLANE_LANGUAGE=en-US build test | tee /Users/gragera/Library/Logs/snapshot/LumenUITests-LumenUITests.log | xcpretty [0m
+[18:12:02]: ▸ [35mLoading...[0m
+[18:12:04]: ▸ [35m--- xcodebuild: WARNING: Using the first of multiple matching destinations:[0m
+[18:12:04]: ▸ [35m{ platform:iOS Simulator, arch:arm64, id:4CD12F2F-1ECE-4C27-9CF1-E0FAF3808833, OS:18.4, name:iPhone 16 Pro Max }[0m
+[18:12:04]: ▸ [35m{ platform:iOS Simulator, arch:x86_64, id:4CD12F2F-1ECE-4C27-9CF1-E0FAF3808833, OS:18.4, name:iPhone 16 Pro Max }[0m
+[18:12:07]: [35m[33m▸[0m [39;1mProcessing[0m RevenueCat_RevenueCat-Info.plist[0m
+[18:12:07]: [35m[33m▸[0m [39;1mCopying[0m /var/folders/18/5c2c3ltj1pb44k9z077hpy740000gn/T/snapshot_derived20260305-75367-nfhnvg/Build/Products/Debug-iphonesimulator/RevenueCat_RevenueCat.bundle/PrivacyInfo.xcprivacy[0m
+[18:12:07]: [35m[33m▸[0m [39;1mCopying[0m /var/folders/18/5c2c3ltj1pb44k9z077hpy740000gn/T/snapshot_derived20260305-75367-nfhnvg/Build/Products/Debug-iphonesimulator/RevenueCat_RevenueCatUI.bundle/background.jpg[0m
+[18:12:07]: [35m[33m▸[0m [39;1mCopying[0m Localizable.strings[0m
+[18:12:07]: [35m[33m▸[0m [39;1mCopying[0m Localizable.strings[0m
+[18:12:07]: [35m[33m▸[0m [39;1mCopying[0m Localizable.strings[0m
+[18:12:07]: [35m[33m▸[0m [39;1mCopying[0m Localizable.strings[0m
+[18:12:07]: [35m[33m▸[0m [39;1mCopying[0m Localizable.strings[0m
+[18:12:07]: [35m[33m▸[0m [39;1mCopying[0m Localizable.strings[0m
+[18:12:07]: [35m[33m▸[0m [39;1mCopying[0m Localizable.strings[0m
+[18:12:07]: [35m[33m▸[0m [39;1mCopying[0m Localizable.strings[0m
+[18:12:07]: [35m[33m▸[0m [39;1mCopying[0m Localizable.strings[0m
+[18:12:07]: [35m[33m▸[0m [39;1mCopying[0m Localizable.strings[0m
+[18:12:07]: [35m[33m▸[0m [39;1mCopying[0m Localizable.strings[0m
+[18:12:07]: [35m[33m▸[0m [39;1mCopying[0m Localizable.strings[0m
+[18:12:07]: [35m[33m▸[0m [39;1mCopying[0m Localizable.strings[0m
+[18:12:07]: [35m[33m▸[0m [39;1mCopying[0m Localizable.strings[0m
+[18:12:07]: [35m[33m▸[0m [39;1mCopying[0m Localizable.strings[0m
+[18:12:07]: [35m[33m▸[0m [39;1mCopying[0m Localizable.strings[0m
+[18:12:07]: [35m[33m▸[0m [39;1mCopying[0m Localizable.strings[0m
+[18:12:07]: [35m[33m▸[0m [39;1mCopying[0m Localizable.strings[0m
+[18:12:07]: [35m[33m▸[0m [39;1mCopying[0m Localizable.strings[0m
+[18:12:07]: [35m[33m▸[0m [39;1mCopying[0m Localizable.strings[0m
+[18:12:07]: [35m[33m▸[0m [39;1mCopying[0m Localizable.strings[0m
+[18:12:07]: [35m[33m▸[0m [39;1mCopying[0m Localizable.strings[0m
+[18:12:07]: [35m[33m▸[0m [39;1mCopying[0m Localizable.strings[0m
+[18:12:07]: [35m[33m▸[0m [39;1mCopying[0m Localizable.strings[0m
+[18:12:07]: [35m[33m▸[0m [39;1mCopying[0m Localizable.strings[0m
+[18:12:07]: [35m[33m▸[0m [39;1mCopying[0m Localizable.strings[0m
+[18:12:07]: [35m[33m▸[0m [39;1mCopying[0m Localizable.strings[0m
+[18:12:07]: [35m[33m▸[0m [39;1mCopying[0m Localizable.strings[0m
+[18:12:07]: [35m[33m▸[0m [39;1mCopying[0m Localizable.strings[0m
+[18:12:07]: [35m[33m▸[0m [39;1mCopying[0m Localizable.strings[0m
+[18:12:07]: [35m[33m▸[0m [39;1mCopying[0m Localizable.strings[0m
+[18:12:07]: [35m[33m▸[0m [39;1mCopying[0m Localizable.strings[0m
+[18:12:07]: [35m[33m▸[0m [39;1mCopying[0m Localizable.strings[0m
+[18:12:07]: [35m[33m▸[0m [39;1mCopying[0m Localizable.strings[0m
+[18:12:07]: [35m[33m▸[0m [39;1mCopying[0m Localizable.strings[0m
+[18:12:07]: [35m[33m▸[0m [39;1mCopying[0m Localizable.strings[0m
+[18:12:07]: [35m[33m▸[0m [39;1mCopying[0m Localizable.strings[0m
+[18:12:07]: [35m[33m▸[0m [39;1mCopying[0m Localizable.strings[0m
+[18:12:07]: [35m[33m▸[0m [39;1mCopying[0m Localizable.strings[0m
+[18:12:07]: [35m[33m▸[0m [39;1mCopying[0m Localizable.strings[0m
+[18:12:07]: [35m[33m▸[0m [39;1mCopying[0m Localizable.strings[0m
+[18:12:07]: [35m[33m▸[0m [39;1mCopying[0m Localizable.strings[0m
+[18:12:07]: [35m[33m▸[0m [39;1mCopying[0m Localizable.strings[0m
+[18:12:07]: [35m[33m▸[0m [39;1mCopying[0m Localizable.strings[0m
+[18:12:07]: [35m[33m▸[0m [39;1mCopying[0m Localizable.strings[0m
+[18:12:07]: [35m[33m▸[0m [39;1mCopying[0m Localizable.strings[0m
+[18:12:16]: [35m[33m▸[0m [39;1mProcessing[0m IssueReportingPackageSupport-Info.plist[0m
+[18:12:16]: [35m[33m▸[0m [39;1mProcessing[0m ConcurrencyExtras-Info.plist[0m
+[18:12:16]: [35m[33m▸[0m [39;1mProcessing[0m Info.plist[0m
+[18:12:16]: [35m[33m▸[0m [39;1mLinking[0m __preview.dylib[0m
+[18:12:16]: [35mRunning Tests: [33m▸[0m [39;1mTouching[0m RevenueCat_RevenueCat.bundle (in target 'RevenueCat_RevenueCat' from project 'RevenueCat')[0m
+[18:12:16]: [35m[33m▸[0m [39;1mProcessing[0m RevenueCat-Info.plist[0m
+[18:12:16]: [35m[33m▸[0m [39;1mCompiling[0m IssueReportingPackageSupport_vers.c[0m
+[18:12:16]: [35mRunning Tests: [33m▸[0m [39;1mTouching[0m IssueReportingPackageSupport.framework (in target 'IssueReportingPackageSupport' from project 'xctest-dynamic-overlay')[0m
+[18:12:16]: [35m[33m▸[0m [39;1mProcessing[0m IssueReporting-Info.plist[0m
+[18:12:16]: [35m[33m▸[0m [39;1mCompiling[0m IssueReporting_vers.c[0m
+[18:12:16]: [35m[33m▸[0m [39;1mCompiling[0m ConcurrencyExtras_vers.c[0m
+[18:12:16]: [35mRunning Tests: [33m▸[0m [39;1mTouching[0m IssueReporting.framework (in target 'IssueReporting' from project 'xctest-dynamic-overlay')[0m
+[18:12:16]: [35m[33m▸[0m [39;1mProcessing[0m XCTestDynamicOverlay-Info.plist[0m
+[18:12:16]: [35m[33m▸[0m [39;1mCompiling[0m XCTestDynamicOverlay_vers.c[0m
+[18:12:16]: [35mRunning Tests: [33m▸[0m [39;1mTouching[0m ConcurrencyExtras.framework (in target 'ConcurrencyExtras' from project 'swift-concurrency-extras')[0m
+[18:12:16]: [35m[33m▸[0m [39;1mProcessing[0m CombineSchedulers-Info.plist[0m
+[18:12:16]: [35m[33m▸[0m [39;1mProcessing[0m Clocks-Info.plist[0m
+[18:12:23]: [35m[33m▸[0m [39;1mProcessing[0m RevenueCat_RevenueCatUI-Info.plist[0m
+[18:12:28]: [35m[33m▸[0m [39;1mCompiling[0m RevenueCat_vers.c[0m
+[18:12:28]: [35m[33m▸[0m [39;1mCompiling[0m CombineSchedulers_vers.c[0m
+[18:12:28]: [35m[33m▸[0m [39;1mCompiling[0m Clocks_vers.c[0m
+[18:12:28]: [35mRunning Tests: [33m▸[0m [39;1mTouching[0m RevenueCat_RevenueCatUI.bundle (in target 'RevenueCat_RevenueCatUI' from project 'RevenueCat')[0m
+[18:12:28]: [35mRunning Tests: [33m▸[0m [39;1mTouching[0m XCTestDynamicOverlay.framework (in target 'XCTestDynamicOverlay' from project 'xctest-dynamic-overlay')[0m
+[18:12:28]: [35mRunning Tests: [33m▸[0m [39;1mTouching[0m Clocks.framework (in target 'Clocks' from project 'swift-clocks')[0m
+[18:12:28]: [35mRunning Tests: [33m▸[0m [39;1mTouching[0m CombineSchedulers.framework (in target 'CombineSchedulers' from project 'combine-schedulers')[0m
+[18:12:28]: [35m[33m▸[0m [39;1mProcessing[0m Dependencies-Info.plist[0m
+[18:12:28]: [35m[33m▸[0m [39;1mLinking[0m LumenWidgets.debug.dylib[0m
+[18:12:28]: [35m[33m▸[0m [39;1mLinking[0m LumenWidgets[0m
+[18:12:28]: [35m[33m▸[0m [39;1mCompiling[0m Dependencies_vers.c[0m
+[18:12:28]: [35mRunning Tests: [33m▸[0m [39;1mTouching[0m LumenWidgets.appex (in target 'LumenWidgets' from project 'Lumen')[0m
+[18:12:28]: [35mRunning Tests: [33m▸[0m [39;1mTouching[0m Dependencies.framework (in target 'Dependencies' from project 'swift-dependencies')[0m
+[18:12:39]: [35m[33m▸[0m [39;1mCompiling[0m RevenueCatUI_vers.c[0m
+[18:12:39]: [35mRunning Tests: [33m▸[0m [39;1mTouching[0m RevenueCat.framework (in target 'RevenueCat' from project 'RevenueCat')[0m
+[18:12:39]: [35m[33m▸[0m [39;1mProcessing[0m RevenueCatUI-Info.plist[0m
+[18:12:41]: ▸ [35m[33m⚠️  [0m/Users/gragera/code/antigravity/lumen/Lumen/Features/CardEditor/CardEditorViewModel.swift:340:16: [33mimmutable value 'image' was never used; consider replacing with '_' or removing it[0m
+[18:12:41]: ▸ [35m        if let image = previewImage, let lastPath = lastGeneratedImagePath {[0m
+[18:12:41]: ▸ [35m[36m           ~~~~^~~~~[0m
+[18:12:41]: ▸ [35m[33m⚠️  [0m/Users/gragera/code/antigravity/lumen/Lumen/Features/ThemeGenerator/ThemeGeneratorViewModel.swift:187:9: [33mno 'async' operations occur within 'await' expression[0m
+[18:12:41]: ▸ [35m        await aiGenerator.setStepProgressHandler { [weak self] step, total in[0m
+[18:12:41]: ▸ [35m[36m        ^[0m
+[18:12:41]: ▸ [35m[33m⚠️  [0m/Users/gragera/code/antigravity/lumen/Lumen/Features/ThemeGenerator/ThemeGeneratorViewModel.swift:222:9: [33mno 'async' operations occur within 'await' expression[0m
+[18:12:41]: ▸ [35m        await aiGenerator.setStepProgressHandler(nil)[0m
+[18:12:41]: ▸ [35m[36m        ^[0m
+[18:12:41]: ▸ [35m[33m⚠️  [0m/Users/gragera/code/antigravity/lumen/Lumen/Services/Implementations/BackgroundGeneratorService+GeometricStyles.swift:106:17: [33minitialization of immutable value 'center' was never used; consider replacing with assignment to '_' or removing it[0m
+[18:12:41]: ▸ [35m            let center = CGPoint(x: cx, y: cy)[0m
+[18:12:41]: ▸ [35m[36m            ~~~~^~~~~~[0m
+[18:12:41]: ▸ [35m[33m⚠️  [0m/Users/gragera/code/antigravity/lumen/Lumen/Services/Implementations/BackgroundGeneratorService+GeometricStyles.swift:201:17: [33mvariable 'sorted' was never mutated; consider changing to 'let' constant[0m
+[18:12:41]: ▸ [35m            var sorted = points.enumerated()[0m
+[18:12:41]: ▸ [35m[36m            ~~~ ^[0m
+[18:12:41]: ▸ [35m[33m⚠️  [0m/Users/gragera/code/antigravity/lumen/Lumen/Services/Implementations/BackgroundGeneratorService+GeometricStyles.swift:461:25: [33mvariable 'segments' was never used; consider replacing with '_' or removing it[0m
+[18:12:41]: ▸ [35m                    var segments: [(CGPoint, CGPoint)] = [][0m
+[18:12:41]: ▸ [35m[36m                        ^~~~~~~~[0m
+[18:12:41]: ▸ [35m[33m⚠️  [0m/Users/gragera/code/antigravity/lumen/Lumen/Services/Protocols/AIBackgroundServiceProtocol.swift:82:31: [33mmain actor-isolated class property 'main' can not be referenced from a nonisolated context[0m
+[18:12:41]: ▸ [35m        let screen = UIScreen.main[0m
+[18:12:41]: ▸ [35m[36m                              ^[0m
+[18:12:41]: ▸ [35m[33m⚠️  [0m/Users/gragera/code/antigravity/lumen/Lumen/Services/Protocols/AIBackgroundServiceProtocol.swift:84:37: [33mmain actor-isolated property 'bounds' can not be referenced from a nonisolated context[0m
+[18:12:41]: ▸ [35m            screenWidth: Int(screen.bounds.width),[0m
+[18:12:41]: ▸ [35m[36m                ^[0m
+[18:12:41]: ▸ [35m[33m⚠️  [0m/Users/gragera/code/antigravity/lumen/Lumen/Services/Protocols/AIBackgroundServiceProtocol.swift:85:38: [33mmain actor-isolated property 'bounds' can not be referenced from a nonisolated context[0m
+[18:12:41]: ▸ [35m            screenHeight: Int(screen.bounds.height),[0m
+[18:12:41]: ▸ [35m[36m                ^[0m
+[18:12:41]: ▸ [35m[33m⚠️  [0m/Users/gragera/code/antigravity/lumen/Lumen/Services/Protocols/AIBackgroundServiceProtocol.swift:86:37: [33mmain actor-isolated property 'scale' can not be referenced from a nonisolated context[0m
+[18:12:41]: ▸ [35m            screenScale: Int(screen.scale)[0m
+[18:12:41]: ▸ [35m[36m                ^[0m
+[18:12:41]: ▸ [35m[33m⚠️  [0m/Users/gragera/code/antigravity/lumen/Lumen/UITests/LumenAppStoreScreenshots.swift:9:9: [33mmain actor-isolated property 'app' can not be mutated from a nonisolated context[0m
+[18:12:41]: ▸ [35m        app = XCUIApplication()[0m
+[18:12:41]: ▸ [35m[36m                ^[0m
+[18:12:41]: ▸ [35m[33m⚠️  [0m/Users/gragera/code/antigravity/lumen/Lumen/UITests/LumenAppStoreScreenshots.swift:9:15: [33mcall to main actor-isolated initializer 'init()' in a synchronous nonisolated context[0m
+[18:12:41]: ▸ [35m        app = XCUIApplication()[0m
+[18:12:41]: ▸ [35m[36m        ^[0m
+[18:12:41]: ▸ [35m[33m⚠️  [0m/Users/gragera/code/antigravity/lumen/Lumen/UITests/LumenAppStoreScreenshots.swift:10:13: [33mmain actor-isolated property 'launchArguments' can not be mutated from a nonisolated context[0m
+[18:12:41]: ▸ [35m        app.launchArguments.append("-UITesting")[0m
+[18:12:41]: ▸ [35m[36m^[0m
+[18:12:41]: ▸ [35m[33m⚠️  [0m/Users/gragera/code/antigravity/lumen/Lumen/UITests/LumenAppStoreScreenshots.swift:10:9: [33mmain actor-isolated property 'app' can not be referenced from a nonisolated context[0m
+[18:12:41]: ▸ [35m        app.launchArguments.append("-UITesting")[0m
+[18:12:41]: ▸ [35m[36m                                                  ^[0m
+[18:12:41]: ▸ [35m[33m⚠️  [0m/Users/gragera/code/antigravity/lumen/Lumen/UITests/LumenAppStoreScreenshots.swift:11:9: [33mcall to main actor-isolated global function 'setupSnapshot(_:waitForAnimations:)' in a synchronous nonisolated context[0m
+[18:12:41]: ▸ [35m        setupSnapshot(app)[0m
+[18:12:41]: ▸ [35m[36m        ^[0m
+[18:12:41]: ▸ [35m[33m⚠️  [0m/Users/gragera/code/antigravity/lumen/Lumen/UITests/LumenAppStoreScreenshots.swift:11:23: [33mmain actor-isolated property 'app' can not be referenced from a nonisolated context[0m
+[18:12:41]: ▸ [35m        setupSnapshot(app)[0m
+[18:12:41]: ▸ [35m[36m     ^[0m
+[18:12:41]: ▸ [35m[33m⚠️  [0m/Users/gragera/code/antigravity/lumen/Lumen/UITests/LumenAppStoreScreenshots.swift:12:13: [33mcall to main actor-isolated instance method 'launch()' in a synchronous nonisolated context[0m
+[18:12:41]: ▸ [35m        app.launch()[0m
+[18:12:41]: ▸ [35m[36m        ^[0m
+[18:12:41]: ▸ [35m[33m⚠️  [0m/Users/gragera/code/antigravity/lumen/Lumen/UITests/LumenAppStoreScreenshots.swift:12:9: [33mmain actor-isolated property 'app' can not be referenced from a nonisolated context[0m
+[18:12:41]: ▸ [35m        app.launch()[0m
+[18:12:41]: ▸ [35m[36m                     ^[0m
+[18:12:41]: ▸ [35m[33m⚠️  [0m/Users/gragera/code/antigravity/lumen/Lumen/UITests/LumenAppStoreScreenshots.swift:25:13: [33minitialization of immutable value 'exploreLoaded' was never used; consider replacing with assignment to '_' or removing it[0m
+[18:12:41]: ▸ [35m        let exploreLoaded = app.staticTexts["Categories"].waitForExistence(timeout: 2.0)[0m
+[18:12:41]: ▸ [35m[36m        ^[0m
+[18:12:41]: ▸ [35m[33m⚠️  [0m/Users/gragera/code/antigravity/lumen/Lumen/UITests/LumenAppStoreScreenshots.swift:30:13: [33minitialization of immutable value 'settingsLoaded' was never used; consider replacing with assignment to '_' or removing it[0m
+[18:12:41]: ▸ [35m        let settingsLoaded = app.staticTexts["Appearance"].waitForExistence(timeout: 2.0)[0m
+[18:12:41]: ▸ [35m[36m        ~~~~^~~~~~~~~~~~~[0m
+[18:12:41]: ▸ [35m[33m⚠️  [0m/Users/gragera/code/antigravity/lumen/Lumen/UITests/LumenAppStoreScreenshots.swift:32:13: [33minitialization of immutable value 'themesLoaded' was never used; consider replacing with assignment to '_' or removing it[0m
+[18:12:41]: ▸ [35m        let themesLoaded = app.navigationBars.staticTexts["Themes & Backgrounds"].waitForExistence(timeout: 2.0)[0m
+[18:12:41]: ▸ [35m[36m        ~~~~^~~~~~~~~~~~~~[0m
+[18:12:41]: ▸ [35m[33m⚠️  [0m/Users/gragera/code/antigravity/lumen/Lumen/UITests/LumenAppStoreScreenshots.swift:38:13: [33minitialization of immutable value 'paywallLoaded' was never used; consider replacing with assignment to '_' or removing it[0m
+[18:12:41]: ▸ [35m        let paywallLoaded = app.staticTexts["Unlock Lumen Premium"].waitForExistence(timeout: 2.0)[0m
+[18:12:41]: ▸ [35m[36m        ~~~~^~~~~~~~~~~~[0m
+[18:12:41]: [35mRunning Tests: [33m▸[0m [39;1mTouching[0m RevenueCatUI.framework (in target 'RevenueCatUI' from project 'RevenueCat')[0m
+[18:12:41]: [35m[33m▸[0m [39;1mCopying[0m /var/folders/18/5c2c3ltj1pb44k9z077hpy740000gn/T/snapshot_derived20260305-75367-nfhnvg/Build/Products/Debug-iphonesimulator/Lumen.app/onboarding_background.mp4[0m
+[18:12:41]: [35m[33m▸[0m [39;1mCopying[0m /var/folders/18/5c2c3ltj1pb44k9z077hpy740000gn/T/snapshot_derived20260305-75367-nfhnvg/Build/Products/Debug-iphonesimulator/Lumen.app/affirmations_en.json[0m
+[18:12:41]: [35m[33m▸[0m [39;1mCopying[0m /var/folders/18/5c2c3ltj1pb44k9z077hpy740000gn/T/snapshot_derived20260305-75367-nfhnvg/Build/Products/Debug-iphonesimulator/Lumen.app/categories_en.json[0m
+[18:12:41]: [35m[33m▸[0m [39;1mCopying[0m /var/folders/18/5c2c3ltj1pb44k9z077hpy740000gn/T/snapshot_derived20260305-75367-nfhnvg/Build/Products/Debug-iphonesimulator/Lumen.app/ZillaSlab-SemiBold.ttf[0m
+[18:12:41]: [35m[33m▸[0m [39;1mCopying[0m /var/folders/18/5c2c3ltj1pb44k9z077hpy740000gn/T/snapshot_derived20260305-75367-nfhnvg/Build/Products/Debug-iphonesimulator/Lumen.app/ZillaSlab-Bold.ttf[0m
+[18:12:41]: [35m[33m▸[0m [39;1mLinking[0m __preview.dylib[0m
+[18:12:41]: [35m[33m▸[0m [39;1mCopying[0m /var/folders/18/5c2c3ltj1pb44k9z077hpy740000gn/T/snapshot_derived20260305-75367-nfhnvg/Build/Products/Debug-iphonesimulator/Lumen.app/Righteous-Regular.ttf[0m
+[18:12:41]: [35m[33m▸[0m [39;1mCopying[0m /var/folders/18/5c2c3ltj1pb44k9z077hpy740000gn/T/snapshot_derived20260305-75367-nfhnvg/Build/Products/Debug-iphonesimulator/Lumen.app/RevenueCat_RevenueCatUI.bundle[0m
+[18:12:41]: [35m[33m▸[0m [39;1mCopying[0m /var/folders/18/5c2c3ltj1pb44k9z077hpy740000gn/T/snapshot_derived20260305-75367-nfhnvg/Build/Products/Debug-iphonesimulator/Lumen.app/RevenueCat_RevenueCat.bundle[0m
+[18:12:41]: [35m[33m▸[0m [39;1mCopying[0m /var/folders/18/5c2c3ltj1pb44k9z077hpy740000gn/T/snapshot_derived20260305-75367-nfhnvg/Build/Products/Debug-iphonesimulator/Lumen.app/PlayfairDisplay.ttf[0m
+[18:12:41]: [35m[33m▸[0m [39;1mCopying[0m /var/folders/18/5c2c3ltj1pb44k9z077hpy740000gn/T/snapshot_derived20260305-75367-nfhnvg/Build/Products/Debug-iphonesimulator/Lumen.app/JosefinSans.ttf[0m
+[18:12:41]: [35m[33m▸[0m [39;1mCopying[0m /var/folders/18/5c2c3ltj1pb44k9z077hpy740000gn/T/snapshot_derived20260305-75367-nfhnvg/Build/Products/Debug-iphonesimulator/Lumen.app/DancingScript.ttf[0m
+[18:12:41]: [35m[33m▸[0m [39;1mCopying[0m /var/folders/18/5c2c3ltj1pb44k9z077hpy740000gn/T/snapshot_derived20260305-75367-nfhnvg/Build/Products/Debug-iphonesimulator/Lumen.app/CormorantGaramond-SemiBold.ttf[0m
+[18:12:41]: [35m[33m▸[0m [39;1mCopying[0m /var/folders/18/5c2c3ltj1pb44k9z077hpy740000gn/T/snapshot_derived20260305-75367-nfhnvg/Build/Products/Debug-iphonesimulator/Lumen.app/CormorantGaramond-Bold.ttf[0m
+[18:12:41]: [35m[33m▸[0m [39;1mCopying[0m /var/folders/18/5c2c3ltj1pb44k9z077hpy740000gn/T/snapshot_derived20260305-75367-nfhnvg/Build/Products/Debug-iphonesimulator/Lumen.app/Caveat.ttf[0m
+[18:12:41]: [35m[33m▸[0m [39;1mCopying[0m /var/folders/18/5c2c3ltj1pb44k9z077hpy740000gn/T/snapshot_derived20260305-75367-nfhnvg/Build/Products/Debug-iphonesimulator/Lumen.app/AbrilFatface-Regular.ttf[0m
+[18:12:41]: [35m[33m▸[0m [39;1mCopying[0m Localizable.strings[0m
+[18:12:41]: [35m[33m▸[0m [39;1mCopying[0m Localizable.strings[0m
+[18:12:41]: [35m[33m▸[0m [39;1mLinking[0m Lumen.debug.dylib[0m
+[18:12:42]: [35m[33m▸[0m [39;1mLinking[0m Lumen[0m
+[18:12:42]: [35m[33m▸[0m [39;1mProcessing[0m Lumen-Info.plist[0m
+[18:12:43]: ▸ [35m    [33mThe CFBundleVersion of an app extension ('4') must match that of its containing parent app ('1').[0m
+[18:12:43]: [35mRunning Tests: [33m▸[0m [39;1mTouching[0m Lumen.app (in target 'Lumen' from project 'Lumen')[0m
+[18:12:43]: [35m[33m▸[0m [39;1mProcessing[0m LumenUITests-Info.plist[0m
+[18:12:43]: [35m[33m▸[0m [39;1mLinking[0m LumenUITests[0m
+[18:12:44]: [35m[33m▸[0m [39;1mCopying[0m Info.plist[0m
+[18:12:44]: [35mRunning Tests: [33m▸[0m [39;1mTouching[0m LumenUITests.xctest (in target 'LumenUITests' from project 'Lumen')[0m
+[18:12:44]: [35m[33m▸[0m [39;1mBuild[0m Succeeded[0m
+[18:12:44]: ▸ [35m--- xcodebuild: WARNING: Using the first of multiple matching destinations:[0m
+[18:12:44]: ▸ [35m{ platform:iOS Simulator, arch:arm64, id:4CD12F2F-1ECE-4C27-9CF1-E0FAF3808833, OS:18.4, name:iPhone 16 Pro Max }[0m
+[18:12:44]: ▸ [35m{ platform:iOS Simulator, arch:x86_64, id:4CD12F2F-1ECE-4C27-9CF1-E0FAF3808833, OS:18.4, name:iPhone 16 Pro Max }[0m
+[18:12:47]: [35m[33m▸[0m [39;1mProcessing[0m Info.plist[0m
+[18:12:47]: [35m[33m▸[0m [39;1mLinking[0m LumenWidgets.debug.dylib[0m
+[18:12:47]: [35m[33m▸[0m [39;1mLinking[0m LumenWidgets[0m
+[18:12:47]: [35m[33m▸[0m [39;1mProcessing[0m ConcurrencyExtras-Info.plist[0m
+[18:12:47]: [35m[33m▸[0m [39;1mProcessing[0m IssueReportingPackageSupport-Info.plist[0m
+[18:12:47]: [35m[33m▸[0m [39;1mProcessing[0m IssueReporting-Info.plist[0m
+[18:12:47]: [35m[33m▸[0m [39;1mProcessing[0m Clocks-Info.plist[0m
+[18:12:47]: [35m[33m▸[0m [39;1mProcessing[0m CombineSchedulers-Info.plist[0m
+[18:12:47]: [35m[33m▸[0m [39;1mProcessing[0m XCTestDynamicOverlay-Info.plist[0m
+[18:12:47]: [35m[33m▸[0m [39;1mProcessing[0m Dependencies-Info.plist[0m
+[18:12:47]: [35m[33m▸[0m [39;1mProcessing[0m RevenueCat_RevenueCat-Info.plist[0m
+[18:12:47]: [35m[33m▸[0m [39;1mProcessing[0m RevenueCat-Info.plist[0m
+[18:12:47]: [35m[33m▸[0m [39;1mProcessing[0m RevenueCat_RevenueCatUI-Info.plist[0m
+[18:12:47]: [35m[33m▸[0m [39;1mProcessing[0m RevenueCatUI-Info.plist[0m
+[18:12:47]: [35m[33m▸[0m [39;1mLinking[0m Lumen.debug.dylib[0m
+[18:12:48]: [35m[33m▸[0m [39;1mLinking[0m Lumen[0m
+[18:12:48]: [35m[33m▸[0m [39;1mCopying[0m /var/folders/18/5c2c3ltj1pb44k9z077hpy740000gn/T/snapshot_derived20260305-75367-nfhnvg/Build/Products/Debug-iphonesimulator/Lumen.app/RevenueCat_RevenueCat.bundle[0m
+[18:12:48]: [35m[33m▸[0m [39;1mCopying[0m /var/folders/18/5c2c3ltj1pb44k9z077hpy740000gn/T/snapshot_derived20260305-75367-nfhnvg/Build/Products/Debug-iphonesimulator/Lumen.app/RevenueCat_RevenueCatUI.bundle[0m
+[18:12:48]: [35m[33m▸[0m [39;1mProcessing[0m Lumen-Info.plist[0m
+[18:12:50]: ▸ [35m    [33mThe CFBundleVersion of an app extension ('4') must match that of its containing parent app ('1').[0m
+[18:12:50]: [35m[33m▸[0m [39;1mLinking[0m LumenUITests[0m
+[18:12:50]: [35m[33m▸[0m [39;1mProcessing[0m LumenUITests-Info.plist[0m
+[18:13:03]: ▸ [35m[39;1mAll tests[0m
+[18:13:03]: ▸ [35mTest Suite [39;1mLumenUITests.xctest[0m started[0m
+[18:13:03]: ▸ [35m[39;1mLumenAppStoreScreenshots[0m
+[18:13:28]: ▸ [35m    [32;1m✓[0m testTakeScreenshots ([31m25.588[0m seconds)[0m
+[18:13:28]: ▸ [35m[32;1m	 Executed 1 test, with 0 failures (0 unexpected) in 25.588 (25.590) seconds[0m
+[18:13:28]: ▸ [35m[0m
+[18:13:29]: ▸ [35m2026-03-05 18:13:29.254 xcodebuild[76121:52120355] [MT] IDETestOperationsObserverDebug: 38.540 elapsed -- Testing started completed.[0m
+[18:13:29]: ▸ [35m2026-03-05 18:13:29.254 xcodebuild[76121:52120355] [MT] IDETestOperationsObserverDebug: 0.000 sec, +0.000 sec -- start[0m
+[18:13:29]: ▸ [35m2026-03-05 18:13:29.254 xcodebuild[76121:52120355] [MT] IDETestOperationsObserverDebug: 38.540 sec, +38.540 sec -- end[0m
+[18:13:29]: [35m[33m▸[0m [39;1mTest[0m Succeeded[0m
+[18:13:29]: Clearing Status Bar Override
+[18:13:29]: [36m$ xcrun simctl status_bar 4CD12F2F-1ECE-4C27-9CF1-E0FAF3808833 clear &> /dev/null[0m
+[18:13:29]: [32mCopying '/Users/gragera/code/antigravity/lumen/Lumen/screenshots/en-US/iPhone 16 Pro Max-01_HomeFeed.png'...[0m
+[18:13:29]: [32mCopying '/Users/gragera/code/antigravity/lumen/Lumen/screenshots/en-US/iPhone 16 Pro Max-02_Explore.png'...[0m
+[18:13:29]: [32mCopying '/Users/gragera/code/antigravity/lumen/Lumen/screenshots/en-US/iPhone 16 Pro Max-03_Themes.png'...[0m
+[18:13:29]: [32mCopying '/Users/gragera/code/antigravity/lumen/Lumen/screenshots/en-US/iPhone 16 Pro Max-04_PremiumPaywall.png'...[0m
+[18:13:33]: Patching simulators '/Users/gragera/Library/Preferences/com.apple.iphonesimulator.plist' to scale to 100%
+[18:13:35]: [33mUsing device named 'iPhone SE (3rd generation)' with version '18.2' because no match was found for version '26.2'[0m
+[18:13:35]: Launch Simulator iPhone SE (3rd generation)
+[18:13:35]: [36m$ xcrun simctl bootstatus C7EC4C68-1ABA-43EC-AA2A-693101AAA647 -b &> /dev/null[0m
+[18:13:43]: Waiting 0 seconds for device to fully boot before overriding status bar... Set 'SNAPSHOT_SIMULATOR_WAIT_FOR_BOOT_TIMEOUT' environment variable to adjust timeout
+[18:13:43]: Overriding Status Bar
+[18:13:43]: [36m$ xcrun simctl status_bar C7EC4C68-1ABA-43EC-AA2A-693101AAA647 override --time 09:41 --dataNetwork wifi --wifiMode active --wifiBars 3 --cellularMode active --operatorName '' --cellularBars 4 --batteryState charged --batteryLevel 100 &> /dev/null[0m
+[18:13:44]: [33mRunning snapshot on: iPhone SE (3rd generation)[0m
+[18:13:44]: [36m$ set -o pipefail && xcodebuild -workspace Lumen.xcworkspace -scheme LumenUITests -derivedDataPath /var/folders/18/5c2c3ltj1pb44k9z077hpy740000gn/T/snapshot_derived20260305-75367-nfhnvg -destination 'platform=iOS Simulator,name=iPhone SE (3rd generation),OS=18.2' FASTLANE_SNAPSHOT=YES FASTLANE_LANGUAGE=en-US build test | tee -a /Users/gragera/Library/Logs/snapshot/LumenUITests-LumenUITests.log | xcpretty [0m
+[18:13:44]: ▸ [35mLoading...[0m
+[18:13:46]: ▸ [35m--- xcodebuild: WARNING: Using the first of multiple matching destinations:[0m
+[18:13:46]: ▸ [35m{ platform:iOS Simulator, arch:arm64, id:C7EC4C68-1ABA-43EC-AA2A-693101AAA647, OS:18.2, name:iPhone SE (3rd generation) }[0m
+[18:13:46]: ▸ [35m{ platform:iOS Simulator, arch:x86_64, id:C7EC4C68-1ABA-43EC-AA2A-693101AAA647, OS:18.2, name:iPhone SE (3rd generation) }[0m
+[18:13:48]: [35m[33m▸[0m [39;1mProcessing[0m Info.plist[0m
+[18:13:48]: [35m[33m▸[0m [39;1mLinking[0m LumenWidgets.debug.dylib[0m
+[18:13:48]: [35m[33m▸[0m [39;1mLinking[0m LumenWidgets[0m
+[18:13:49]: [35m[33m▸[0m [39;1mProcessing[0m ConcurrencyExtras-Info.plist[0m
+[18:13:49]: [35m[33m▸[0m [39;1mProcessing[0m IssueReportingPackageSupport-Info.plist[0m
+[18:13:49]: [35m[33m▸[0m [39;1mProcessing[0m IssueReporting-Info.plist[0m
+[18:13:49]: [35m[33m▸[0m [39;1mProcessing[0m Clocks-Info.plist[0m
+[18:13:49]: [35m[33m▸[0m [39;1mProcessing[0m CombineSchedulers-Info.plist[0m
+[18:13:49]: [35m[33m▸[0m [39;1mProcessing[0m XCTestDynamicOverlay-Info.plist[0m
+[18:13:49]: [35m[33m▸[0m [39;1mProcessing[0m Dependencies-Info.plist[0m
+[18:13:49]: [35m[33m▸[0m [39;1mProcessing[0m RevenueCat_RevenueCat-Info.plist[0m
+[18:13:49]: [35m[33m▸[0m [39;1mProcessing[0m RevenueCat-Info.plist[0m
+[18:13:54]: [35m[33m▸[0m [39;1mProcessing[0m RevenueCat_RevenueCatUI-Info.plist[0m
+[18:13:54]: [35m[33m▸[0m [39;1mProcessing[0m RevenueCatUI-Info.plist[0m
+[18:13:54]: [35m[33m▸[0m [39;1mLinking[0m Lumen.debug.dylib[0m
+[18:13:55]: [35m[33m▸[0m [39;1mLinking[0m Lumen[0m
+[18:13:57]: [35m[33m▸[0m [39;1mCopying[0m /var/folders/18/5c2c3ltj1pb44k9z077hpy740000gn/T/snapshot_derived20260305-75367-nfhnvg/Build/Products/Debug-iphonesimulator/Lumen.app/RevenueCat_RevenueCatUI.bundle[0m
+[18:13:57]: [35m[33m▸[0m [39;1mProcessing[0m Lumen-Info.plist[0m
+[18:13:59]: ▸ [35m    [33mThe CFBundleVersion of an app extension ('4') must match that of its containing parent app ('1').[0m
+[18:13:59]: [35m[33m▸[0m [39;1mProcessing[0m LumenUITests-Info.plist[0m
+[18:13:59]: [35m[33m▸[0m [39;1mLinking[0m LumenUITests[0m
+[18:13:59]: [35m[33m▸[0m [39;1mBuild[0m Succeeded[0m
+[18:13:59]: ▸ [35m--- xcodebuild: WARNING: Using the first of multiple matching destinations:[0m
+[18:13:59]: ▸ [35m{ platform:iOS Simulator, arch:arm64, id:C7EC4C68-1ABA-43EC-AA2A-693101AAA647, OS:18.2, name:iPhone SE (3rd generation) }[0m
+[18:13:59]: ▸ [35m{ platform:iOS Simulator, arch:x86_64, id:C7EC4C68-1ABA-43EC-AA2A-693101AAA647, OS:18.2, name:iPhone SE (3rd generation) }[0m
+[18:14:03]: [35m[33m▸[0m [39;1mProcessing[0m Info.plist[0m
+[18:14:03]: [35m[33m▸[0m [39;1mLinking[0m LumenWidgets.debug.dylib[0m
+[18:14:03]: [35m[33m▸[0m [39;1mLinking[0m LumenWidgets[0m
+[18:14:04]: [35m[33m▸[0m [39;1mProcessing[0m ConcurrencyExtras-Info.plist[0m
+[18:14:04]: [35m[33m▸[0m [39;1mProcessing[0m IssueReportingPackageSupport-Info.plist[0m
+[18:14:04]: [35m[33m▸[0m [39;1mProcessing[0m IssueReporting-Info.plist[0m
+[18:14:04]: [35m[33m▸[0m [39;1mProcessing[0m Clocks-Info.plist[0m
+[18:14:04]: [35m[33m▸[0m [39;1mProcessing[0m CombineSchedulers-Info.plist[0m
+[18:14:04]: [35m[33m▸[0m [39;1mProcessing[0m XCTestDynamicOverlay-Info.plist[0m
+[18:14:04]: [35m[33m▸[0m [39;1mProcessing[0m Dependencies-Info.plist[0m
+[18:14:04]: [35m[33m▸[0m [39;1mProcessing[0m RevenueCat_RevenueCat-Info.plist[0m
+[18:14:04]: [35m[33m▸[0m [39;1mProcessing[0m RevenueCat-Info.plist[0m
+[18:14:04]: [35m[33m▸[0m [39;1mProcessing[0m RevenueCat_RevenueCatUI-Info.plist[0m
+[18:14:04]: [35m[33m▸[0m [39;1mProcessing[0m RevenueCatUI-Info.plist[0m
+[18:14:04]: [35m[33m▸[0m [39;1mLinking[0m Lumen.debug.dylib[0m
+[18:14:04]: [35m[33m▸[0m [39;1mLinking[0m Lumen[0m
+[18:14:05]: [35m[33m▸[0m [39;1mProcessing[0m Lumen-Info.plist[0m
+[18:14:06]: ▸ [35m    [33mThe CFBundleVersion of an app extension ('4') must match that of its containing parent app ('1').[0m
+[18:14:06]: [35m[33m▸[0m [39;1mLinking[0m LumenUITests[0m
+[18:14:06]: [35m[33m▸[0m [39;1mProcessing[0m LumenUITests-Info.plist[0m
+[18:14:18]: ▸ [35m[39;1mAll tests[0m
+[18:14:18]: ▸ [35mTest Suite [39;1mLumenUITests.xctest[0m started[0m
+[18:14:18]: ▸ [35m[39;1mLumenAppStoreScreenshots[0m
+[18:14:42]: ▸ [35m    [32;1m✓[0m testTakeScreenshots ([31m24.294[0m seconds)[0m
+[18:14:42]: ▸ [35m[32;1m	 Executed 1 test, with 0 failures (0 unexpected) in 24.294 (24.296) seconds[0m
+[18:14:42]: ▸ [35m[0m
+[18:14:43]: ▸ [35m2026-03-05 18:14:43.015 xcodebuild[80642:52144332] [MT] IDETestOperationsObserverDebug: 36.202 elapsed -- Testing started completed.[0m
+[18:14:43]: ▸ [35m2026-03-05 18:14:43.015 xcodebuild[80642:52144332] [MT] IDETestOperationsObserverDebug: 0.000 sec, +0.000 sec -- start[0m
+[18:14:43]: ▸ [35m2026-03-05 18:14:43.015 xcodebuild[80642:52144332] [MT] IDETestOperationsObserverDebug: 36.202 sec, +36.202 sec -- end[0m
+[18:14:43]: [35m[33m▸[0m [39;1mTest[0m Succeeded[0m
+[18:14:43]: Clearing Status Bar Override
+[18:14:43]: [36m$ xcrun simctl status_bar C7EC4C68-1ABA-43EC-AA2A-693101AAA647 clear &> /dev/null[0m
+[18:14:43]: [32mCopying '/Users/gragera/code/antigravity/lumen/Lumen/screenshots/en-US/iPhone SE (3rd generation)-01_HomeFeed.png'...[0m
+[18:14:43]: [32mCopying '/Users/gragera/code/antigravity/lumen/Lumen/screenshots/en-US/iPhone SE (3rd generation)-02_Explore.png'...[0m
+[18:14:43]: [32mCopying '/Users/gragera/code/antigravity/lumen/Lumen/screenshots/en-US/iPhone SE (3rd generation)-03_Themes.png'...[0m
+[18:14:43]: [32mCopying '/Users/gragera/code/antigravity/lumen/Lumen/screenshots/en-US/iPhone SE (3rd generation)-04_PremiumPaywall.png'...[0m
+
++------------------------------------+
+|          snapshot results          |
++----------------------------+-------+
+| Device                     | en-US |
++----------------------------+-------+
+| iPhone 16 Pro Max          |  💚   |
+| iPhone SE (3rd generation) |  💚   |
++----------------------------+-------+
+
+[18:14:43]: Generating HTML Report
+[18:14:43]: [32mSuccessfully created HTML file with an overview of all the screenshots: '/Users/gragera/code/antigravity/lumen/Lumen/screenshots/screenshots.html'[0m

@@ -201,8 +201,12 @@ struct ContentView: View {
             let prefs = try PreferencesService.shared.getOrCreate(modelContext: modelContext)
             preferences = prefs
             hasCompletedOnboarding = prefs.hasCompletedOnboarding
+            if ProcessInfo.processInfo.arguments.contains("-UITesting") {
+                hasCompletedOnboarding = true
+                prefs.hasCompletedOnboarding = true
+            }
         } catch {
-            hasCompletedOnboarding = false
+            hasCompletedOnboarding = ProcessInfo.processInfo.arguments.contains("-UITesting")
         }
     }
 }

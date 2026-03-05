@@ -1,5 +1,6 @@
 import SwiftData
 import SwiftUI
+import UIKit
 
 struct AffirmationDetailView: View {
     let affirmationId: String
@@ -8,6 +9,7 @@ struct AffirmationDetailView: View {
     @State private var isFavorited = false
     @State private var editingAffirmation: Affirmation?
     @State private var customization: CardCustomization?
+    @State private var backgroundImage: UIImage?
 
     private let customizationService: CardCustomizationServiceProtocol = CardCustomizationService.shared
 
@@ -72,6 +74,15 @@ struct AffirmationDetailView: View {
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
                 )
+                .ignoresSafeArea()
+            } else if let bgImage = backgroundImage {
+                GeometryReader { geo in
+                    Image(uiImage: bgImage)
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: geo.size.width, height: geo.size.height)
+                        .clipped()
+                }
                 .ignoresSafeArea()
             } else {
                 LinearGradient(colors: colors, startPoint: .topLeading, endPoint: .bottomTrailing)
@@ -180,6 +191,12 @@ struct AffirmationDetailView: View {
         affirmation = try? modelContext.fetch(descriptor).first
         isFavorited = affirmation?.isFavorited ?? false
         reloadCustomization()
+
+        if let aff = affirmation {
+            Task {
+                await loadBackground(for: aff)
+            }
+        }
     }
 
     private func reloadCustomization() {
@@ -199,6 +216,63 @@ struct AffirmationDetailView: View {
             isFavorited = true
         }
         try? modelContext.save()
+    }
+
+    // MARK: - Background Loading
+
+    private func loadBackground(for affirmation: Affirmation) async {
+        do {
+            let descriptor = FetchDescriptor<AppTheme>(
+                predicate: #Predicate<AppTheme> { $0.isActive == true || $0.isActive == nil }
+            )
+            let themes = try modelContext.fetch(descriptor)
+            let activeThemeIds = themes.map(\.id)
+            guard !activeThemeIds.isEmpty else { return }
+
+            let themeId = activeThemeIds[abs(affirmation.id.hashValue) % activeThemeIds.count]
+
+            if let image = await Task.detached(operation: { Self.loadThemeImage(themeId: themeId) }).value {
+                self.backgroundImage = image
+            }
+        } catch {
+            print("Failed to load active themes for detail view: \(error)")
+        }
+    }
+
+    private nonisolated static func loadThemeImage(themeId: String) -> UIImage? {
+        let searchDirs: [URL] = [
+            FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.gragera.lumen")?
+                .appendingPathComponent("themes/generated"),
+            FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.gragera.lumen")?
+                .appendingPathComponent("themes/ai"),
+            FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first?
+                .appendingPathComponent("themes/generated"),
+            FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first?
+                .appendingPathComponent("themes/ai"),
+        ].compactMap { $0 }
+
+        let extensions = ["png", "jpg"]
+
+        for dir in searchDirs {
+            for ext in extensions {
+                let imagePath = dir.appendingPathComponent("\(themeId).\(ext)")
+                if let data = try? Data(contentsOf: imagePath), let image = UIImage(data: data) {
+                    let screenScale = 2.0
+                    let targetWidth = 430.0 * screenScale
+                    let scale = targetWidth / image.size.width
+                    let targetSize = CGSize(width: targetWidth, height: image.size.height * scale)
+                    let renderer = UIGraphicsImageRenderer(size: targetSize)
+                    return renderer.image { _ in
+                        image.draw(in: CGRect(origin: .zero, size: targetSize))
+                    }
+                }
+            }
+        }
+
+        if let bundled = UIImage(named: themeId) {
+            return bundled
+        }
+        return nil
     }
 }
 

@@ -15,7 +15,7 @@ let baseSettings: SettingsDictionary = [
     "CODE_SIGN_STYLE": "Automatic",
     "CODE_SIGN_ALLOW_ENTITLEMENTS_MODIFICATION": "YES",
     "MARKETING_VERSION": "1.0.2",
-    "CURRENT_PROJECT_VERSION": "10",
+    "CURRENT_PROJECT_VERSION": "11",
 ]
 
 // MARK: - Project
@@ -144,6 +144,22 @@ let project = Project(
                 .external(name: "SnapshotTesting"),
             ]
         ),
+
+        // MARK: - LumenUITests (App Store Screenshots)
+        .target(
+            name: "LumenUITests",
+            destinations: .iOS,
+            product: .uiTests,
+            bundleId: "\(bundleIdPrefix).lumen.uitests",
+            deploymentTargets: .iOS("18.0"),
+            sources: [
+                "UITests/**",
+                "fastlane/SnapshotHelper.swift",
+            ],
+            dependencies: [
+                .target(name: "Lumen")
+            ]
+        ),
     ],
     schemes: [
         .scheme(
@@ -151,13 +167,19 @@ let project = Project(
             shared: true,
             buildAction: .buildAction(targets: ["Lumen", "LumenWidgets"]),
             testAction: .targets(
-                [.testableTarget(target: "LumenTests")],
+                [.testableTarget(target: "LumenTests"), .testableTarget(target: "LumenUITests")],
                 configuration: .debug
             ),
             runAction: .runAction(configuration: .debug),
             archiveAction: .archiveAction(configuration: .release),
             profileAction: .profileAction(configuration: .release),
             analyzeAction: .analyzeAction(configuration: .debug)
+        ),
+        .scheme(
+            name: "LumenUITests",
+            shared: true,
+            buildAction: .buildAction(targets: ["LumenUITests"]),
+            testAction: .targets([.testableTarget(target: "LumenUITests")])
         ),
         .scheme(
             name: "LumenWatch",

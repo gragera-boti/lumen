@@ -53,6 +53,17 @@
                ReferencedContainer = "container:Lumen.xcodeproj">
             </BuildableReference>
          </TestableReference>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "8A97F73FE1FBB4C602A42E1F"
+               BuildableName = "LumenUITests.xctest"
+               BlueprintName = "LumenUITests"
+               ReferencedContainer = "container:Lumen.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction

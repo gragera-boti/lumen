@@ -126,6 +126,20 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
+               BlueprintIdentifier = "8A97F73FE1FBB4C602A42E1F"
+               BuildableName = "LumenUITests.xctest"
+               BlueprintName = "LumenUITests"
+               ReferencedContainer = "container:Lumen.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
                BlueprintIdentifier = "C6B063F1FB1BA82CC4370FBC"
                BuildableName = "LumenWatch.app"
                BlueprintName = "LumenWatch"
@@ -246,6 +260,17 @@
                BlueprintIdentifier = "2E79081A5FDB7B19AC8C41BB"
                BuildableName = "LumenTests.xctest"
                BlueprintName = "LumenTests"
+               ReferencedContainer = "container:Lumen.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "8A97F73FE1FBB4C602A42E1F"
+               BuildableName = "LumenUITests.xctest"
+               BlueprintName = "LumenUITests"
                ReferencedContainer = "container:Lumen.xcodeproj">
             </BuildableReference>
          </TestableReference>

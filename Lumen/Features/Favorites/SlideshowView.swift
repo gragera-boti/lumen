@@ -4,6 +4,7 @@ import SwiftUI
 struct SlideshowView: View {
     let affirmations: [Affirmation]
     var customizations: [String: CardCustomization] = [:]
+    var cardBackgrounds: [String: UIImage] = [:]
 
     @Environment(\.dismiss) private var dismiss
     @State private var currentIndex = 0
@@ -91,12 +92,22 @@ struct SlideshowView: View {
             Color.black
         } else {
             let aff = affirmations[currentIndex]
-            let index = abs(aff.id.hashValue) % LumenTheme.Colors.gradients.count
-            LinearGradient(
-                colors: LumenTheme.Colors.gradients[index],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
+            if let bgImage = cardBackgrounds[aff.id] {
+                GeometryReader { geo in
+                    Image(uiImage: bgImage)
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: geo.size.width, height: geo.size.height)
+                        .clipped()
+                }
+            } else {
+                let index = abs(aff.id.hashValue) % LumenTheme.Colors.gradients.count
+                LinearGradient(
+                    colors: LumenTheme.Colors.gradients[index],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            }
         }
     }
 

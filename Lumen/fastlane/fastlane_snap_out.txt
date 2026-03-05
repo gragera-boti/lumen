@@ -1,0 +1,36 @@
+Top level ::CompositeIO is deprecated, require 'multipart/post' and use `Multipart::Post::CompositeReadIO` instead!
+Top level ::Parts is deprecated, require 'multipart/post' and use `Multipart::Post::Parts` instead!
+[00:19:44]: [33mGet started using a Gemfile for fastlane https://docs.fastlane.tools/getting-started/ios/setup/#use-a-gemfile[0m
+[00:19:45]: [32mSuccessfully loaded '/Users/gragera/code/antigravity/lumen/Lumen/fastlane/Snapfile' 📄[0m
+
++----------------------------------------------------------------+
+|               Detected Values from './Snapfile'                |
++----------------------------+-----------------------------------+
+| devices                    | ["iPhone 16 Pro Max", "iPhone SE  |
+|                            | (3rd generation)"]                |
+| languages                  | ["en-US"]                         |
+| scheme                     | LumenUITests                      |
+| workspace                  | ../Lumen.xcworkspace              |
+| output_directory           | ./screenshots                     |
+| clear_previous_screenshots | true                              |
+| override_status_bar        | true                              |
++----------------------------+-----------------------------------+
+
+[00:19:45]: [32mSuccessfully loaded '/Users/gragera/code/antigravity/lumen/Lumen/fastlane/Snapfile' 📄[0m
+
++----------------------------------------------------------------+
+|           Detected Values from './fastlane/Snapfile'           |
++----------------------------+-----------------------------------+
+| devices                    | ["iPhone 16 Pro Max", "iPhone SE  |
+|                            | (3rd generation)"]                |
+| languages                  | ["en-US"]                         |
+| scheme                     | LumenUITests                      |
+| workspace                  | ../Lumen.xcworkspace              |
+| output_directory           | ./screenshots                     |
+| clear_previous_screenshots | true                              |
+| override_status_bar        | true                              |
++----------------------------+-----------------------------------+
+
+[00:19:46]: [31mError setting value '../Lumen.xcworkspace' for option 'workspace'[0m
+[31m
+[!] Workspace file not found at path '/Users/gragera/code/antigravity/lumen/Lumen.xcworkspace'[0m

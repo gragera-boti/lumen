@@ -11,11 +11,10 @@ platform :ios do
     pilot(
       app_identifier: "com.gragera.lumen",
       app_platform: "ios",
-      ipa: "/Users/gragera/code/antigravity/lumen/Lumen/build/Lumen.ipa",
+      app_platform: "ios",
       groups: ["Internal Testers", "Dev Team"],
-      distribute_external: false,
-      skip_submission: true,
-      wait_for_uploaded_build: true
+      distribute_only: true,
+      build_number: "11"
     )
   end
 end

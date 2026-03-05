@@ -42,7 +42,8 @@ struct FavoritesView: View {
         .fullScreenCover(isPresented: $showSlideshow) {
             SlideshowView(
                 affirmations: viewModel.allFavorites,
-                customizations: viewModel.customizations
+                customizations: viewModel.customizations,
+                cardBackgrounds: viewModel.cardBackgrounds
             )
         }
         .sheet(item: $editingAffirmation) { affirmation in
@@ -70,7 +71,7 @@ struct FavoritesView: View {
             Text("This will permanently delete your custom affirmation.")
         }
         .task {
-            viewModel.loadFavorites(modelContext: modelContext)
+            await viewModel.loadFavorites(modelContext: modelContext)
         }
     }
 
@@ -130,7 +131,8 @@ struct FavoritesView: View {
                     FavoriteRow(
                         affirmation: affirmation,
                         isUserCreated: isUserCreated,
-                        displayText: viewModel.customizations[affirmation.id]?.customText
+                        displayText: viewModel.customizations[affirmation.id]?.customText,
+                        backgroundImage: viewModel.backgroundImage(for: affirmation)
                     )
                     .contentShape(Rectangle())
                     .onTapGesture {
@@ -189,6 +191,7 @@ struct FavoriteRow: View {
     let affirmation: Affirmation
     var isUserCreated: Bool = false
     var displayText: String?
+    var backgroundImage: UIImage?
 
     private var gradientColors: [Color] {
         let index = abs(affirmation.id.hashValue) % LumenTheme.Colors.gradients.count
@@ -197,21 +200,34 @@ struct FavoriteRow: View {
 
     var body: some View {
         HStack(spacing: LumenTheme.Spacing.md) {
-            // Gradient accent strip
-            RoundedRectangle(cornerRadius: LumenTheme.Radii.sm)
-                .fill(
-                    LinearGradient(
-                        colors: gradientColors,
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
+            // Gradient or Image accent strip
+            if let bgImage = backgroundImage {
+                Image(uiImage: bgImage)
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: 44, height: 44)
+                    .clipShape(RoundedRectangle(cornerRadius: LumenTheme.Radii.sm))
+                    .overlay {
+                        Image(systemName: isUserCreated ? "pencil.line" : "heart.fill")
+                            .foregroundStyle(.white)
+                            .font(.caption)
+                    }
+            } else {
+                RoundedRectangle(cornerRadius: LumenTheme.Radii.sm)
+                    .fill(
+                        LinearGradient(
+                            colors: gradientColors,
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
                     )
-                )
-                .frame(width: 44, height: 44)
-                .overlay {
-                    Image(systemName: isUserCreated ? "pencil.line" : "heart.fill")
-                        .foregroundStyle(.white)
-                        .font(.caption)
-                }
+                    .frame(width: 44, height: 44)
+                    .overlay {
+                        Image(systemName: isUserCreated ? "pencil.line" : "heart.fill")
+                            .foregroundStyle(.white)
+                            .font(.caption)
+                    }
+            }
 
             VStack(alignment: .leading, spacing: 3) {
                 HStack(spacing: 6) {
