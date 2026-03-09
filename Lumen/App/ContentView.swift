@@ -204,6 +204,9 @@ struct ContentView: View {
             if ProcessInfo.processInfo.arguments.contains("-UITesting") {
                 hasCompletedOnboarding = true
                 prefs.hasCompletedOnboarding = true
+                if prefs.selectedCategoryIds.isEmpty {
+                    prefs.selectedCategoryIds = ["cat_self_love", "cat_confidence", "cat_calm", "cat_motivation"]
+                }
             }
         } catch {
             hasCompletedOnboarding = ProcessInfo.processInfo.arguments.contains("-UITesting")

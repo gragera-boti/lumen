@@ -284,6 +284,18 @@ final class FeedViewModel {
 
     /// Assign a random background image to each card from the active theme pool.
     private func assignBackgrounds(for affirmations: [Affirmation]) async {
+        if ProcessInfo.processInfo.arguments.contains("-UITesting") {
+            let mockThemeId = "ai_bg_autumn_leaves"
+            if let mockImage = Self.loadThemeImage(themeId: mockThemeId) {
+                var backgrounds: [String: UIImage] = [:]
+                for aff in affirmations {
+                    backgrounds[aff.id] = mockImage
+                }
+                cardBackgrounds = backgrounds
+            }
+            return
+        }
+        
         guard !activeThemeIds.isEmpty else {
             cardBackgrounds = [:]
             return

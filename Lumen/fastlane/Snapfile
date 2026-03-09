@@ -7,8 +7,14 @@ languages([
   "en-US"
 ])
 
-scheme("LumenUITests")
+scheme("Lumen")
 workspace("Lumen.xcworkspace")
 output_directory("./screenshots")
 clear_previous_screenshots(true)
 override_status_bar(true)
+reinstall_app(true)
+erase_simulator(true)
+
+skip_testing([
+  "LumenTests"
+])

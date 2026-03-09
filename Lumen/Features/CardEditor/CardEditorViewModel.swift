@@ -434,14 +434,23 @@ final class CardEditorViewModel {
     }
 
     private func generateAIPreview() async {
+        if ProcessInfo.processInfo.arguments.contains("-UITesting") {
+            if let image = UIImage(named: "ai_bg_pastel_skies") {
+                self.previewImage = image
+                self.lastGeneratedImagePath = nil
+                self.isGeneratingPreview = false
+                return
+            }
+        }
+        
         // AI backgrounds are premium-only
         let isPremium = await entitlementService.isPremium()
-        if !isPremium {
+        if !isPremium && !ProcessInfo.processInfo.arguments.contains("-UITesting") {
             showPaywallPrompt = true
             return
         }
 
-        guard isModelReady else { return }
+        guard isModelReady || ProcessInfo.processInfo.arguments.contains("-UITesting") else { return }
 
         let prompt = selectedPrompt ?? AIBackgroundPrompt.random(category: selectedPromptCategory)
         selectedPrompt = prompt
