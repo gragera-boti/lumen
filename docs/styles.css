@@ -300,6 +300,7 @@ em {
 .btn-primary:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 30px rgba(127, 187, 202, 0.35);
+  filter: brightness(1.08);
 }
 
 .btn-lg {
@@ -324,6 +325,19 @@ em {
   position: relative;
 }
 
+.hero-phone::after {
+  content: '';
+  position: absolute;
+  bottom: -40px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 200px;
+  height: 80px;
+  background: radial-gradient(ellipse, rgba(127,187,202,0.2), transparent 70%);
+  filter: blur(20px);
+  pointer-events: none;
+}
+
 .phone-frame {
   width: 280px;
   height: 580px;
@@ -339,13 +353,13 @@ em {
 
 .phone-notch {
   position: absolute;
-  top: 8px;
+  top: 10px;
   left: 50%;
   transform: translateX(-50%);
-  width: 100px;
-  height: 28px;
+  width: 120px;
+  height: 36px;
   background: #000;
-  border-radius: 0 0 20px 20px;
+  border-radius: 18px;
   z-index: 2;
 }
 
@@ -366,7 +380,7 @@ em {
 .social-proof {
   position: relative;
   z-index: 1;
-  padding: 60px 0;
+  padding: 80px 0;
   border-top: 1px solid var(--border-glass);
   border-bottom: 1px solid var(--border-glass);
 }
@@ -383,7 +397,7 @@ em {
   text-align: center;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 10px;
 }
 
 .proof-value {
@@ -412,7 +426,7 @@ em {
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.12em;
-  color: var(--accent-coral);
+  color: var(--accent-teal);
   margin-bottom: 16px;
   text-align: center;
 }
@@ -424,7 +438,7 @@ em {
   line-height: 1.15;
   letter-spacing: -0.02em;
   text-align: center;
-  margin-bottom: 16px;
+  margin-bottom: 20px;
 }
 
 .section-subtitle {
@@ -463,16 +477,24 @@ em {
   transform: translateY(-4px);
 }
 
-.feature-icon {
-  font-size: 32px;
+.feature-icon-wrap {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: var(--bg-glass);
+  border: 1px solid var(--border-glass);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   margin-bottom: 16px;
+  color: var(--accent-teal);
 }
 
 .feature-card h3 {
   font-family: var(--font-serif);
   font-size: 20px;
   font-weight: 600;
-  margin-bottom: 10px;
+  margin-bottom: 14px;
   letter-spacing: -0.01em;
 }
 
@@ -511,14 +533,14 @@ em {
   font-weight: 500;
 }
 
-/* ===== Testimonial ===== */
-.testimonial-section {
+/* ===== Philosophy ===== */
+.philosophy-section {
   position: relative;
   z-index: 1;
   padding: 80px 0;
 }
 
-.testimonial-card {
+.philosophy-card {
   background: var(--bg-card);
   border: 1px solid var(--border-glass);
   border-radius: var(--radius-lg);
@@ -528,25 +550,25 @@ em {
   text-align: center;
 }
 
-.testimonial-card blockquote p {
-  font-family: var(--font-serif);
-  font-size: 22px;
-  font-style: italic;
-  line-height: 1.6;
-  color: var(--text-primary);
+.philosophy-eyebrow {
+  font-size: 13px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--accent-teal);
   margin-bottom: 24px;
 }
 
-.testimonial-stars {
-  color: var(--accent-coral);
-  font-size: 18px;
-  letter-spacing: 4px;
-  margin-bottom: 8px;
+.philosophy-card blockquote p {
+  font-family: var(--font-serif);
+  font-size: 20px;
+  line-height: 1.7;
+  color: var(--text-primary);
+  margin-bottom: 16px;
 }
 
-.testimonial-name {
-  font-size: 14px;
-  color: var(--text-tertiary);
+.philosophy-card blockquote p:last-child {
+  margin-bottom: 0;
 }
 
 /* ===== Pricing ===== */
@@ -575,6 +597,10 @@ em {
 
 .pricing-card:hover {
   transform: translateY(-4px);
+}
+
+.pricing-card-free {
+  border-color: rgba(126, 200, 160, 0.15);
 }
 
 .pricing-card-pro {
@@ -637,19 +663,52 @@ em {
   font-weight: 600;
 }
 
-.pricing-alt {
-  margin-top: 24px;
-  padding-top: 16px;
-  border-top: 1px solid var(--border-glass);
+/* ===== Pricing Lifetime Banner ===== */
+.pricing-lifetime-banner {
+  margin-top: 32px;
+  max-width: 960px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
-.pricing-lifetime {
+.lifetime-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg-card);
+  border: 1px solid rgba(127, 187, 202, 0.15);
+  border-radius: var(--radius-md);
+  padding: 28px 36px;
+  background-image: linear-gradient(135deg, rgba(127, 187, 202, 0.05), transparent);
+}
+
+.lifetime-text h4 {
+  font-family: var(--font-serif);
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.lifetime-text p {
   font-size: 14px;
-  color: var(--text-tertiary);
+  color: var(--text-secondary);
 }
 
-.pricing-lifetime strong {
+.lifetime-price {
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.lifetime-amount {
+  display: block;
+  font-size: 32px;
+  font-weight: 700;
   color: var(--text-primary);
+}
+
+.lifetime-label {
+  font-size: 13px;
+  color: var(--text-tertiary);
 }
 
 /* ===== Download CTA ===== */
@@ -677,6 +736,16 @@ em {
   margin-left: auto;
   margin-right: auto;
   line-height: 1.7;
+}
+
+.app-store-badge {
+  display: inline-block;
+  transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+.app-store-badge:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.1);
 }
 
 .download-note {
@@ -853,12 +922,23 @@ em {
     display: none;
   }
 
-  .testimonial-card {
+  .philosophy-card {
     padding: 36px 24px;
   }
 
-  .testimonial-card blockquote p {
-    font-size: 18px;
+  .philosophy-card blockquote p {
+    font-size: 17px;
+  }
+
+  .lifetime-inner {
+    flex-direction: column;
+    text-align: center;
+    gap: 16px;
+    padding: 24px;
+  }
+
+  .lifetime-price {
+    text-align: center;
   }
 
   .footer-inner {
@@ -879,13 +959,14 @@ em {
 /* ===== Animations ===== */
 .fade-in {
   opacity: 0;
-  transform: translateY(24px);
+  transform: translateY(24px) scale(0.98);
   transition: opacity 0.6s ease, transform 0.6s ease;
+  will-change: transform, opacity;
 }
 
 .fade-in.visible {
   opacity: 1;
-  transform: translateY(0);
+  transform: translateY(0) scale(1);
 }
 
 /* Grain overlay */
@@ -898,7 +979,7 @@ body::after {
   height: 100%;
   pointer-events: none;
   z-index: 9999;
-  opacity: 0.015;
+  opacity: 0.03;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
   background-repeat: repeat;
   background-size: 256px 256px;

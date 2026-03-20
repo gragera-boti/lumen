@@ -12,11 +12,11 @@ const observer = new IntersectionObserver((entries) => {
       observer.unobserve(entry.target);
     }
   });
-}, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+}, { threshold: 0.15, rootMargin: '0px 0px -60px 0px' });
 
 // Apply fade-in to sections
 document.querySelectorAll(
-  '.feature-card, .gallery-phone, .testimonial-card, .pricing-card, .proof-item, .section-eyebrow, .section-title, .section-subtitle'
+  '.feature-card, .gallery-phone, .philosophy-card, .pricing-card, .proof-item, .section-eyebrow, .section-title, .section-subtitle, .pricing-lifetime-banner'
 ).forEach(el => {
   el.classList.add('fade-in');
   observer.observe(el);
@@ -30,6 +30,12 @@ document.querySelectorAll('.feature-card').forEach((card, i) => {
 // Stagger pricing cards
 document.querySelectorAll('.pricing-card').forEach((card, i) => {
   card.style.transitionDelay = `${i * 100}ms`;
+});
+
+// Stagger gallery phones (center first, then sides)
+document.querySelectorAll('.gallery-phone').forEach((phone, i) => {
+  const order = i === 1 ? 0 : (i === 0 ? 1 : 2);
+  phone.style.transitionDelay = `${order * 150}ms`;
 });
 
 // Mobile menu toggle
