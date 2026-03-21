@@ -17,4 +17,44 @@ platform :ios do
       build_number: "11"
     )
   end
+
+  desc "Upload metadata to App Store Connect"
+  lane :upload_metadata do
+    app_store_connect_api_key(
+      key_id: "54GDX3ZRZU",
+      issuer_id: "8da56372-26b9-474a-a426-c691338169a5",
+      key_filepath: File.expand_path("~/.private_keys/AuthKey_54GDX3ZRZU.p8")
+    )
+    deliver(
+      app_identifier: "com.gragera.lumen",
+      skip_binary_upload: true,
+      skip_screenshots: true,
+      force: true,
+      precheck_include_in_app_purchases: false,
+      submission_information: {
+        add_id_info_uses_idfa: false
+      }
+    )
+  end
+
+  desc "Submit app for review"
+  lane :submit_for_review do
+    app_store_connect_api_key(
+      key_id: "54GDX3ZRZU",
+      issuer_id: "8da56372-26b9-474a-a426-c691338169a5",
+      key_filepath: File.expand_path("~/.private_keys/AuthKey_54GDX3ZRZU.p8")
+    )
+    deliver(
+      app_identifier: "com.gragera.lumen",
+      skip_binary_upload: true,
+      skip_screenshots: true,
+      submit_for_review: true,
+      automatic_release: false,
+      force: true,
+      precheck_include_in_app_purchases: false,
+      submission_information: {
+        add_id_info_uses_idfa: false
+      }
+    )
+  end
 end
