@@ -6,7 +6,7 @@ platform :ios do
     app_store_connect_api_key(
       key_id: "54GDX3ZRZU",
       issuer_id: "8da56372-26b9-474a-a426-c691338169a5",
-      key_filepath: File.expand_path("~/.private_keys/AuthKey_54GDX3ZRZU.p8")
+      key_filepath: File.expand_path("~/private_keys/AuthKey_54GDX3ZRZU.p8")
     )
     pilot(
       app_identifier: "com.gragera.lumen",
@@ -23,7 +23,7 @@ platform :ios do
     app_store_connect_api_key(
       key_id: "54GDX3ZRZU",
       issuer_id: "8da56372-26b9-474a-a426-c691338169a5",
-      key_filepath: File.expand_path("~/.private_keys/AuthKey_54GDX3ZRZU.p8")
+      key_filepath: File.expand_path("~/private_keys/AuthKey_54GDX3ZRZU.p8")
     )
     deliver(
       app_identifier: "com.gragera.lumen",
@@ -42,7 +42,7 @@ platform :ios do
     app_store_connect_api_key(
       key_id: "54GDX3ZRZU",
       issuer_id: "8da56372-26b9-474a-a426-c691338169a5",
-      key_filepath: File.expand_path("~/.private_keys/AuthKey_54GDX3ZRZU.p8")
+      key_filepath: File.expand_path("~/private_keys/AuthKey_54GDX3ZRZU.p8")
     )
     deliver(
       app_identifier: "com.gragera.lumen",
