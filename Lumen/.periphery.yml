@@ -1,5 +1,0 @@
-project: Lumen.xcworkspace
-schemes:
-  - Lumen
-retain_public: true
-verbose: false
