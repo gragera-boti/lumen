@@ -2,6 +2,7 @@ import Dependencies
 import Foundation
 import OSLog
 import SwiftData
+import SwiftUI
 import UIKit
 
 @MainActor @Observable
@@ -244,7 +245,7 @@ final class CategoryFeedViewModel {
             letterSpacing: letterSpacing,
             gradientColors: colors,
             backgroundImage: bgImage,
-            size: CGSize(width: 1080, height: 1920),
+            size: CGSize(width: 360, height: 640),
             showWatermark: !isPremium
         )
     }
