@@ -35,12 +35,24 @@ struct CardEditorView: View {
         Group {
             if isEmbedded {
                 content
+                    .toolbar {
+                        ToolbarItem(placement: .topBarTrailing) {
+                            Button("Save") { save() }
+                                .fontWeight(.semibold)
+                                .disabled(!viewModel.hasChanges)
+                        }
+                    }
             } else {
                 NavigationStack {
                     content
                         .toolbar {
-                            ToolbarItem(placement: .cancellationAction) {
+                            ToolbarItem(placement: .topBarLeading) {
                                 Button("Cancel") { dismiss() }
+                            }
+                            ToolbarItem(placement: .topBarTrailing) {
+                                Button("Save") { save() }
+                                    .fontWeight(.semibold)
+                                    .disabled(!viewModel.hasChanges)
                             }
                         }
                 }
@@ -59,8 +71,6 @@ struct CardEditorView: View {
                     if viewModel.canEditText {
                         textSection
                     }
-
-                    actionBar
                 }
                 .padding(.horizontal, LumenTheme.Spacing.md)
                 .padding(.top, LumenTheme.Spacing.sm)
@@ -492,50 +502,12 @@ struct CardEditorView: View {
         .padding(.top, LumenTheme.Spacing.sm)
     }
 
-    // MARK: - Action Bar
-
-    private var actionBar: some View {
-        HStack(spacing: LumenTheme.Spacing.md) {
-            Button {
-                try? viewModel.resetToDefaults(modelContext: modelContext)
-                dismiss()
-            } label: {
-                Text("Reset")
-                    .font(.body.weight(.medium))
-                    .foregroundStyle(.red)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 14)
-                    .background(
-                        RoundedRectangle(cornerRadius: LumenTheme.Radii.md)
-                            .fill(LumenTheme.Colors.glassBackground)
-                    )
-            }
-            .accessibilityLabel("Reset to defaults")
-
-            Button {
-                try? viewModel.save(modelContext: modelContext)
-                if let onSaveComplete = onSaveComplete {
-                    onSaveComplete()
-                } else {
-                    dismiss()
-                }
-            } label: {
-                Text("Save")
-                    .font(.body.weight(.semibold))
-                    .foregroundStyle(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 14)
-                    .background(
-                        RoundedRectangle(cornerRadius: LumenTheme.Radii.md)
-                            .fill(
-                                viewModel.hasChanges
-                                    ? LumenTheme.Colors.primary
-                                    : LumenTheme.Colors.primary.opacity(0.4)
-                            )
-                    )
-            }
-            .disabled(!viewModel.hasChanges)
-            .accessibilityLabel("Save customization")
+    private func save() {
+        try? viewModel.save(modelContext: modelContext)
+        if let onSaveComplete = onSaveComplete {
+            onSaveComplete()
+        } else {
+            dismiss()
         }
     }
 

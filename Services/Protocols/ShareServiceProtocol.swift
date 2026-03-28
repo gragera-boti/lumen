@@ -11,7 +11,10 @@ protocol ShareServiceProtocol: Sendable {
     /// - Returns: The rendered card as a `UIImage`, or `nil` if rendering failed.
     @MainActor func renderShareImage(
         text: String,
+        font: Font,
+        letterSpacing: CGFloat,
         gradientColors: [Color],
+        backgroundImage: UIImage?,
         size: CGSize,
         showWatermark: Bool
     ) -> UIImage?

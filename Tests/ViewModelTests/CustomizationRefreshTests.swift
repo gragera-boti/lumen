@@ -46,7 +46,10 @@ struct CustomizationRefreshTests {
     private final class MockShareService: ShareServiceProtocol, @unchecked Sendable {
         @MainActor func renderShareImage(
             text: String,
+            font: Font,
+            letterSpacing: CGFloat,
             gradientColors: [SwiftUI.Color],
+            backgroundImage: UIImage?,
             size: CGSize,
             showWatermark: Bool
         ) -> UIImage? { nil }

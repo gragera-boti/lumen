@@ -1,16 +1,38 @@
 default_platform(:ios)
 
 platform :ios do
-  desc "Assign testflight groups"
-  lane :assign_groups do
+  private_lane :api_key do
     app_store_connect_api_key(
       key_id: "54GDX3ZRZU",
       issuer_id: "8da56372-26b9-474a-a426-c691338169a5",
       key_filepath: File.expand_path("~/private_keys/AuthKey_54GDX3ZRZU.p8")
     )
+  end
+
+  desc "Build and upload app to TestFlight"
+  lane :upload_testflight do
+    api_key
+
+    build_app(
+      scheme: "Lumen",
+      configuration: "Release",
+      destination: "generic/platform=iOS",
+      export_options: "./ExportOptions.plist",
+      xcargs: "-allowProvisioningUpdates"
+    )
+
+    pilot(
+      skip_waiting_for_build_processing: false,
+      skip_submission: false,
+      groups: ["Internal Testers", "Dev Team"]
+    )
+  end
+
+  desc "Assign testflight groups"
+  lane :assign_groups do
+    api_key
     pilot(
       app_identifier: "com.gragera.lumen",
-      app_platform: "ios",
       app_platform: "ios",
       groups: ["Internal Testers", "Dev Team"],
       distribute_only: true,
@@ -20,11 +42,7 @@ platform :ios do
 
   desc "Upload metadata to App Store Connect"
   lane :upload_metadata do
-    app_store_connect_api_key(
-      key_id: "54GDX3ZRZU",
-      issuer_id: "8da56372-26b9-474a-a426-c691338169a5",
-      key_filepath: File.expand_path("~/private_keys/AuthKey_54GDX3ZRZU.p8")
-    )
+    api_key
     deliver(
       app_identifier: "com.gragera.lumen",
       skip_binary_upload: true,
@@ -39,11 +57,7 @@ platform :ios do
 
   desc "Submit app for review"
   lane :submit_for_review do
-    app_store_connect_api_key(
-      key_id: "54GDX3ZRZU",
-      issuer_id: "8da56372-26b9-474a-a426-c691338169a5",
-      key_filepath: File.expand_path("~/private_keys/AuthKey_54GDX3ZRZU.p8")
-    )
+    api_key
     deliver(
       app_identifier: "com.gragera.lumen",
       skip_binary_upload: true,

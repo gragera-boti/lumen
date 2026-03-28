@@ -21,7 +21,10 @@ import Testing
     private final class MockShareService: ShareServiceProtocol, @unchecked Sendable {
         @MainActor func renderShareImage(
             text: String,
+            font: Font,
+            letterSpacing: CGFloat,
             gradientColors: [Color],
+            backgroundImage: UIImage?,
             size: CGSize,
             showWatermark: Bool
         ) -> UIImage? {

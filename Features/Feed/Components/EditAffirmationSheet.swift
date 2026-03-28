@@ -37,10 +37,10 @@ struct EditAffirmationSheet: View {
             .navigationTitle("Edit Affirmation")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
+                ToolbarItem(placement: .topBarLeading) {
                     Button("Cancel") { dismiss() }
                 }
-                ToolbarItem(placement: .confirmationAction) {
+                ToolbarItem(placement: .topBarTrailing) {
                     Button("Save") { save() }
                         .fontWeight(.semibold)
                         .disabled(!isValid)

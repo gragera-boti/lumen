@@ -32,6 +32,7 @@ final class CategoryFeedViewModel {
     @ObservationIgnored @Dependency(\.shareService) private var shareService
     @ObservationIgnored @Dependency(\.cardCustomizationService) private var customizationService
     @ObservationIgnored @Dependency(\.feedService) private var feedService
+    @ObservationIgnored @Dependency(\.backgroundGenerator) private var backgroundGenerator
     private let logger = Logger(subsystem: "com.gragera.lumen", category: "CategoryFeed")
 
     // MARK: - Actions
@@ -116,26 +117,133 @@ final class CategoryFeedViewModel {
         }
     }
 
+    // MARK: - Card Customizations
+
     func loadCustomizations(modelContext: ModelContext) {
         do {
             let all = try customizationService.allCustomizations(modelContext: modelContext)
-            customizations = Dictionary(uniqueKeysWithValues: all.map { ($0.affirmationId, $0) })
+            let cardIds = Set(cards.map(\.id))
+            var map: [String: CardCustomization] = [:]
+            for c in all where cardIds.contains(c.affirmationId) {
+                map[c.affirmationId] = c
+            }
+            customizations = map
         } catch {
-            logger.error("Load customizations error: \(error.localizedDescription)")
+            logger.error("Failed to load customizations: \(error.localizedDescription)")
         }
     }
 
     func reloadCustomizations(modelContext: ModelContext) {
+        let previousCustomizations = customizations
         loadCustomizations(modelContext: modelContext)
+
+        // Regenerate backgrounds for cards whose customizations changed
+        Task {
+            for (affId, customization) in customizations {
+                let changed =
+                    previousCustomizations[affId]?.updatedAt != customization.updatedAt
+                    || previousCustomizations[affId] == nil
+                if changed {
+                    await regenerateBackground(for: affId, customization: customization)
+                }
+            }
+            // Also clear backgrounds for cards whose customizations were removed
+            for affId in previousCustomizations.keys where customizations[affId] == nil {
+                cardBackgrounds.removeValue(forKey: affId)
+            }
+        }
+    }
+
+    private func regenerateBackground(for affirmationId: String, customization: CardCustomization) async {
+        // Check for a cached image first (from AI or procedural saves)
+        if let cachedPath = customization.cachedImagePath {
+            let fullPath = CardEditorViewModel.customizationImagesDir.appendingPathComponent(cachedPath)
+            if let image = UIImage(contentsOfFile: fullPath.path) {
+                cardBackgrounds[affirmationId] = image
+                return
+            }
+        }
+
+        // Fallback: regenerate procedurally
+        guard let styleRaw = customization.backgroundStyle,
+            let style = GeneratorStyle(rawValue: styleRaw),
+            let paletteRaw = customization.colorPalette,
+            let palette = ColorPalette(rawValue: paletteRaw)
+        else { return }
+
+        let seed = customization.backgroundSeed ?? 0
+        let request = BackgroundRequest(
+            style: style,
+            palette: palette,
+            mood: .calm,
+            complexity: 0.5,
+            seed: seed,
+            size: CGSize(width: 1080, height: 1920)
+        )
+
+        do {
+            let result = try await backgroundGenerator.generate(request: request)
+            if let image = UIImage(contentsOfFile: result.imagePath.path) {
+                cardBackgrounds[affirmationId] = image
+            }
+        } catch {
+            logger.error(
+                "Failed to regenerate background for \(affirmationId, privacy: .private): \(error.localizedDescription)"
+            )
+        }
     }
 
     func shareImage(isPremium: Bool) -> UIImage? {
         guard let card = currentCard else { return nil }
-        let gradientIndex = abs(card.id.hashValue) % LumenTheme.Colors.gradients.count
-        let colors = LumenTheme.Colors.gradients[gradientIndex]
+        let customization = customizations[card.id]
+        
+        let text = customization?.customText?.isEmpty == false ? customization!.customText! : card.text
+        let bgImage = backgroundImage(for: card)
+        
+        // Gradient colors fallback
+        let colors: [Color]
+        if let paletteRaw = customization?.colorPalette, let palette = ColorPalette(rawValue: paletteRaw) {
+            colors = palette.cgColors.map { Color(cgColor: $0) }
+        } else {
+            let index = abs(card.id.hashValue) % LumenTheme.Colors.gradients.count
+            colors = LumenTheme.Colors.gradients[index]
+        }
+
+        // Font
+        let fontStyle: AffirmationFontStyle
+        if let overrideRaw = customization?.fontStyleOverride, let style = AffirmationFontStyle.from(overrideRaw) {
+            fontStyle = style
+        } else if let fontRaw = card.fontStyle, let style = AffirmationFontStyle.from(fontRaw) {
+            fontStyle = style
+        } else {
+            // Deterministic random fallback matching FeedView
+            let roll = abs(card.id.hashValue) % 10
+            switch roll {
+            case 0...3: fontStyle = .playfair
+            case 4...5: fontStyle = .cormorant
+            case 6: fontStyle = .zilla
+            case 7: fontStyle = .abril
+            case 8: fontStyle = .rounded
+            default: fontStyle = .josefin
+            }
+        }
+        let font = fontStyle.cardFont(textLength: text.count)
+        
+        // Letter spacing
+        let letterSpacing: CGFloat
+        switch fontStyle {
+        case .josefin: letterSpacing = 1.5
+        case .abril, .playfair: letterSpacing = 0.3
+        case .zilla: letterSpacing = 0.2
+        default: letterSpacing = 0.5
+        }
+
         return shareService.renderShareImage(
-            text: card.text,
+            text: text,
+            font: font,
+            letterSpacing: letterSpacing,
             gradientColors: colors,
+            backgroundImage: bgImage,
             size: CGSize(width: 1080, height: 1920),
             showWatermark: !isPremium
         )

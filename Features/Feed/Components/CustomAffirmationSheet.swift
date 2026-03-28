@@ -43,10 +43,10 @@ struct CustomAffirmationSheet: View {
             .navigationTitle("Create Affirmation")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
+                ToolbarItem(placement: .topBarLeading) {
                     Button("Cancel") { dismiss() }
                 }
-                ToolbarItem(placement: .confirmationAction) {
+                ToolbarItem(placement: .topBarTrailing) {
                     Button("Next") { saveAndProceed() }
                         .fontWeight(.semibold)
                         .disabled(!isValid)
