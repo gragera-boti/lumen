@@ -15,6 +15,14 @@ For _fastlane_ installation instructions, see [Installing _fastlane_](https://do
 
 ## iOS
 
+### ios upload_testflight
+
+```sh
+[bundle exec] fastlane ios upload_testflight
+```
+
+Build and upload app to TestFlight
+
 ### ios assign_groups
 
 ```sh
@@ -22,6 +30,22 @@ For _fastlane_ installation instructions, see [Installing _fastlane_](https://do
 ```
 
 Assign testflight groups
+
+### ios upload_metadata
+
+```sh
+[bundle exec] fastlane ios upload_metadata
+```
+
+Upload metadata to App Store Connect
+
+### ios submit_for_review
+
+```sh
+[bundle exec] fastlane ios submit_for_review
+```
+
+Submit app for review
 
 ----
 
