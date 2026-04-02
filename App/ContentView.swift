@@ -7,6 +7,7 @@ extension Notification.Name {
 
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.scenePhase) private var scenePhase
     @Environment(AppRouter.self) private var router
     @State private var hasCompletedOnboarding = false
     @State private var isLoadingContent = true
@@ -70,6 +71,11 @@ struct ContentView: View {
         }
         .onReceive(NotificationCenter.default.publisher(for: .onboardingReset)) { _ in
             reloadPreferences()
+        }
+        .onChange(of: scenePhase) { _, newPhase in
+            if newPhase == .background {
+                scheduleNotificationsIfNeeded()
+            }
         }
     }
 
@@ -177,8 +183,8 @@ struct ContentView: View {
             ThemeGalleryView()
         case .history:
             HistoryView()
-        case .manageCategories:
-            ManageCategoriesView()
+        case .manageCategories(let isPremium):
+            ManageCategoriesView(isPremium: isPremium)
         }
     }
 
@@ -210,6 +216,57 @@ struct ContentView: View {
             }
         } catch {
             hasCompletedOnboarding = ProcessInfo.processInfo.arguments.contains("-UITesting")
+        }
+    }
+
+    private func scheduleNotificationsIfNeeded() {
+        guard let prefs = preferences, prefs.reminders.enabled else { return }
+        
+        let context = modelContext
+        let reminderSettings = prefs.reminders
+        let selectedCategoryIds = prefs.selectedCategoryIds
+        
+        Task {
+            do {
+                let permissionStatus = await NotificationService.shared.permissionStatus()
+                guard permissionStatus == .granted else { return }
+                
+                let descriptor = FetchDescriptor<Affirmation>()
+                let allAffirmations = try context.fetch(descriptor)
+                
+                let selectedCatIds = Set(selectedCategoryIds)
+                var validAffirmations = allAffirmations
+                if !selectedCatIds.isEmpty {
+                    validAffirmations = allAffirmations.filter { aff in
+                        let catIds = Set(aff.categories?.compactMap { $0.id } ?? [])
+                        return !catIds.isDisjoint(with: selectedCatIds)
+                    }
+                }
+                
+                if validAffirmations.isEmpty {
+                    validAffirmations = allAffirmations
+                }
+                
+                var texts = validAffirmations.map { $0.text }
+                texts.shuffle()
+                
+                let neededCount = max(reminderSettings.countPerDay * 7, 7)
+                var selectedTexts: [String] = []
+                if !texts.isEmpty {
+                    for i in 0..<neededCount {
+                        selectedTexts.append(texts[i % texts.count])
+                    }
+                }
+                
+                guard !selectedTexts.isEmpty else { return }
+                
+                try await NotificationService.shared.scheduleReminders(
+                    settings: reminderSettings, 
+                    affirmationTexts: selectedTexts
+                )
+            } catch {
+                // Automatically fail gracefully
+            }
         }
     }
 }

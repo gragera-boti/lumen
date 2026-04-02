@@ -2,7 +2,9 @@ import SwiftData
 import SwiftUI
 
 struct ManageCategoriesView: View {
+    let isPremium: Bool
     @Environment(\.modelContext) private var modelContext
+    @Environment(AppRouter.self) private var router
     @State private var viewModel = ManageCategoriesViewModel()
     @State private var preferences: UserPreferences?
     private let preferencesService: PreferencesServiceProtocol = PreferencesService.shared
@@ -26,14 +28,18 @@ struct ManageCategoriesView: View {
         .navigationTitle("Categories")
         .task {
             preferences = try? preferencesService.getOrCreate(modelContext: modelContext)
-            viewModel.loadCategories(modelContext: modelContext)
+            await viewModel.loadCategories(modelContext: modelContext)
         }
     }
     
     private func categoryRow(for category: Category, in prefs: UserPreferences) -> some View {
         let isSelected = prefs.selectedCategoryIds.contains(category.id)
         return Button {
-            toggleCategory(category.id, in: prefs)
+            if category.isPremium && !isPremium {
+                router.isShowingPaywall = true
+            } else {
+                toggleCategory(category.id, in: prefs)
+            }
         } label: {
             HStack {
                 Image(systemName: category.icon)
@@ -76,7 +82,8 @@ struct ManageCategoriesView: View {
 
 #Preview {
     NavigationStack {
-        ManageCategoriesView()
+        ManageCategoriesView(isPremium: true)
     }
+    .environment(AppRouter())
     .modelContainer(for: UserPreferences.self, inMemory: true)
 }

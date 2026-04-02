@@ -3,6 +3,7 @@ import SwiftUI
 
 struct RemindersSettingsView: View {
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.openURL) private var openURL
     @State private var preferences: UserPreferences?
     @State private var notificationPermission: NotificationPermission = .unknown
     @State private var showTestSent = false
@@ -89,6 +90,25 @@ struct RemindersSettingsView: View {
                         case .unknown:
                             Text("reminders.notSet".localized)
                                 .foregroundStyle(.secondary)
+                        }
+                    }
+                    
+                    if notificationPermission == .unknown {
+                        Button("reminders.enablePermissions".localized) {
+                            Task {
+                                let granted = try? await notificationService.requestPermission()
+                                notificationPermission = (granted == true) ? .granted : .denied
+                                if granted == true {
+                                    preferences?.reminders.enabled = true
+                                    save()
+                                }
+                            }
+                        }
+                    } else if notificationPermission == .denied {
+                        Button("reminders.openSettings".localized) {
+                            if let url = URL(string: UIApplication.openSettingsURLString) {
+                                openURL(url)
+                            }
                         }
                     }
                 }

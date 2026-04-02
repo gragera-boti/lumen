@@ -12,7 +12,7 @@ final class ManageCategoriesViewModel {
     @ObservationIgnored @Dependency(\.contentService) private var contentService
     private let logger = Logger(subsystem: "com.gragera.lumen", category: "ManageCategories")
     
-    func loadCategories(modelContext: ModelContext) {
+    func loadCategories(modelContext: ModelContext) async {
         do {
             categories = try contentService.fetchCategories(modelContext: modelContext, locale: "en-GB")
         } catch {

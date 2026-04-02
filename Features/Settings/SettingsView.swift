@@ -10,13 +10,12 @@ struct SettingsView: View {
     var body: some View {
         List {
             if let prefs = viewModel.preferences {
+                subscriptionSection
                 contentSection(prefs)
                 remindersSection(prefs)
                 appearanceSection
-                subscriptionSection
                 cloudSyncSection
                 historySection
-                helpSection
                 developerSection
             }
         }
@@ -39,7 +38,7 @@ struct SettingsView: View {
 
     private func contentSection(_ prefs: UserPreferences) -> some View {
         Section("settings.content".localized) {
-            NavigationLink(value: AppDestination.manageCategories) {
+            NavigationLink(value: AppDestination.manageCategories(isPremium: viewModel.isPremium)) {
                 Label("Manage Categories", systemImage: "list.bullet")
             }
 
@@ -92,28 +91,52 @@ struct SettingsView: View {
     }
 
     private var subscriptionSection: some View {
-        Section("settings.subscription".localized) {
-            NavigationLink(value: AppDestination.subscription) {
-                HStack {
-                    Label(
-                        viewModel.isPremium
-                            ? "settings.manageSubscription".localized : "subscription.upgrade.title".localized,
-                        systemImage: viewModel.isPremium ? "star.fill" : "sparkles"
-                    )
-                    .foregroundStyle(viewModel.isPremium ? Color.primary : Color.orange)
-                    Spacer()
-                    if viewModel.isPremium {
-                        Text("subscription.plan.premium".localized)
-                            .font(.caption)
-                            .foregroundStyle(.orange)
-                    } else {
-                        Text("subscription.plan.free".localized)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
+        Section {
+            if viewModel.isPremium {
+                NavigationLink(value: AppDestination.subscription) {
+                    VStack(alignment: .leading, spacing: 8) {
+                        HStack {
+                            Image(systemName: "star.fill").foregroundStyle(.orange)
+                            // We can use the premium plan name directly
+                            Text("Lumen Pro").font(.headline).fontWeight(.semibold)
+                            Spacer()
+                            Text("Active")
+                                .font(.caption)
+                                .padding(.horizontal, 8).padding(.vertical, 4)
+                                .background(Color.green.opacity(0.1))
+                                .foregroundStyle(.green)
+                                .clipShape(Capsule())
+                        }
+                        Text("settings.manageSubscription".localized)
+                            .font(.subheadline).foregroundStyle(.secondary)
                     }
+                    .padding(.vertical, 4)
                 }
+                .listRowBackground(Color.orange.opacity(0.05))
+            } else {
+                VStack(alignment: .leading, spacing: 12) {
+                    HStack {
+                        Image(systemName: "sparkles").foregroundStyle(.orange)
+                        Text("subscription.upgrade.title".localized).font(.headline).fontWeight(.semibold)
+                        Spacer()
+                    }
+                    Text("subscription.upgrade.subtitle".localized)
+                        .font(.subheadline).foregroundStyle(.secondary)
+                    
+                    Button {
+                        router.isShowingPaywall = true
+                    } label: {
+                        Text("subscription.upgrade.title".localized)
+                            .font(.headline).foregroundStyle(.white)
+                            .frame(maxWidth: .infinity).padding()
+                            .background(Color.orange)
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                    }
+                    .buttonStyle(.plain)
+                }
+                .listRowBackground(Color.orange.opacity(0.05))
+                .accessibilityIdentifier("paywall_subscription_button")
             }
-            .accessibilityIdentifier("paywall_subscription_button")
         }
     }
 
@@ -186,17 +209,6 @@ struct SettingsView: View {
         Section("Developer") {
             Button("Reset Onboarding") {
                 viewModel.resetOnboarding(modelContext: modelContext)
-            }
-        }
-    }
-
-    private var helpSection: some View {
-        Section("settings.help".localized) {
-            Button {
-                router.isShowingCrisis = true
-            } label: {
-                Label("settings.getHelp".localized, systemImage: "heart.text.square.fill")
-                    .foregroundStyle(.red)
             }
         }
     }
