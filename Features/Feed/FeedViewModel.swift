@@ -80,6 +80,11 @@ final class FeedViewModel {
 
                 // Load card customizations
                 applyCustomizations(to: result.feed, modelContext: modelContext)
+
+                // Override theme backgrounds with any saved custom backgrounds
+                for (affId, customization) in customizations {
+                    await regenerateBackground(for: affId, customization: customization)
+                }
             }
         } catch {
             logger.error("Feed load error: \(error.localizedDescription)")
@@ -234,7 +239,27 @@ final class FeedViewModel {
             for affId in previousCustomizations.keys where customizations[affId] == nil {
                 cardBackgrounds.removeValue(forKey: affId)
             }
+            updateMainWidget()
         }
+    }
+
+    func updateMainWidget() {
+        var widgetCards = Array(cards.prefix(6))
+        if let daily = dailyAffirmation, !widgetCards.contains(where: { $0.id == daily.id }) {
+            widgetCards.insert(daily, at: 0)
+            widgetCards = Array(widgetCards.prefix(6))
+        }
+        guard !widgetCards.isEmpty else { return }
+        let colorSets: [[String]] = [
+            ["#1B998B", "#3B5998"], ["#E8A87C", "#C38D9E"],
+            ["#7FBBCA", "#A688B5"], ["#7EC8A0", "#3B5998"],
+            ["#F4D06F", "#E8A87C"], ["#C38D9E", "#7FBBCA"],
+        ]
+        let entries = widgetCards.map { card -> (text: String, gradientColors: [String], backgroundImage: UIImage?) in
+            let index = abs(card.id.hashValue) % colorSets.count
+            return (text: card.text, gradientColors: colorSets[index], backgroundImage: backgroundImage(for: card))
+        }
+        widgetService.updateWidget(entries: entries)
     }
 
     /// Regenerate a procedural background from a card's customization.

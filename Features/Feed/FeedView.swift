@@ -62,7 +62,7 @@ struct FeedView: View {
                 isPremium: isPremium,
                 modelContext: modelContext
             )
-            updateWidget()
+            viewModel.updateMainWidget()
         }
     }
 
@@ -368,36 +368,6 @@ struct FeedView: View {
     private func gradientColors(for affirmation: Affirmation) -> [Color] {
         let index = abs(affirmation.id.hashValue) % LumenTheme.Colors.gradients.count
         return LumenTheme.Colors.gradients[index]
-    }
-
-    private func gradientHexColors(for affirmation: Affirmation) -> [String] {
-        let index = abs(affirmation.id.hashValue) % LumenTheme.Colors.gradients.count
-        let colorSets: [[String]] = [
-            ["#1B998B", "#3B5998"], ["#E8A87C", "#C38D9E"],
-            ["#7FBBCA", "#A688B5"], ["#7EC8A0", "#3B5998"],
-            ["#F4D06F", "#E8A87C"], ["#C38D9E", "#7FBBCA"],
-        ]
-        return colorSets[index]
-    }
-
-    private func updateWidget() {
-        var widgetCards = Array(viewModel.cards.prefix(6))
-        if let daily = viewModel.dailyAffirmation, !widgetCards.contains(where: { $0.id == daily.id }) {
-            widgetCards.insert(daily, at: 0)
-            widgetCards = Array(widgetCards.prefix(6))
-        }
-        
-        guard !widgetCards.isEmpty else { return }
-        
-        let entries = widgetCards.map { card in
-            (
-                text: card.text,
-                gradientColors: gradientHexColors(for: card),
-                backgroundImage: viewModel.backgroundImage(for: card)
-            )
-        }
-        
-        WidgetService.shared.updateWidget(entries: entries)
     }
 
     private func presentShareSheet(image: UIImage) {
