@@ -61,21 +61,25 @@ struct CardEditorView: View {
     }
 
     private var content: some View {
-            ScrollView {
-                VStack(spacing: LumenTheme.Spacing.lg) {
-                    previewCard
+            VStack(spacing: 0) {
+                previewCard
+                    .padding(.horizontal, LumenTheme.Spacing.md)
+                    .padding(.top, LumenTheme.Spacing.sm)
+                    .padding(.bottom, LumenTheme.Spacing.md)
 
-                    if viewModel.canEditText {
-                        textSection
+                ScrollView {
+                    VStack(spacing: LumenTheme.Spacing.lg) {
+                        if viewModel.canEditText {
+                            textSection
+                        }
+
+                        backgroundModeSelector
+                        backgroundSection
+                        typographySection
                     }
-
-                    backgroundModeSelector
-                    backgroundSection
-                    typographySection
+                    .padding(.horizontal, LumenTheme.Spacing.md)
+                    .padding(.bottom, 40)
                 }
-                .padding(.horizontal, LumenTheme.Spacing.md)
-                .padding(.top, LumenTheme.Spacing.sm)
-                .padding(.bottom, 40)
             }
             .ambientBackground()
             .navigationTitle("Customize Card")
