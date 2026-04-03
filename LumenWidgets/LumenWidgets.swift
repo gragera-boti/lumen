@@ -7,6 +7,12 @@ struct WidgetAffirmation: Codable {
     let id: String
     let text: String
     let gradientColors: [String]
+    let backgroundImageFilename: String?
+    let updatedAt: Date
+}
+
+struct WidgetSnapshotList: Codable {
+    let entries: [WidgetAffirmation]
     let updatedAt: Date
 }
 
@@ -17,44 +23,64 @@ struct LumenTimelineProvider: TimelineProvider {
         LumenEntry(
             date: .now,
             affirmationText: "I can take one small step today.",
-            gradientColors: ["#7FBBCA", "#A688B5"]
+            gradientColors: ["#7FBBCA", "#A688B5"],
+            backgroundImageFilename: nil
         )
     }
 
     func getSnapshot(in context: Context, completion: @escaping (LumenEntry) -> Void) {
-        let entry = loadEntry() ?? placeholder(in: context)
-        completion(entry)
+        if let data = loadEntries().first {
+            let entry = LumenEntry(
+                date: Date(),
+                affirmationText: data.text,
+                gradientColors: data.gradientColors,
+                backgroundImageFilename: data.backgroundImageFilename
+            )
+            completion(entry)
+        } else {
+            completion(placeholder(in: context))
+        }
     }
 
     func getTimeline(in context: Context, completion: @escaping (Timeline<LumenEntry>) -> Void) {
-        let entry = loadEntry() ?? placeholder(in: context)
+        let entries = loadEntries()
+        guard !entries.isEmpty else {
+            let entry = placeholder(in: context)
+            completion(Timeline(entries: [entry], policy: .after(Date().adding(hours: 4))))
+            return
+        }
 
-        // Refresh at midnight
-        let calendar = Calendar.current
-        let midnight = calendar.startOfDay(for: Date().adding(days: 1))
-        let timeline = Timeline(entries: [entry], policy: .after(midnight))
+        var timelineEntries: [LumenEntry] = []
+        let now = Date()
+        for i in 0..<min(entries.count, 6) {
+            let entryDate = now.adding(hours: i * 4)
+            let data = entries[i]
+            timelineEntries.append(LumenEntry(
+                date: entryDate,
+                affirmationText: data.text,
+                gradientColors: data.gradientColors,
+                backgroundImageFilename: data.backgroundImageFilename
+            ))
+        }
+
+        let timeline = Timeline(entries: timelineEntries, policy: .after(now.adding(hours: min(entries.count, 6) * 4)))
         completion(timeline)
     }
 
-    private func loadEntry() -> LumenEntry? {
+    private func loadEntries() -> [WidgetAffirmation] {
         guard
             let containerURL = FileManager.default.containerURL(
                 forSecurityApplicationGroupIdentifier: "group.com.gragera.lumen"
             )
-        else { return nil }
+        else { return [] }
 
         let fileURL = containerURL.appendingPathComponent("widget_snapshot.json")
         guard let data = try? Data(contentsOf: fileURL),
-            let snapshot = try? JSONDecoder().decode(WidgetAffirmation.self, from: data)
+            let snapshotList = try? JSONDecoder().decode(WidgetSnapshotList.self, from: data)
         else {
-            return nil
+            return []
         }
-
-        return LumenEntry(
-            date: snapshot.updatedAt,
-            affirmationText: snapshot.text,
-            gradientColors: snapshot.gradientColors
-        )
+        return snapshotList.entries
     }
 }
 
@@ -64,6 +90,7 @@ struct LumenEntry: TimelineEntry {
     let date: Date
     let affirmationText: String
     let gradientColors: [String]
+    let backgroundImageFilename: String?
 }
 
 // MARK: - Widget Views
@@ -73,48 +100,51 @@ struct LumenWidgetEntryView: View {
     @Environment(\.widgetFamily) var family
 
     var body: some View {
-        ZStack {
-            LinearGradient(
-                colors: entry.gradientColors.map { Color(hex: $0) },
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
+        VStack {
+            Spacer()
 
-            // Readability overlay
-            LinearGradient(
-                stops: [
-                    .init(color: .black.opacity(0), location: 0),
-                    .init(color: .black.opacity(0.3), location: 0.6),
-                    .init(color: .black.opacity(0.2), location: 1),
-                ],
-                startPoint: .top,
-                endPoint: .bottom
-            )
+            Text(entry.affirmationText)
+                .font(textFont)
+                .foregroundStyle(.white)
+                .multilineTextAlignment(.center)
+                .shadow(color: .black.opacity(0.2), radius: 3, y: 1)
+                .minimumScaleFactor(0.7)
 
-            VStack {
-                Spacer()
+            Spacer()
 
-                Text(entry.affirmationText)
-                    .font(textFont)
-                    .foregroundStyle(.white)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, 12)
-                    .shadow(color: .black.opacity(0.2), radius: 3, y: 1)
-                    .minimumScaleFactor(0.7)
-
-                Spacer()
-
-                if family != .systemSmall {
-                    Text("Lumen")
-                        .font(.caption2)
-                        .foregroundStyle(.white.opacity(0.5))
-                        .padding(.bottom, 8)
-                }
+            if family != .systemSmall {
+                Text("Lumen")
+                    .font(.caption2)
+                    .foregroundStyle(.white.opacity(0.5))
             }
-            .padding(8)
         }
         .containerBackground(for: .widget) {
-            Color.clear
+            ZStack {
+                if let filename = entry.backgroundImageFilename,
+                   let containerURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.gragera.lumen"),
+                   let uiImage = UIImage(contentsOfFile: containerURL.appendingPathComponent(filename).path) {
+                    Image(uiImage: uiImage)
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                } else {
+                    LinearGradient(
+                        colors: entry.gradientColors.map { Color(hex: $0) },
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                }
+
+                // Readability overlay
+                LinearGradient(
+                    stops: [
+                        .init(color: .black.opacity(0), location: 0),
+                        .init(color: .black.opacity(0.3), location: 0.6),
+                        .init(color: .black.opacity(0.2), location: 1),
+                    ],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+            }
         }
     }
 
@@ -154,7 +184,8 @@ struct FavoritesTimelineProvider: TimelineProvider {
         FavoritesEntry(
             date: .now,
             affirmationText: "You are worthy of love and kindness.",
-            gradientColors: ["#A688B5", "#E8837C"]
+            gradientColors: ["#A688B5", "#E8837C"],
+            backgroundImageFilename: nil
         )
     }
 
@@ -182,7 +213,8 @@ struct FavoritesTimelineProvider: TimelineProvider {
                 FavoritesEntry(
                     date: entryDate,
                     affirmationText: fav.text,
-                    gradientColors: fav.gradientColors
+                    gradientColors: fav.gradientColors,
+                    backgroundImageFilename: fav.backgroundImageFilename
                 )
             )
         }
@@ -212,7 +244,8 @@ struct FavoritesTimelineProvider: TimelineProvider {
         return FavoritesEntry(
             date: .now,
             affirmationText: fav.text,
-            gradientColors: fav.gradientColors
+            gradientColors: fav.gradientColors,
+            backgroundImageFilename: fav.backgroundImageFilename
         )
     }
 }
@@ -221,6 +254,7 @@ struct FavoritesEntry: TimelineEntry {
     let date: Date
     let affirmationText: String
     let gradientColors: [String]
+    let backgroundImageFilename: String?
 }
 
 struct FavoritesWidgetEntryView: View {
@@ -228,51 +262,54 @@ struct FavoritesWidgetEntryView: View {
     @Environment(\.widgetFamily) var family
 
     var body: some View {
-        ZStack {
-            LinearGradient(
-                colors: entry.gradientColors.map { Color(hex: $0) },
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
+        VStack {
+            Spacer()
 
-            LinearGradient(
-                stops: [
-                    .init(color: .black.opacity(0), location: 0),
-                    .init(color: .black.opacity(0.3), location: 0.6),
-                    .init(color: .black.opacity(0.2), location: 1),
-                ],
-                startPoint: .top,
-                endPoint: .bottom
-            )
+            Text(entry.affirmationText)
+                .font(textFont)
+                .foregroundStyle(.white)
+                .multilineTextAlignment(.center)
+                .shadow(color: .black.opacity(0.2), radius: 3, y: 1)
+                .minimumScaleFactor(0.7)
 
-            VStack {
-                Spacer()
+            Spacer()
 
-                Text(entry.affirmationText)
-                    .font(textFont)
-                    .foregroundStyle(.white)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, 12)
-                    .shadow(color: .black.opacity(0.2), radius: 3, y: 1)
-                    .minimumScaleFactor(0.7)
-
-                Spacer()
-
-                HStack(spacing: 4) {
-                    Image(systemName: "heart.fill")
+            HStack(spacing: 4) {
+                Image(systemName: "heart.fill")
+                    .font(.caption2)
+                if family != .systemSmall {
+                    Text("Favorites")
                         .font(.caption2)
-                    if family != .systemSmall {
-                        Text("Favorites")
-                            .font(.caption2)
-                    }
                 }
-                .foregroundStyle(.white.opacity(0.5))
-                .padding(.bottom, 8)
             }
-            .padding(8)
+            .foregroundStyle(.white.opacity(0.5))
         }
         .containerBackground(for: .widget) {
-            Color.clear
+            ZStack {
+                if let filename = entry.backgroundImageFilename,
+                   let containerURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.gragera.lumen"),
+                   let uiImage = UIImage(contentsOfFile: containerURL.appendingPathComponent(filename).path) {
+                    Image(uiImage: uiImage)
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                } else {
+                    LinearGradient(
+                        colors: entry.gradientColors.map { Color(hex: $0) },
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                }
+
+                LinearGradient(
+                    stops: [
+                        .init(color: .black.opacity(0), location: 0),
+                        .init(color: .black.opacity(0.3), location: 0.6),
+                        .init(color: .black.opacity(0.2), location: 1),
+                    ],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+            }
         }
     }
 
@@ -308,6 +345,7 @@ struct FavoritesWidget: Widget {
 struct FavoriteWidgetEntry: Codable {
     let text: String
     let gradientColors: [String]
+    let backgroundImageFilename: String?
 }
 
 struct FavoritesWidgetSnapshot: Codable {

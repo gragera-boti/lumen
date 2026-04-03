@@ -1,6 +1,7 @@
 import Foundation
 import OSLog
 import WidgetKit
+import UIKit
 
 struct WidgetService: WidgetServiceProtocol {
     static let shared = WidgetService()
@@ -8,7 +9,7 @@ struct WidgetService: WidgetServiceProtocol {
 
     private let appGroupId = "group.com.gragera.lumen"
 
-    func updateWidget(affirmationText: String, gradientColors: [String]) {
+    func updateWidget(entries: [(text: String, gradientColors: [String], backgroundImage: UIImage?)]) {
         guard
             let containerURL = FileManager.default.containerURL(
                 forSecurityApplicationGroupIdentifier: appGroupId
@@ -18,24 +19,70 @@ struct WidgetService: WidgetServiceProtocol {
             return
         }
 
-        let snapshot = WidgetSnapshot(
-            id: UUID().uuidString,
-            text: affirmationText,
-            gradientColors: gradientColors,
-            updatedAt: .now
-        )
+        cleanupOldImages(in: containerURL)
+
+        var snapshots: [WidgetSnapshot] = []
+
+        for (index, entry) in entries.enumerated() {
+            var imageFilename: String? = nil
+            if let image = entry.backgroundImage,
+               let imageData = image.jpegData(compressionQuality: 0.8) {
+                let filename = "widget_bg_\(index).jpg"
+                let fileURL = containerURL.appendingPathComponent(filename)
+                do {
+                    try imageData.write(to: fileURL, options: .atomic)
+                    imageFilename = filename
+                } catch {
+                    logger.error("Failed to save background image: \(error.localizedDescription)")
+                }
+            }
+
+            let snapshot = WidgetSnapshot(
+                id: UUID().uuidString,
+                text: entry.text,
+                gradientColors: entry.gradientColors,
+                backgroundImageFilename: imageFilename,
+                updatedAt: .now
+            )
+            snapshots.append(snapshot)
+        }
 
         let fileURL = containerURL.appendingPathComponent("widget_snapshot.json")
         do {
-            let data = try JSONEncoder().encode(snapshot)
+            let list = WidgetSnapshotList(entries: snapshots, updatedAt: .now)
+            let data = try JSONEncoder().encode(list)
             try data.write(to: fileURL, options: .atomic)
             WidgetCenter.shared.reloadAllTimelines()
-            logger.info("Widget snapshot updated")
+            logger.info("Widget snapshot updated with \(snapshots.count) entries")
         } catch {
             logger.error("Failed to write widget snapshot: \(error.localizedDescription)")
         }
     }
-    func updateFavoritesWidget(favorites: [(text: String, gradientColors: [String])]) {
+
+    private func cleanupOldImages(in containerURL: URL) {
+        let fileManager = FileManager.default
+        do {
+            let files = try fileManager.contentsOfDirectory(at: containerURL, includingPropertiesForKeys: nil)
+            for file in files where file.lastPathComponent.hasPrefix("widget_bg_") && file.pathExtension == "jpg" {
+                try fileManager.removeItem(at: file)
+            }
+        } catch {
+            logger.error("Failed to clean up old widget images: \(error.localizedDescription)")
+        }
+    }
+    private func cleanupOldFavoriteImages(in containerURL: URL) {
+        let fileManager = FileManager.default
+        do {
+            let files = try fileManager.contentsOfDirectory(at: containerURL, includingPropertiesForKeys: nil)
+            for file in files where file.lastPathComponent.hasPrefix("fav_bg_") && file.pathExtension == "jpg" {
+                try fileManager.removeItem(at: file)
+            }
+        } catch {
+            logger.error("Failed to clean up old favorite images: \(error.localizedDescription)")
+        }
+    }
+
+    func updateFavoritesWidget(favorites: [(text: String, gradientColors: [String], backgroundImage: UIImage?)]) {
         guard
             let containerURL = FileManager.default.containerURL(
                 forSecurityApplicationGroupIdentifier: appGroupId
@@ -45,8 +92,23 @@ struct WidgetService: WidgetServiceProtocol {
             return
         }
 
-        let entries = favorites.prefix(50).map { fav in
-            FavoriteWidgetEntry(text: fav.text, gradientColors: fav.gradientColors)
+        cleanupOldFavoriteImages(in: containerURL)
+
+        var entries: [FavoriteWidgetEntry] = []
+        for (index, fav) in favorites.prefix(50).enumerated() {
+            var imageFilename: String? = nil
+            if let image = fav.backgroundImage,
+               let imageData = image.jpegData(compressionQuality: 0.8) {
+                let filename = "fav_bg_\(index).jpg"
+                let fileURL = containerURL.appendingPathComponent(filename)
+                do {
+                    try imageData.write(to: fileURL, options: .atomic)
+                    imageFilename = filename
+                } catch {
+                    logger.error("Failed to save favorite background image: \(error.localizedDescription)")
+                }
+            }
+            entries.append(FavoriteWidgetEntry(text: fav.text, gradientColors: fav.gradientColors, backgroundImageFilename: imageFilename))
         }
 
         let snapshot = FavoritesWidgetSnapshot(
@@ -70,12 +132,19 @@ private struct WidgetSnapshot: Codable {
     let id: String
     let text: String
     let gradientColors: [String]
+    let backgroundImageFilename: String?
+    let updatedAt: Date
+}
+
+private struct WidgetSnapshotList: Codable {
+    let entries: [WidgetSnapshot]
     let updatedAt: Date
 }
 
 struct FavoriteWidgetEntry: Codable {
     let text: String
     let gradientColors: [String]
+    let backgroundImageFilename: String?
 }
 
 struct FavoritesWidgetSnapshot: Codable {

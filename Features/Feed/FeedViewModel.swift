@@ -40,6 +40,7 @@ final class FeedViewModel {
     @ObservationIgnored @Dependency(\.shareService) private var shareService
     @ObservationIgnored @Dependency(\.cardCustomizationService) private var customizationService
     @ObservationIgnored @Dependency(\.backgroundGenerator) private var backgroundGenerator
+    @ObservationIgnored @Dependency(\.widgetService) private var widgetService
     private let logger = Logger(subsystem: "com.gragera.lumen", category: "Feed")
 
     // MARK: - Actions
@@ -126,6 +127,14 @@ final class FeedViewModel {
             } else {
                 favoritedIds.insert(card.id)
             }
+            
+            let allFavs = try favoriteService.fetchFavorites(modelContext: modelContext)
+            let entries = allFavs.map { aff -> (text: String, gradientColors: [String], backgroundImage: UIImage?) in
+                let index = abs(aff.id.hashValue) % LumenTheme.Colors.gradients.count
+                let colors = LumenTheme.Colors.gradients[index].map { $0.hexString }
+                return (text: aff.text, gradientColors: colors, backgroundImage: self.backgroundImage(for: aff))
+            }
+            widgetService.updateFavoritesWidget(favorites: entries)
         } catch {
             logger.error("Favorite error: \(error.localizedDescription)")
             errorMessage = error.localizedDescription

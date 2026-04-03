@@ -64,13 +64,14 @@ struct CardEditorView: View {
             ScrollView {
                 VStack(spacing: LumenTheme.Spacing.lg) {
                     previewCard
-                    backgroundModeSelector
-                    backgroundSection
-                    typographySection
 
                     if viewModel.canEditText {
                         textSection
                     }
+
+                    backgroundModeSelector
+                    backgroundSection
+                    typographySection
                 }
                 .padding(.horizontal, LumenTheme.Spacing.md)
                 .padding(.top, LumenTheme.Spacing.sm)

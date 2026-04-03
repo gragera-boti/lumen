@@ -381,12 +381,23 @@ struct FeedView: View {
     }
 
     private func updateWidget() {
-        if let daily = viewModel.dailyAffirmation {
-            WidgetService.shared.updateWidget(
-                affirmationText: daily.text,
-                gradientColors: gradientHexColors(for: daily)
+        var widgetCards = Array(viewModel.cards.prefix(6))
+        if let daily = viewModel.dailyAffirmation, !widgetCards.contains(where: { $0.id == daily.id }) {
+            widgetCards.insert(daily, at: 0)
+            widgetCards = Array(widgetCards.prefix(6))
+        }
+        
+        guard !widgetCards.isEmpty else { return }
+        
+        let entries = widgetCards.map { card in
+            (
+                text: card.text,
+                gradientColors: gradientHexColors(for: card),
+                backgroundImage: viewModel.backgroundImage(for: card)
             )
         }
+        
+        WidgetService.shared.updateWidget(entries: entries)
     }
 
     private func presentShareSheet(image: UIImage) {

@@ -1,14 +1,14 @@
 import Foundation
+import UIKit
 
 /// Widget data update service protocol.
 protocol WidgetServiceProtocol: Sendable {
-    /// Write a snapshot to the shared App Group container and reload widget timelines.
+    /// Write snapshots to the shared App Group container and reload widget timelines.
     /// - Parameters:
-    ///   - affirmationText: The affirmation text to display in the widget.
-    ///   - gradientColors: Hex color strings for the widget's gradient background.
-    func updateWidget(affirmationText: String, gradientColors: [String])
+    ///   - entries: An array of affirmations with text, gradient colors, and optional background images.
+    func updateWidget(entries: [(text: String, gradientColors: [String], backgroundImage: UIImage?)])
 
     /// Write favorites data to the shared App Group container and reload the favorites widget.
-    /// - Parameter favorites: An array of tuples containing affirmation text and gradient color hex strings.
-    func updateFavoritesWidget(favorites: [(text: String, gradientColors: [String])])
+    /// - Parameter favorites: An array of tuples containing affirmation text, gradient colors, and optional background images.
+    func updateFavoritesWidget(favorites: [(text: String, gradientColors: [String], backgroundImage: UIImage?)])
 }

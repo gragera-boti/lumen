@@ -4,6 +4,7 @@ import SwiftUI
 struct RemindersSettingsView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.openURL) private var openURL
+    @Environment(\.scenePhase) private var scenePhase
     @State private var preferences: UserPreferences?
     @State private var notificationPermission: NotificationPermission = .unknown
     @State private var showTestSent = false
@@ -124,6 +125,13 @@ struct RemindersSettingsView: View {
                 preferences = try preferencesService.getOrCreate(modelContext: modelContext)
             } catch {}
             notificationPermission = await notificationService.permissionStatus()
+        }
+        .onChange(of: scenePhase) { _, newPhase in
+            if newPhase == .active {
+                Task {
+                    notificationPermission = await notificationService.permissionStatus()
+                }
+            }
         }
     }
 
