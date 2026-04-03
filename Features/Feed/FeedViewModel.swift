@@ -75,8 +75,14 @@ final class FeedViewModel {
                 showRelaxFiltersPrompt = false
                 favoritedIds = Set(result.feed.filter { $0.isFavorited }.map { $0.id })
 
-                // Assign random backgrounds from active themes
-                await assignBackgrounds(for: result.feed)
+                // Assign random backgrounds from active themes.
+                // Include the daily affirmation even if it didn't land in the feed batch,
+                // so it always has a background when inserted at position 0 in the widget.
+                var affirmationsForBg = result.feed
+                if let daily = dailyAffirmation, !affirmationsForBg.contains(where: { $0.id == daily.id }) {
+                    affirmationsForBg.append(daily)
+                }
+                await assignBackgrounds(for: affirmationsForBg)
 
                 // Load card customizations
                 applyCustomizations(to: result.feed, modelContext: modelContext)
@@ -250,6 +256,11 @@ final class FeedViewModel {
             widgetCards = Array(widgetCards.prefix(6))
         }
         guard !widgetCards.isEmpty else { return }
+
+        // Don't push a partial update if backgrounds haven't finished loading yet.
+        // This prevents a race where reloadCustomizations fires while assignBackgrounds
+        // is still awaiting, and overwrites the widget with only 1 background.
+        guard widgetCards.allSatisfy({ cardBackgrounds[$0.id] != nil }) else { return }
         let colorSets: [[String]] = [
             ["#1B998B", "#3B5998"], ["#E8A87C", "#C38D9E"],
             ["#7FBBCA", "#A688B5"], ["#7EC8A0", "#3B5998"],
