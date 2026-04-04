@@ -318,22 +318,20 @@ final class FeedViewModel {
     /// Insert the most recently created user affirmation right after the current card and navigate to it.
     func insertLatestUserAffirmation(modelContext: ModelContext) {
         do {
-            let userSource = AffirmationSource.user
             var descriptor = FetchDescriptor<Affirmation>(
-                predicate: #Predicate<Affirmation> { $0.source == userSource },
                 sortBy: [SortDescriptor(\.createdAt, order: .reverse)]
             )
-            descriptor.fetchLimit = 1
+            descriptor.fetchLimit = 20
 
-            guard let newest = try modelContext.fetch(descriptor).first else { return }
+            let recentAffirmations = try modelContext.fetch(descriptor)
+            guard let newest = recentAffirmations.first(where: { $0.source == .user }) else { return }
 
             // Don't insert if already in the feed
             guard !cards.contains(where: { $0.id == newest.id }) else { return }
 
-            // Insert right after current position
-            let insertIndex = min(currentIndex + 1, cards.count)
+            // Insert AT current position so it shows immediately
+            let insertIndex = currentIndex
             cards.insert(newest, at: insertIndex)
-            currentIndex = insertIndex
             
             // Reload customizations to ensure newly created typography/backgrounds apply
             reloadCustomizations(modelContext: modelContext)

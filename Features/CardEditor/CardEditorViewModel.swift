@@ -386,6 +386,8 @@ final class CardEditorViewModel {
             customization.savedThemeId = themeId
         }
 
+        try? modelContext.save()
+
         Logger.viewModel.debug("Saved card customization for \(self.affirmation.id, privacy: .private)")
     }
 

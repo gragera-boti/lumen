@@ -55,9 +55,13 @@ struct CustomAffirmationSheet: View {
                 }
                 ToolbarItemGroup(placement: .keyboard) {
                     Spacer()
-                    Button("Done") {
+                    Button {
                         isInputFocused = false
+                    } label: {
+                        Text("Done")
+                            .font(.body.weight(.semibold))
                     }
+                    .offset(y: -8)
                 }
             }
             .task {
