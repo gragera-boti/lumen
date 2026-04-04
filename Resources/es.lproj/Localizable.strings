@@ -88,6 +88,8 @@
 "reminders.enabled" = "Activado";
 "reminders.disabled" = "Desactivado";
 "reminders.notSet" = "Sin configurar";
+"reminders.enablePermissions" = "Activar permisos";
+"reminders.openSettings" = "Abrir ajustes";
 
 /* Content Filters */
 "filters.title" = "Filtros de contenido";

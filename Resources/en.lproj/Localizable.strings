@@ -88,6 +88,8 @@
 "reminders.enabled" = "Enabled";
 "reminders.disabled" = "Disabled";
 "reminders.notSet" = "Not set";
+"reminders.enablePermissions" = "Enable Permissions";
+"reminders.openSettings" = "Open Settings";
 
 /* Content Filters */
 "filters.title" = "Content Filters";

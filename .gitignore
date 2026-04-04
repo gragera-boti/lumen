@@ -43,3 +43,4 @@ Tuist/.build/
 
 # Build logs and scripts
 xcodebuild_output.txt
+fastlane/report.xml
