@@ -336,7 +336,7 @@ final class CardEditorViewModel {
 
         // Cache the preview image to persistent storage
         var relativePath: String?
-        if let image = previewImage, let lastPath = lastGeneratedImagePath {
+        if let _ = previewImage, let lastPath = lastGeneratedImagePath {
             relativePath = try Self.cacheImage(from: lastPath, for: affirmation.id)
         } else if let image = previewImage {
             // Fallback: save from UIImage directly
