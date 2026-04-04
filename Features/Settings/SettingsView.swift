@@ -24,6 +24,13 @@ struct SettingsView: View {
         .task {
             await viewModel.load(modelContext: modelContext)
         }
+        .onChange(of: router.isShowingPaywall) { _, isShowing in
+            if !isShowing {
+                Task {
+                    await viewModel.load(modelContext: modelContext)
+                }
+            }
+        }
         .alert("settings.deleteConfirm.title".localized, isPresented: $showDeleteConfirmation) {
             Button("general.delete".localized, role: .destructive) {
                 viewModel.deleteAllData(modelContext: modelContext)
@@ -94,21 +101,23 @@ struct SettingsView: View {
         Section {
             if viewModel.isPremium {
                 NavigationLink(value: AppDestination.subscription) {
-                    VStack(alignment: .leading, spacing: 8) {
-                        HStack {
-                            Image(systemName: "star.fill").foregroundStyle(.orange)
-                            // We can use the premium plan name directly
-                            Text("Lumen Pro").font(.headline).fontWeight(.semibold)
-                            Spacer()
-                            Text("Active")
-                                .font(.caption)
-                                .padding(.horizontal, 8).padding(.vertical, 4)
-                                .background(Color.green.opacity(0.1))
-                                .foregroundStyle(.green)
-                                .clipShape(Capsule())
+                    HStack {
+                        VStack(alignment: .leading, spacing: 4) {
+                            HStack {
+                                Image(systemName: "star.fill").foregroundStyle(.orange)
+                                // We can use the premium plan name directly
+                                Text("Lumen Pro").font(.headline).fontWeight(.semibold)
+                            }
+                            Text("settings.manageSubscription".localized)
+                                .font(.subheadline).foregroundStyle(.secondary)
                         }
-                        Text("settings.manageSubscription".localized)
-                            .font(.subheadline).foregroundStyle(.secondary)
+                        Spacer()
+                        Text("Active")
+                            .font(.caption.weight(.medium))
+                            .padding(.horizontal, 8).padding(.vertical, 4)
+                            .background(Color.green.opacity(0.1))
+                            .foregroundStyle(.green)
+                            .clipShape(Capsule())
                     }
                     .padding(.vertical, 4)
                 }
