@@ -121,13 +121,9 @@ struct CardEditorView: View {
             .toolbar {
                 ToolbarItemGroup(placement: .keyboard) {
                     Spacer()
-                    Button {
+                    Button("Done") {
                         isInputFocused = false
-                    } label: {
-                        Text("Done")
-                            .font(.body.weight(.semibold))
                     }
-                    .offset(y: -8)
                 }
             }
     }
