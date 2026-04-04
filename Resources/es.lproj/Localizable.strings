@@ -21,6 +21,7 @@
 "onboarding.tone.title" = "Elige tu tono";
 
 "onboarding.reminders.title" = "Configura tus recordatorios";
+"onboarding.reminders.subtitle" = "Te enviaremos recordatorios suaves durante el día para ayudarte a mantener una mentalidad positiva.";
 "onboarding.reminders.enable" = "Activar recordatorios";
 "onboarding.reminders.notNow" = "Ahora no";
 "onboarding.reminders.perDay" = "Recordatorios por día: %d";

@@ -21,6 +21,7 @@
 "onboarding.tone.title" = "Choose your tone";
 
 "onboarding.reminders.title" = "Set your reminders";
+"onboarding.reminders.subtitle" = "We'll send you gentle reminders throughout the day to help you maintain a positive mindset.";
 "onboarding.reminders.enable" = "Enable reminders";
 "onboarding.reminders.notNow" = "Not now";
 "onboarding.reminders.perDay" = "Reminders per day: %d";

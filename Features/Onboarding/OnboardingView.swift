@@ -235,9 +235,17 @@ struct OnboardingView: View {
                     .shadow(color: LumenTheme.Colors.gradients[2].first?.opacity(0.5) ?? .clear, radius: 12)
                     .symbolEffect(.bounce, value: viewModel.remindersPerDay)
 
-                Text("onboarding.reminders.title".localized)
-                    .font(LumenTheme.Typography.headlineFont)
-                    .foregroundStyle(.white)
+                VStack(spacing: LumenTheme.Spacing.xs) {
+                    Text("onboarding.reminders.title".localized)
+                        .font(LumenTheme.Typography.headlineFont)
+                        .foregroundStyle(.white)
+                    
+                    Text("onboarding.reminders.subtitle".localized)
+                        .font(.subheadline)
+                        .foregroundStyle(.white.opacity(0.8))
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, LumenTheme.Spacing.md)
+                }
 
                 VStack(spacing: LumenTheme.Spacing.md) {
                     Stepper(

@@ -1,5 +1,4 @@
 import Dependencies
-import NaturalLanguage
 import OSLog
 import SwiftData
 import UIKit
@@ -541,85 +540,57 @@ final class CardEditorViewModel {
         isLoadingSuggestions = true
         defer { isLoadingSuggestions = false }
 
-        // Fetch favorited affirmation texts
-        let favoriteTexts = fetchFavoriteTexts(modelContext: modelContext)
-        guard favoriteTexts.count >= 3 else { return }
-
-        // Use NaturalLanguage embedding to find themes in favorites
-        await generateSuggestions(from: favoriteTexts)
-    }
-
-    private func fetchFavoriteTexts(modelContext: ModelContext) -> [String] {
         do {
-            let descriptor = FetchDescriptor<Favorite>(
+            let favDescriptor = FetchDescriptor<Favorite>(
                 sortBy: [SortDescriptor(\.favoritedAt, order: .reverse)]
             )
-            let favorites = try modelContext.fetch(descriptor)
-            return favorites.compactMap { $0.affirmation?.text }.prefix(20).map { $0 }
+            let favorites = try modelContext.fetch(favDescriptor)
+            
+            let favoriteAffirmations = favorites.compactMap { $0.affirmation }
+            let favoriteIDs = Set(favoriteAffirmations.map { $0.id })
+            
+            // Gather most common tags from favorites
+            var tagCounts: [String: Int] = [:]
+            for aff in favoriteAffirmations {
+                for tag in aff.tags {
+                    tagCounts[tag, default: 0] += 1
+                }
+            }
+            
+            let topTags = Set(tagCounts.sorted { $0.value > $1.value }.prefix(5).map { $0.key })
+            
+            // Fetch curated affirmations to find matches
+            let allAffDescriptor = FetchDescriptor<Affirmation>()
+            let allAffirmations = try modelContext.fetch(allAffDescriptor)
+            
+            var rankedSuggestions: [(text: String, score: Int)] = []
+            var fallbackSuggestions: [String] = []
+            
+            for aff in allAffirmations {
+                // Must be curated and not already favorited
+                guard aff.source == .curated, !favoriteIDs.contains(aff.id) else { continue }
+                fallbackSuggestions.append(aff.text)
+                
+                let matches = Set(aff.tags).intersection(topTags)
+                if !matches.isEmpty {
+                    rankedSuggestions.append((text: aff.text, score: matches.count))
+                }
+            }
+            
+            // Sort by score, then slightly shuffle top ones
+            rankedSuggestions.sort { $0.score > $1.score }
+            let bestMatches = rankedSuggestions.prefix(15)
+            
+            var chosen = Array(bestMatches.map { $0.text }.shuffled().prefix(5))
+            
+            if chosen.isEmpty {
+                // If no tag matches, provide random fallback ones
+                chosen = Array(fallbackSuggestions.shuffled().prefix(5))
+            }
+            
+            self.suggestions = chosen
         } catch {
-            return []
+            Logger.viewModel.error("Failed to load ML suggestions: \(error.localizedDescription)")
         }
     }
-
-    private func generateSuggestions(from favoriteTexts: [String]) async {
-        var starters: [String: Int] = [:]
-        var themes: [String] = []
-        let tagger = NLTagger(tagSchemes: [.lemma, .nameType])
-
-        for text in favoriteTexts {
-            let words = text.split(separator: " ").prefix(3).joined(separator: " ")
-            if words.count > 2 {
-                starters[words, default: 0] += 1
-            }
-
-            tagger.string = text
-            tagger.enumerateTags(in: text.startIndex..<text.endIndex, unit: .word, scheme: .lemma) { tag, range in
-                if let lemma = tag?.rawValue, lemma.count > 3 {
-                    let word = String(text[range]).lowercased()
-                    if !Self.stopWords.contains(word) && !Self.stopWords.contains(lemma.lowercased()) {
-                        themes.append(lemma)
-                    }
-                }
-                return true
-            }
-        }
-
-        let themeCounts = Dictionary(themes.map { ($0, 1) }, uniquingKeysWith: +)
-        let topThemes = themeCounts.sorted { $0.value > $1.value }.prefix(5).map { $0.key }
-        var generated: [String] = []
-
-        let templates = [
-            "I embrace my {theme} with gratitude",
-            "Every day, my {theme} grows stronger",
-            "I am worthy of {theme} and joy",
-            "My {theme} inspires those around me",
-            "I choose {theme} in every moment",
-        ]
-
-        for (i, theme) in topThemes.prefix(3).enumerated() {
-            if i < templates.count {
-                let suggestion = templates[i].replacingOccurrences(of: "{theme}", with: theme.lowercased())
-                generated.append(suggestion)
-            }
-        }
-
-        let topStarters = starters.sorted { $0.value > $1.value }.prefix(2)
-        for starter in topStarters {
-            if !generated.contains(where: { $0.hasPrefix(starter.key) }) {
-                if let theme = topThemes.first {
-                    generated.append("\(starter.key) \(theme.lowercased()) guides my path")
-                }
-            }
-        }
-
-        suggestions = Array(generated.prefix(5))
-    }
-
-    private static let stopWords: Set<String> = [
-        "i", "my", "me", "am", "is", "are", "the", "a", "an", "and", "or",
-        "to", "in", "of", "for", "with", "that", "this", "have", "has",
-        "can", "will", "do", "be", "it", "not", "but", "all", "each",
-        "every", "from", "into", "through", "than", "more", "most",
-        "own", "being", "been", "was", "were", "their", "them", "they",
-    ]
 }
