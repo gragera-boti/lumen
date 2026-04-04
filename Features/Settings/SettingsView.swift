@@ -193,6 +193,8 @@ struct SettingsView: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
+        } header: {
+            Text("Data")
         } footer: {
             Text("Sync favorites, preferences, and themes across your devices.")
         }
