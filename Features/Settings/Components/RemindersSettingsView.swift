@@ -43,20 +43,7 @@ struct RemindersSettingsView: View {
                     }
                 }
 
-                Section {
-                    HStack {
-                        Text("reminders.quietStart".localized)
-                        Spacer()
-                        Text(prefs.reminders.quietStart)
-                            .foregroundStyle(.secondary)
-                    }
-                    HStack {
-                        Text("reminders.quietEnd".localized)
-                        Spacer()
-                        Text(prefs.reminders.quietEnd)
-                            .foregroundStyle(.secondary)
-                    }
-                }
+
 
                 Section {
                     Button("reminders.testButton".localized) {
@@ -66,9 +53,7 @@ struct RemindersSettingsView: View {
                                     enabled: true,
                                     countPerDay: 1,
                                     windowStart: "00:00",
-                                    windowEnd: "23:59",
-                                    quietStart: "00:00",
-                                    quietEnd: "00:00"
+                                    windowEnd: "23:59"
                                 ),
                                 affirmationTexts: ["This is a test reminder from Lumen ✨"]
                             )

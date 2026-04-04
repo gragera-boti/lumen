@@ -35,6 +35,13 @@ struct ExploreView: View {
         .task(id: preferences?.includeSensitiveTopics) {
             await viewModel.loadData(modelContext: modelContext)
         }
+        .onChange(of: router.isShowingPaywall) { _, isShowing in
+            if !isShowing {
+                Task {
+                    await viewModel.loadData(modelContext: modelContext)
+                }
+            }
+        }
     }
 }
 

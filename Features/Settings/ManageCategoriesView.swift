@@ -30,12 +30,19 @@ struct ManageCategoriesView: View {
             preferences = try? preferencesService.getOrCreate(modelContext: modelContext)
             await viewModel.loadCategories(modelContext: modelContext)
         }
+        .onChange(of: router.isShowingPaywall) { _, isShowing in
+            if !isShowing {
+                Task {
+                    await viewModel.loadCategories(modelContext: modelContext)
+                }
+            }
+        }
     }
     
     private func categoryRow(for category: Category, in prefs: UserPreferences) -> some View {
         let isSelected = prefs.selectedCategoryIds.contains(category.id)
         return Button {
-            if category.isPremium && !isPremium {
+            if category.isPremium && !viewModel.isPremium {
                 router.isShowingPaywall = true
             } else {
                 toggleCategory(category.id, in: prefs)

@@ -80,8 +80,6 @@
 "reminders.perDay" = "Reminders per day: %d";
 "reminders.windowStart" = "Window start";
 "reminders.windowEnd" = "Window end";
-"reminders.quietStart" = "Quiet start";
-"reminders.quietEnd" = "Quiet end";
 "reminders.testButton" = "Send test notification";
 "reminders.testSent" = "Test sent!";
 "reminders.permission" = "Notification permission";

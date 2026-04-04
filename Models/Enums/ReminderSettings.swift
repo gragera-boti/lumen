@@ -5,16 +5,13 @@ struct ReminderSettings: Codable, Equatable {
     var countPerDay: Int
     var windowStart: String
     var windowEnd: String
-    var quietStart: String
-    var quietEnd: String
+
 
     static let defaults = ReminderSettings(
         enabled: false,
         countPerDay: 3,
         windowStart: "09:00",
-        windowEnd: "21:00",
-        quietStart: "22:00",
-        quietEnd: "07:00"
+        windowEnd: "21:00"
     )
 
     var windowStartDate: DateComponents {

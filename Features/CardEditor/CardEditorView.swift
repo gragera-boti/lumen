@@ -12,6 +12,7 @@ struct CardEditorView: View {
     private let isEmbedded: Bool
     private let onSaveComplete: (() -> Void)?
     @State private var viewModel: CardEditorViewModel
+    @FocusState private var isInputFocused: Bool
 
     init(
         affirmation: Affirmation, 
@@ -80,6 +81,7 @@ struct CardEditorView: View {
                     .padding(.horizontal, LumenTheme.Spacing.md)
                     .padding(.bottom, 40)
                 }
+                .scrollDismissesKeyboard(.interactively)
             }
             .ambientBackground()
             .navigationTitle("Customize Card")
@@ -114,6 +116,14 @@ struct CardEditorView: View {
                 if show {
                     router.isShowingPaywall = true
                     viewModel.showPaywallPrompt = false
+                }
+            }
+            .toolbar {
+                ToolbarItemGroup(placement: .keyboard) {
+                    Spacer()
+                    Button("Done") {
+                        isInputFocused = false
+                    }
                 }
             }
     }
@@ -436,6 +446,7 @@ struct CardEditorView: View {
 
             ZStack(alignment: .topLeading) {
                 TextEditor(text: $viewModel.customText)
+                    .focused($isInputFocused)
                     .frame(minHeight: 80, maxHeight: 120)
                     .scrollContentBackground(.hidden)
                     .padding(12)

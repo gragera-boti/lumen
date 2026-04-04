@@ -98,9 +98,7 @@ final class OnboardingViewModel {
                 enabled: notificationPermission == .granted && remindersPerDay > 0,
                 countPerDay: remindersPerDay,
                 windowStart: windowStart,
-                windowEnd: windowEnd,
-                quietStart: "22:00",
-                quietEnd: "07:00"
+                windowEnd: windowEnd
             )
             prefs.hasCompletedOnboarding = true
             prefs.updatedAt = .now

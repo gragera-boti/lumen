@@ -7,6 +7,7 @@ struct CustomAffirmationSheet: View {
     @Environment(\.dismiss) private var dismiss
 
     @State private var text = ""
+    @FocusState private var isInputFocused: Bool
     @State private var selectedFont: AffirmationFontStyle = .playfair
     @State private var errorMessage: String?
     @State private var suggestions: [String] = []
@@ -39,6 +40,7 @@ struct CustomAffirmationSheet: View {
                 .padding(.top, LumenTheme.Spacing.sm)
                 .padding(.bottom, 100)
             }
+            .scrollDismissesKeyboard(.interactively)
             .ambientBackground()
             .navigationTitle("Create Affirmation")
             .navigationBarTitleDisplayMode(.inline)
@@ -50,6 +52,12 @@ struct CustomAffirmationSheet: View {
                     Button("Next") { saveAndProceed() }
                         .fontWeight(.semibold)
                         .disabled(!isValid)
+                }
+                ToolbarItemGroup(placement: .keyboard) {
+                    Spacer()
+                    Button("Done") {
+                        isInputFocused = false
+                    }
                 }
             }
             .task {
@@ -106,6 +114,7 @@ struct CustomAffirmationSheet: View {
 
             ZStack(alignment: .topLeading) {
                 TextEditor(text: $text)
+                    .focused($isInputFocused)
                     .frame(minHeight: 80, maxHeight: 120)
                     .scrollContentBackground(.hidden)
                     .padding(12)

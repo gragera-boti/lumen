@@ -80,8 +80,6 @@
 "reminders.perDay" = "Recordatorios por día: %d";
 "reminders.windowStart" = "Inicio de ventana";
 "reminders.windowEnd" = "Fin de ventana";
-"reminders.quietStart" = "Inicio de silencio";
-"reminders.quietEnd" = "Fin de silencio";
 "reminders.testButton" = "Enviar notificación de prueba";
 "reminders.testSent" = "¡Prueba enviada!";
 "reminders.permission" = "Permiso de notificaciones";

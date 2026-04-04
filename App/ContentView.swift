@@ -69,6 +69,13 @@ struct ContentView: View {
         ) {
             CrisisView()
         }
+        .onChange(of: router.isShowingPaywall) { _, isShowing in
+            if !isShowing {
+                Task {
+                    isPremium = await EntitlementService.shared.isPremium()
+                }
+            }
+        }
         .onReceive(NotificationCenter.default.publisher(for: .onboardingReset)) { _ in
             reloadPreferences()
         }
