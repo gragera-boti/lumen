@@ -254,22 +254,22 @@ struct ContentView: View {
                     validAffirmations = allAffirmations
                 }
                 
-                var texts = validAffirmations.map { $0.text }
+                var texts = validAffirmations.map { (id: $0.id, text: $0.text) }
                 texts.shuffle()
                 
                 let neededCount = max(reminderSettings.countPerDay * 7, 7)
-                var selectedTexts: [String] = []
+                var selectedAffirmations: [(id: String, text: String)] = []
                 if !texts.isEmpty {
                     for i in 0..<neededCount {
-                        selectedTexts.append(texts[i % texts.count])
+                        selectedAffirmations.append(texts[i % texts.count])
                     }
                 }
                 
-                guard !selectedTexts.isEmpty else { return }
+                guard !selectedAffirmations.isEmpty else { return }
                 
                 try await NotificationService.shared.scheduleReminders(
                     settings: reminderSettings, 
-                    affirmationTexts: selectedTexts
+                    affirmations: selectedAffirmations
                 )
             } catch {
                 // Automatically fail gracefully

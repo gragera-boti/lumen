@@ -48,14 +48,9 @@ struct RemindersSettingsView: View {
                 Section {
                     Button("reminders.testButton".localized) {
                         Task {
-                            try? await notificationService.scheduleReminders(
-                                settings: ReminderSettings(
-                                    enabled: true,
-                                    countPerDay: 1,
-                                    windowStart: "00:00",
-                                    windowEnd: "23:59"
-                                ),
-                                affirmationTexts: ["This is a test reminder from Lumen ✨"]
+                            try? await notificationService.scheduleTestReminder(
+                                id: "dummy_id",
+                                text: "This is a test reminder from Lumen ✨"
                             )
                             showTestSent = true
                         }

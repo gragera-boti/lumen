@@ -13,7 +13,8 @@ import Testing
         var shouldGrant = true
 
         func requestPermission() async throws -> Bool { shouldGrant }
-        func scheduleReminders(settings: ReminderSettings, affirmationTexts: [String]) async throws {}
+        func scheduleReminders(settings: ReminderSettings, affirmations: [(id: String, text: String)]) async throws {}
+        func scheduleTestReminder(id: String, text: String) async throws {}
         func cancelAllReminders() async {}
         func permissionStatus() async -> NotificationPermission { shouldGrant ? .granted : .denied }
     }

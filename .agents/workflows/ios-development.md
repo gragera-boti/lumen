@@ -13,6 +13,7 @@ When instructed to develop or fix a feature in this repository, follow this exac
 
 2. **Execution Phase**
    - Implement the approved plan, abiding strictly by the rules in `IOS_ENGINEER.md`.
+   - Automatically modify existing tests and create new ones to comprehensively cover whatever feature you are working on.
    - Ensure that the implementation includes excellent test coverage (unit tests and/or UI tests as applicable).
    
 3. **Internal Code Review Phase**
@@ -25,5 +26,6 @@ When instructed to develop or fix a feature in this repository, follow this exac
    - Repeat the internal "Review" and "Iterate" steps until the Reviewer persona is 100% satisfied with the code quality and test coverage.
 
 5. **User Verification Phase**
+   - Run the tests as part of the verification plan.
    - Generate a `walkthrough` artifact demonstrating what was done and tested.
    - Ask the user to review the final iteration to see if they are satisfied with the result.

@@ -9,6 +9,7 @@ struct LumenApp: App {
 
     init() {
         EntitlementService.shared.configure()
+        UNUserNotificationCenter.current().delegate = NotificationService.shared
     }
 
     static let appSchema = Schema([

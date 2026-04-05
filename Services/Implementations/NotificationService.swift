@@ -1,12 +1,17 @@
 import Foundation
 import OSLog
 import UserNotifications
+import UIKit
 
 @MainActor
-final class NotificationService: NotificationServiceProtocol {
+final class NotificationService: NSObject, NotificationServiceProtocol, UNUserNotificationCenterDelegate {
     static let shared = NotificationService()
     private let logger = Logger(subsystem: "com.gragera.lumen", category: "NotificationService")
     private let center = UNUserNotificationCenter.current()
+
+    private override init() {
+        super.init()
+    }
 
     func requestPermission() async throws -> Bool {
         let granted = try await center.requestAuthorization(options: [.alert, .sound, .badge])
@@ -28,11 +33,11 @@ final class NotificationService: NotificationServiceProtocol {
         }
     }
 
-    func scheduleReminders(settings: ReminderSettings, affirmationTexts: [String]) async throws {
+    func scheduleReminders(settings: ReminderSettings, affirmations: [(id: String, text: String)]) async throws {
         await cancelAllReminders()
 
         guard settings.enabled, settings.countPerDay > 0 else { return }
-        guard !affirmationTexts.isEmpty else { return }
+        guard !affirmations.isEmpty else { return }
 
         let windowStart = settings.windowStartDate
         let windowEnd = settings.windowEndDate
@@ -65,14 +70,15 @@ final class NotificationService: NotificationServiceProtocol {
                     scheduled > .now
                 else { continue }
 
-                let affirmationText = affirmationTexts[
-                    (day * settings.countPerDay + i) % affirmationTexts.count
+                let affirmation = affirmations[
+                    (day * settings.countPerDay + i) % affirmations.count
                 ]
 
                 let content = UNMutableNotificationContent()
                 content.title = "Lumen"
-                content.body = affirmationText
+                content.body = affirmation.text
                 content.sound = .default
+                content.userInfo = ["affirmationId": affirmation.id]
 
                 let trigger = UNCalendarNotificationTrigger(
                     dateMatching: calendar.dateComponents([.year, .month, .day, .hour, .minute], from: scheduled),
@@ -95,5 +101,41 @@ final class NotificationService: NotificationServiceProtocol {
     func cancelAllReminders() async {
         center.removeAllPendingNotificationRequests()
         logger.info("Cancelled all pending reminders")
+    }
+
+    func scheduleTestReminder(id: String, text: String) async throws {
+        let content = UNMutableNotificationContent()
+        content.title = "Lumen"
+        content.body = text
+        content.sound = .default
+        content.userInfo = ["affirmationId": id]
+
+        // Schedule for 10 seconds in the future
+        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 10, repeats: false)
+        let request = UNNotificationRequest(
+            identifier: "lumen_reminder_test",
+            content: content,
+            trigger: trigger
+        )
+        try await center.add(request)
+        logger.info("Scheduled test reminder for 10 seconds from now")
+    }
+
+    // MARK: - UNUserNotificationCenterDelegate
+
+    nonisolated func userNotificationCenter(
+        _ center: UNUserNotificationCenter,
+        didReceive response: UNNotificationResponse,
+        withCompletionHandler completionHandler: @escaping () -> Void
+    ) {
+        let userInfo = response.notification.request.content.userInfo
+        if let affirmationId = userInfo["affirmationId"] as? String {
+            Task { @MainActor in
+                if let url = URL(string: "lumen://affirmation/\(affirmationId)") {
+                    UIApplication.shared.open(url)
+                }
+            }
+        }
+        completionHandler()
     }
 }

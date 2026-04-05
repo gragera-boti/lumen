@@ -10,8 +10,11 @@ protocol NotificationServiceProtocol: Sendable {
     /// Schedule daily reminder notifications for the next 7 days.
     /// - Parameters:
     ///   - settings: The user's reminder timing and frequency preferences.
-    ///   - affirmationTexts: Pool of affirmation texts to rotate through notifications.
-    func scheduleReminders(settings: ReminderSettings, affirmationTexts: [String]) async throws
+    ///   - affirmations: Pool of affirmations to rotate through notifications.
+    func scheduleReminders(settings: ReminderSettings, affirmations: [(id: String, text: String)]) async throws
+
+    /// Schedule a single test reminder 10 seconds in the future.
+    func scheduleTestReminder(id: String, text: String) async throws
 
     /// Cancel all pending reminder notifications.
     func cancelAllReminders() async
