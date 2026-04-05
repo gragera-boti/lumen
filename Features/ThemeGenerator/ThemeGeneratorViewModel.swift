@@ -184,7 +184,7 @@ final class ThemeGeneratorViewModel {
         defer { endBackgroundTask() }
 
         // Wire up step progress
-        await aiGenerator.setStepProgressHandler { [weak self] step, total in
+        aiGenerator.setStepProgressHandler { [weak self] step, total in
             Task { @MainActor [weak self] in
                 self?.aiLoadState = .generating(promptName: prompt.displayName, step: step, totalSteps: total)
             }
@@ -219,7 +219,7 @@ final class ThemeGeneratorViewModel {
             errorMessage = "AI generation failed: \(desc.prefix(200))"
         }
 
-        await aiGenerator.setStepProgressHandler(nil)
+        aiGenerator.setStepProgressHandler(nil)
         aiLoadState = .ready
         isGenerating = false
     }

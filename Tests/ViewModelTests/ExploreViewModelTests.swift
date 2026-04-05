@@ -11,11 +11,11 @@ import Testing
     // MARK: - Mocks
 
     private final class MockContentService: ContentServiceProtocol, @unchecked Sendable {
-        var mockCategories: [Category] = []
+        var mockCategories: [Lumen.Category] = []
         var shouldThrow = false
 
         func loadBundledContentIfNeeded(modelContext: ModelContext) throws {}
-        func fetchCategories(modelContext: ModelContext, locale: String) throws -> [Category] {
+        func fetchCategories(modelContext: ModelContext, locale: String) throws -> [Lumen.Category] {
             if shouldThrow { throw NSError(domain: "test", code: 1) }
             return mockCategories
         }
@@ -34,7 +34,7 @@ import Testing
 
     private func createInMemoryContext() throws -> ModelContext {
         let configuration = ModelConfiguration(isStoredInMemoryOnly: true)
-        let container = try ModelContainer(for: Category.self, Affirmation.self, UserPreferences.self, configurations: configuration)
+        let container = try ModelContainer(for: Lumen.Category.self, Affirmation.self, UserPreferences.self, configurations: configuration)
         return ModelContext(container)
     }
 
@@ -52,8 +52,8 @@ import Testing
     @Test("loadData success loads non-sensitive categories")
     func loadData_success() async throws {
         let contentService = MockContentService()
-        let cat1 = Category(id: "c1", name: "Normal", icon: "star")
-        let cat2 = Category(id: "c2", name: "Sensitive", icon: "star")
+        let cat1 = Lumen.Category(id: "c1", name: "Normal", icon: "star")
+        let cat2 = Lumen.Category(id: "c2", name: "Sensitive", icon: "star")
         cat2.isSensitive = true
         contentService.mockCategories = [cat1, cat2]
 
@@ -82,8 +82,8 @@ import Testing
     @Test("loadData success loads sensitive categories if preferences allow")
     func loadData_success_withSensitive() async throws {
         let contentService = MockContentService()
-        let cat1 = Category(id: "c1", name: "Normal", icon: "star")
-        let cat2 = Category(id: "c2", name: "Sensitive", icon: "star")
+        let cat1 = Lumen.Category(id: "c1", name: "Normal", icon: "star")
+        let cat2 = Lumen.Category(id: "c2", name: "Sensitive", icon: "star")
         cat2.isSensitive = true
         contentService.mockCategories = [cat1, cat2]
 

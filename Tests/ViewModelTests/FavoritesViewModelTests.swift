@@ -1,5 +1,6 @@
 import Dependencies
 import Foundation
+import UIKit
 import SwiftData
 import Testing
 
@@ -27,8 +28,8 @@ import Testing
     }
 
     private final class MockWidgetService: WidgetServiceProtocol, @unchecked Sendable {
-        func updateWidget(affirmationText: String, gradientColors: [String]) {}
-        func updateFavoritesWidget(favorites: [(text: String, gradientColors: [String])]) {}
+        func updateWidget(entries: [(text: String, gradientColors: [String], backgroundImage: UIImage?)]) {}
+        func updateFavoritesWidget(favorites: [(text: String, gradientColors: [String], backgroundImage: UIImage?)]) {}
     }
 
     private final class MockCardCustomizationService: CardCustomizationServiceProtocol, @unchecked Sendable {
@@ -70,7 +71,7 @@ import Testing
         let userAff = Affirmation(id: "u1", text: "My own.")
         userAff.source = .user
         let curatedAff = Affirmation(id: "c1", text: "Curated.")
-        curatedAff.source = .bundled
+        curatedAff.source = .curated
         mockService.favorites = [userAff, curatedAff]
 
         let vm = withDependencies {
@@ -118,7 +119,7 @@ import Testing
         let userAff = Affirmation(id: "u1", text: "My own.")
         userAff.source = .user
         let curatedAff = Affirmation(id: "c1", text: "Curated.")
-        curatedAff.source = .bundled
+        curatedAff.source = .curated
 
         let vm = withDependencies {
             $0.favoriteService = mockService

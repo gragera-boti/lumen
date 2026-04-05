@@ -43,7 +43,7 @@ import Testing
     }
 
     private func createInMemoryContext() throws -> ModelContext {
-        let configuration = ModelConfiguration(isStoredInMemoryOnly: true)
+        let configuration = ModelConfiguration(isStoredInMemoryOnly: true, cloudKitDatabase: .none)
         let container = try ModelContainer(for: Favorite.self, SeenEvent.self, Dislike.self, UserPreferences.self, Affirmation.self, Category.self, configurations: configuration)
         return ModelContext(container)
     }
@@ -133,7 +133,9 @@ import Testing
 
         // Insert some initial data
         context.insert(UserPreferences())
-        context.insert(Favorite(affirmationId: "A"))
+        let affirmation = Affirmation(id: "A", text: "Test Affirmation")
+        context.insert(affirmation)
+        context.insert(Favorite(affirmation: affirmation))
         try context.save()
 
         // Verify inserted

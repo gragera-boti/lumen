@@ -52,7 +52,7 @@ struct AIBackgroundRequest: Sendable {
         prompt: AIBackgroundPrompt = .random(),
         seed: UInt32? = nil,
         stepCount: Int = 10,
-        device: AIDeviceProfile = .current()
+        device: AIDeviceProfile = .fallback
     ) {
         self.prompt = prompt
         self.seed = seed
@@ -78,7 +78,13 @@ struct AIDeviceProfile: Sendable {
         CGSize(width: 512, height: 512)
     }
 
-    static func current() -> AIDeviceProfile {
+    static let fallback = AIDeviceProfile(
+        screenWidth: 390,
+        screenHeight: 844,
+        screenScale: 3
+    )
+
+    @MainActor static func current() -> AIDeviceProfile {
         let screen = UIScreen.main
         return AIDeviceProfile(
             screenWidth: Int(screen.bounds.width),

@@ -67,8 +67,8 @@ import UIKit
             let dir = FileManager.default.temporaryDirectory
             let imagePath = dir.appendingPathComponent("\(UUID().uuidString).png")
             let thumbPath = dir.appendingPathComponent("\(UUID().uuidString)_thumb.png")
-            let renderer = await UIGraphicsImageRenderer(size: CGSize(width: 1, height: 1))
-            let imageData = await renderer.pngData { ctx in
+            let renderer = UIGraphicsImageRenderer(size: CGSize(width: 1, height: 1))
+            let imageData = renderer.pngData { ctx in
                 UIColor.red.setFill()
                 ctx.fill(CGRect(x: 0, y: 0, width: 1, height: 1))
             }

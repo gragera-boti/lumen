@@ -2,14 +2,17 @@ import XCTest
 
 @MainActor
 class LumenAppStoreScreenshots: XCTestCase {
-    var app: XCUIApplication!
+    private nonisolated(unsafe) var app: XCUIApplication!
 
-    override func setUpWithError() throws {
+    override func setUp() async throws {
         continueAfterFailure = false
-        app = XCUIApplication()
-        app.launchArguments.append("-UITesting")
-        setupSnapshot(app)
-        app.launch()
+        await MainActor.run {
+            let localApp = XCUIApplication()
+            localApp.launchArguments.append("-UITesting")
+            setupSnapshot(localApp)
+            localApp.launch()
+            self.app = localApp
+        }
     }
 
     func testTakeScreenshots() throws {

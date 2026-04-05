@@ -1,17 +1,19 @@
 import XCTest
 
-@MainActor
 class LumenCriticalFlowsUITests: XCTestCase {
-    var app: XCUIApplication!
+    private nonisolated(unsafe) var app: XCUIApplication!
 
-    override func setUpWithError() throws {
+    override func setUp() async throws {
         continueAfterFailure = false
-        app = XCUIApplication()
-        // Inject -UITesting to use predictable states in the app.
-        app.launchArguments.append("-UITesting")
-        app.launch()
+        await MainActor.run {
+            let localApp = XCUIApplication()
+            localApp.launchArguments.append("-UITesting")
+            localApp.launch()
+            self.app = localApp
+        }
     }
 
+    @MainActor
     func testEditorAndFeedFlow() throws {
         // Wait for feed to load
         let feedLoaded = app.staticTexts.firstMatch.waitForExistence(timeout: 5.0)
@@ -41,6 +43,7 @@ class LumenCriticalFlowsUITests: XCTestCase {
         }
     }
 
+    @MainActor
     func testFeedFavoritesFlow() throws {
         // Wait for feed to load
         let feedLoaded = app.staticTexts.firstMatch.waitForExistence(timeout: 5.0)
@@ -73,6 +76,7 @@ class LumenCriticalFlowsUITests: XCTestCase {
         XCTAssertTrue(favoritesTitle.waitForExistence(timeout: 2.0), "Favorites view should load")
     }
 
+    @MainActor
     func testExploreCategoryFlow() throws {
         // Navigate to Explore
         let exploreTab = app.tabBars.buttons["Explore"]
@@ -93,6 +97,7 @@ class LumenCriticalFlowsUITests: XCTestCase {
         }
     }
 
+    @MainActor
     func testSettingsFlow() throws {
         let profileOrSettingsButton = app.buttons["Settings"].firstMatch
         if !profileOrSettingsButton.exists {

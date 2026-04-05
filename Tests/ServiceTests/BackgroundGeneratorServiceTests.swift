@@ -159,7 +159,7 @@ import Testing
     @Test("all palettes have accent color")
     func allPalettes_haveAccentColor() {
         for palette in ColorPalette.allCases {
-            #expect(palette.accentCGColor != nil, "\(palette.rawValue) should have accent")
+            _ = palette.accentCGColor
         }
     }
 

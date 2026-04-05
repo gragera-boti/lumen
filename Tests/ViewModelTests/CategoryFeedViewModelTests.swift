@@ -57,7 +57,12 @@ import Testing
 
     private final class MockBackgroundGenerator: BackgroundGeneratorProtocol, @unchecked Sendable {
         func generate(request: BackgroundRequest) async throws -> GeneratedBackground {
-            GeneratedBackground(imagePath: URL(fileURLWithPath: ""), thumbnailPath: URL(fileURLWithPath: ""), style: .aurora, palette: .ocean, request: request)
+            GeneratedBackground(
+                themeId: "test_theme",
+                imagePath: URL(fileURLWithPath: ""),
+                thumbnailPath: URL(fileURLWithPath: ""),
+                metadata: GenerationMetadata(style: request.style.rawValue, palette: request.palette.rawValue, mood: request.mood.rawValue, seed: request.seed ?? 0, complexity: request.complexity, width: Int(request.size.width), height: Int(request.size.height), durationMs: 100)
+            )
         }
         func cancelGeneration() async {}
     }

@@ -103,7 +103,6 @@ extension BackgroundGeneratorService {
         for i in 0..<washCount {
             let cx = CGFloat(rng.nextFloat()) * rect.width
             let cy = CGFloat(rng.nextFloat()) * rect.height
-            let center = CGPoint(x: cx, y: cy)
 
             // Irregular blob: draw multiple overlapping ellipses
             let blobParts = 3 + Int(rng.nextFloat() * 4)
@@ -198,7 +197,7 @@ extension BackgroundGeneratorService {
             let seedIdx = Int(rng.next() % UInt64(points.count))
             let seedPt = points[seedIdx]
 
-            var sorted = points.enumerated()
+            let sorted = points.enumerated()
                 .filter { $0.offset != seedIdx }
                 .map { (idx: $0.offset, dist: hypot($0.element.x - seedPt.x, $0.element.y - seedPt.y)) }
                 .sorted { $0.dist < $1.dist }
@@ -458,7 +457,6 @@ extension BackgroundGeneratorService {
                     let y0 = CGFloat(r) * step
 
                     // Check each edge for threshold crossing
-                    var segments: [(CGPoint, CGPoint)] = []
 
                     func lerp(_ a: CGFloat, _ b: CGFloat, _ va: CGFloat, _ vb: CGFloat) -> CGFloat {
                         guard abs(vb - va) > 0.001 else { return 0.5 }

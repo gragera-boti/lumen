@@ -38,6 +38,8 @@ let project = Project(
             infoPlist: .extendingDefault(with: [
                 "ITSAppUsesNonExemptEncryption": false,
                 "CFBundleDisplayName": "Lumen",
+                "CFBundleShortVersionString": "$(MARKETING_VERSION)",
+                "CFBundleVersion": "$(CURRENT_PROJECT_VERSION)",
                 "UILaunchScreen": [:],
                 "UIBackgroundModes": ["remote-notification"],
                 "UIAppFonts": [
@@ -117,6 +119,8 @@ let project = Project(
             deploymentTargets: .watchOS("18.0"),
             infoPlist: .extendingDefault(with: [
                 "CFBundleDisplayName": "Lumen",
+                "CFBundleShortVersionString": "$(MARKETING_VERSION)",
+                "CFBundleVersion": "$(CURRENT_PROJECT_VERSION)",
                 "WKCompanionAppBundleIdentifier": "\(bundleIdPrefix).lumen",
             ]),
             sources: [

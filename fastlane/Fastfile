@@ -9,8 +9,18 @@ platform :ios do
     )
   end
 
+  desc "Run automated tests"
+  lane :tests do
+    scan(
+      scheme: "Lumen",
+      clean: true,
+      devices: ["iPhone 15 Pro"] # You can configure the simulator here
+    )
+  end
+
   desc "Build and upload app to TestFlight"
   lane :upload_testflight do
+    tests
     api_key
 
     build_app(
@@ -26,6 +36,16 @@ platform :ios do
       skip_submission: false,
       groups: ["Internal Testers", "Dev Team"]
     )
+
+    version = lane_context[SharedValues::VERSION_NUMBER]
+    build = lane_context[SharedValues::BUILD_NUMBER]
+    tag_name = version && build ? "v#{version}-#{build}" : "v_#{Time.now.strftime('%Y%m%d%H%M')}"
+    
+    add_git_tag(
+      grouping: "testflight",
+      tag: "testflight/#{tag_name}"
+    )
+    push_to_git_remote(tags: true)
   end
 
   desc "Assign testflight groups"
@@ -57,6 +77,7 @@ platform :ios do
 
   desc "Submit app for review"
   lane :submit_for_review do
+    tests
     api_key
     deliver(
       app_identifier: "com.gragera.lumen",

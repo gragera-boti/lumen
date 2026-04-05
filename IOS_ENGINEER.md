@@ -614,6 +614,7 @@ repository.
 -   No global singletons.
 -   No business logic inside Views.
 -   All behavior changes must include tests.
+-   All compiler warnings must be resolved and removed when possible.
 
 We optimize for:
 

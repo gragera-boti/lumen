@@ -24,7 +24,7 @@ import Testing
         let service = AIBackgroundService.shared
         let tracker = StepTracker()
 
-        await service.setStepProgressHandler { step, total in
+        service.setStepProgressHandler { step, total in
             tracker.record(step: step, total: total)
         }
 
@@ -46,6 +46,6 @@ import Testing
         #expect(stepCount == 2, "Should have received exactly 2 step callbacks (start/end), got \(stepCount)")
         print("✅ Generated: \(result.themeId), steps reported: \(stepCount), duration: \(result.metadata.durationMs)ms")
 
-        await service.setStepProgressHandler(nil)
+        service.setStepProgressHandler(nil)
     }
 }
