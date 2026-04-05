@@ -182,6 +182,7 @@ open class Snapshot: NSObject {
                 let range = NSRange(location: 0, length: simulator.count)
                 simulator = regex.stringByReplacingMatches(in: simulator, range: range, withTemplate: "")
 
+                try? FileManager.default.createDirectory(at: screenshotsDir, withIntermediateDirectories: true, attributes: nil)
                 let path = screenshotsDir.appendingPathComponent("\(simulator)-\(name).png")
                 #if swift(<5.0)
                     try UIImagePNGRepresentation(image)?.write(to: path, options: .atomic)

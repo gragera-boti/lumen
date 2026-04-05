@@ -110,15 +110,15 @@ final class NotificationService: NSObject, NotificationServiceProtocol, UNUserNo
         content.sound = .default
         content.userInfo = ["affirmationId": id]
 
-        // Schedule for 10 seconds in the future
-        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 10, repeats: false)
+        // Schedule for 5 seconds in the future
+        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 5, repeats: false)
         let request = UNNotificationRequest(
             identifier: "lumen_reminder_test",
             content: content,
             trigger: trigger
         )
         try await center.add(request)
-        logger.info("Scheduled test reminder for 10 seconds from now")
+        logger.info("Scheduled test reminder for 5 seconds from now")
     }
 
     // MARK: - UNUserNotificationCenterDelegate
@@ -130,12 +130,22 @@ final class NotificationService: NSObject, NotificationServiceProtocol, UNUserNo
     ) {
         let userInfo = response.notification.request.content.userInfo
         if let affirmationId = userInfo["affirmationId"] as? String {
-            Task { @MainActor in
-                if let url = URL(string: "lumen://affirmation/\(affirmationId)") {
-                    UIApplication.shared.open(url)
-                }
+            if let url = URL(string: "lumen://affirmation/\(affirmationId)") {
+                NotificationCenter.default.post(name: Notification.Name("didReceiveNotificationTap"), object: url)
             }
         }
         completionHandler()
+    }
+
+    nonisolated func userNotificationCenter(
+        _ center: UNUserNotificationCenter,
+        willPresent notification: UNNotification,
+        withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
+    ) {
+        if #available(iOS 14.0, *) {
+            completionHandler([.banner, .sound, .list])
+        } else {
+            completionHandler([.alert, .sound])
+        }
     }
 }

@@ -1,3 +1,4 @@
+import Dependencies
 import SnapshotTesting
 import SwiftUI
 import Testing
@@ -71,8 +72,14 @@ struct ComponentSnapshotTests {
 
     @Test("OnboardingView welcome step")
     func onboardingWelcome() {
-        let view = OnboardingView(onComplete: {})
-        let host = UIHostingController(rootView: view)
-        assertSnapshot(of: host, as: .image(on: iPhone))
+        withDependencies {
+            $0.contentService = ContentService.shared
+            $0.preferencesService = PreferencesService.shared
+            $0.notificationService = NotificationService.shared
+        } operation: {
+            let view = OnboardingView(onComplete: {})
+            let host = UIHostingController(rootView: view)
+            assertSnapshot(of: host, as: .image(on: iPhone))
+        }
     }
 }

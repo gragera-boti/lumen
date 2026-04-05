@@ -98,11 +98,7 @@ struct CustomizationRefreshTests {
     private let mockShareService = MockShareService()
 
     init() throws {
-        let schema = Schema([
-            Affirmation.self, Category.self, Favorite.self, SeenEvent.self,
-            Dislike.self, AppTheme.self, UserPreferences.self,
-            EntitlementState.self, CardCustomization.self,
-        ])
+        let schema = LumenApp.appSchema
         container = try ModelContainer(
             for: schema,
             configurations: [

@@ -4,6 +4,7 @@ import SwiftUI
 struct FeedView: View {
     @State private var viewModel = FeedViewModel()
     @Environment(\.modelContext) private var modelContext
+    @Environment(AppRouter.self) private var router
     @State private var newAffirmationToEdit: Affirmation?
 
     // Crossfade transition state
@@ -63,6 +64,12 @@ struct FeedView: View {
                 modelContext: modelContext
             )
             viewModel.updateMainWidget()
+        }
+        .onChange(of: router.feedTargetAffirmationId) { _, targetId in
+            if let targetId = targetId {
+                viewModel.jumpToAffirmation(id: targetId, modelContext: modelContext)
+                router.feedTargetAffirmationId = nil
+            }
         }
     }
 

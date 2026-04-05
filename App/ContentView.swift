@@ -13,7 +13,6 @@ struct ContentView: View {
     @State private var isLoadingContent = true
     @State private var preferences: UserPreferences?
     @State private var isPremium = false
-    @State private var selectedTab: Tab = .forYou
 
     init() {
         // Configure tab bar and nav bar appearance once at init
@@ -116,7 +115,7 @@ struct ContentView: View {
     private func mainTabView(preferences: UserPreferences) -> some View {
         @Bindable var router = router
 
-        TabView(selection: $selectedTab) {
+        TabView(selection: $router.selectedTab) {
             NavigationStack(path: $router.feedPath) {
                 FeedView(preferences: preferences, isPremium: isPremium)
                     .navigationDestination(for: AppDestination.self) { destination in

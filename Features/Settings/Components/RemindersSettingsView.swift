@@ -48,9 +48,13 @@ struct RemindersSettingsView: View {
                 Section {
                     Button("reminders.testButton".localized) {
                         Task {
+                            let descriptor = FetchDescriptor<Affirmation>()
+                            let affirmations = try? modelContext.fetch(descriptor)
+                            let testAffirmation = affirmations?.randomElement()
+                            
                             try? await notificationService.scheduleTestReminder(
-                                id: "dummy_id",
-                                text: "This is a test reminder from Lumen ✨"
+                                id: testAffirmation?.id ?? "dummy_id",
+                                text: testAffirmation?.text ?? "This is a test reminder from Lumen ✨"
                             )
                             showTestSent = true
                         }

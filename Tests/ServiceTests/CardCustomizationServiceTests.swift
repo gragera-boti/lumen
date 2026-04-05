@@ -13,7 +13,7 @@ struct CardCustomizationServiceTests {
 
     /// Creates an in-memory `ModelContext` for isolated test execution.
     private func makeContext() throws -> ModelContext {
-        let schema = Schema([CardCustomization.self])
+        let schema = LumenApp.appSchema
         let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
         let container = try ModelContainer(for: schema, configurations: [config])
         return ModelContext(container)

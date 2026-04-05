@@ -1,14 +1,12 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<testsuites name='LumenUITests.xctest' tests='5' failures='1'>
+<testsuites name='LumenUITests.xctest' tests='5' failures='0'>
   <testsuite name='LumenUITests.LumenAppStoreScreenshots' tests='1' failures='0'>
-    <testcase classname='LumenUITests.LumenAppStoreScreenshots' name='testTakeScreenshots' time='54.598'/>
+    <testcase classname='LumenUITests.LumenAppStoreScreenshots' name='testTakeScreenshots' time='54.482'/>
   </testsuite>
-  <testsuite name='LumenUITests.LumenCriticalFlowsUITests' tests='4' failures='1'>
-    <testcase classname='LumenUITests.LumenCriticalFlowsUITests' name='testEditorAndFeedFlow'>
-      <failure message='XCTAssertTrue failed - Text editor should appear'>UITests/LumenCriticalFlowsUITests.swift:27</failure>
-    </testcase>
-    <testcase classname='LumenUITests.LumenCriticalFlowsUITests' name='testExploreCategoryFlow' time='12.645'/>
-    <testcase classname='LumenUITests.LumenCriticalFlowsUITests' name='testFeedFavoritesFlow' time='9.549'/>
-    <testcase classname='LumenUITests.LumenCriticalFlowsUITests' name='testSettingsFlow' time='9.003'/>
+  <testsuite name='LumenUITests.LumenCriticalFlowsUITests' tests='4' failures='0'>
+    <testcase classname='LumenUITests.LumenCriticalFlowsUITests' name='testEditorAndFeedFlow' time='15.437'/>
+    <testcase classname='LumenUITests.LumenCriticalFlowsUITests' name='testExploreCategoryFlow' time='12.693'/>
+    <testcase classname='LumenUITests.LumenCriticalFlowsUITests' name='testFeedFavoritesFlow' time='9.677'/>
+    <testcase classname='LumenUITests.LumenCriticalFlowsUITests' name='testSettingsFlow' time='9.233'/>
   </testsuite>
 </testsuites>

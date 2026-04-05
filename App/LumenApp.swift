@@ -71,6 +71,11 @@ struct LumenApp: App {
                     .onOpenURL { url in
                         deepLinkHandler.handle(url: url, router: router)
                     }
+                    .onReceive(NotificationCenter.default.publisher(for: Notification.Name("didReceiveNotificationTap"))) { notification in
+                        if let url = notification.object as? URL {
+                            deepLinkHandler.handle(url: url, router: router)
+                        }
+                    }
                     .modelContainer(container)
                     .onReceive(NotificationCenter.default.publisher(for: .cloudSyncToggled)) { _ in
                         sharedModelContainer = nil

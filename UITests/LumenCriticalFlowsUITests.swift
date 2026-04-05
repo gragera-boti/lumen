@@ -3,14 +3,12 @@ import XCTest
 class LumenCriticalFlowsUITests: XCTestCase {
     private nonisolated(unsafe) var app: XCUIApplication!
 
-    override func setUp() async throws {
+    override func setUpWithError() throws {
         continueAfterFailure = false
-        await MainActor.run {
-            let localApp = XCUIApplication()
-            localApp.launchArguments.append("-UITesting")
-            localApp.launch()
-            self.app = localApp
-        }
+        let localApp = XCUIApplication()
+        localApp.launchArguments.append("-UITesting")
+        localApp.launch()
+        app = localApp
     }
 
     @MainActor
@@ -20,9 +18,9 @@ class LumenCriticalFlowsUITests: XCTestCase {
         XCTAssertTrue(feedLoaded, "Feed should load on launch")
         
         // 1. Editor Flow
-        let editButton = app.buttons["Edit"]
-        if editButton.waitForExistence(timeout: 2.0) {
-            editButton.tap()
+        let createButton = app.buttons["feed_create_button"]
+        if createButton.waitForExistence(timeout: 2.0) {
+            createButton.tap()
             
             // Appears sheet with CustomAffirmationSheet
             let textEditor = app.textViews.firstMatch

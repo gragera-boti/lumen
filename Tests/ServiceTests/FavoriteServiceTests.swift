@@ -11,11 +11,7 @@ import Testing
     private let service = FavoriteService.shared
 
     init() throws {
-        let schema = Schema([
-            Affirmation.self, Category.self, Favorite.self,
-            SeenEvent.self, Dislike.self, AppTheme.self,
-            UserPreferences.self, EntitlementState.self,
-        ])
+        let schema = LumenApp.appSchema
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
         container = try ModelContainer(for: schema, configurations: [config])
         context = ModelContext(container)

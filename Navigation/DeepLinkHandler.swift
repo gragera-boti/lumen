@@ -15,7 +15,8 @@ final class DeepLinkHandler {
         switch components.host {
         case "affirmation":
             if let id = pathParts.first {
-                router.navigate(to: .affirmationDetail(affirmationId: id), in: .forYou)
+                router.selectedTab = .forYou
+                router.feedTargetAffirmationId = id
             }
         case "category":
             if let id = pathParts.first {

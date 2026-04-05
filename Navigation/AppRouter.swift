@@ -2,6 +2,8 @@ import SwiftUI
 
 @MainActor @Observable
 final class AppRouter {
+    var selectedTab: Tab = .forYou
+    var feedTargetAffirmationId: String?
     var feedPath = NavigationPath()
     var explorePath = NavigationPath()
     var favoritesPath = NavigationPath()

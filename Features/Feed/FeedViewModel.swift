@@ -340,6 +340,25 @@ final class FeedViewModel {
         }
     }
 
+    func jumpToAffirmation(id: String, modelContext: ModelContext) {
+        if let index = cards.firstIndex(where: { $0.id == id }) {
+            currentIndex = index
+        } else {
+            let descriptor = FetchDescriptor<Affirmation>(predicate: #Predicate { $0.id == id })
+            if let aff = try? modelContext.fetch(descriptor).first {
+                let insertIndex = currentIndex >= 0 && currentIndex < cards.count ? currentIndex : 0
+                cards.insert(aff, at: insertIndex)
+                Task {
+                    await assignBackgrounds(for: [aff])
+                    applyCustomizations(to: [aff], modelContext: modelContext)
+                    if let Customization = customizations[id] {
+                        await regenerateBackground(for: id, customization: Customization)
+                    }
+                }
+            }
+        }
+    }
+
     func swipeToNext() {
         if currentIndex < cards.count - 1 {
             currentIndex += 1
