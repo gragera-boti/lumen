@@ -3,12 +3,14 @@ import XCTest
 class LumenCriticalFlowsUITests: XCTestCase {
     private nonisolated(unsafe) var app: XCUIApplication!
 
-    override func setUpWithError() throws {
+    override func setUp() async throws {
         continueAfterFailure = false
-        let localApp = XCUIApplication()
-        localApp.launchArguments.append("-UITesting")
-        localApp.launch()
-        app = localApp
+        await MainActor.run {
+            let localApp = XCUIApplication()
+            localApp.launchArguments.append("-UITesting")
+            localApp.launch()
+            self.app = localApp
+        }
     }
 
     @MainActor
