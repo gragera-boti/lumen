@@ -33,8 +33,7 @@ import Testing
     }
 
     private func createInMemoryContext() throws -> ModelContext {
-        let configuration = ModelConfiguration(isStoredInMemoryOnly: true)
-        let container = try ModelContainer(for: Lumen.Category.self, Affirmation.self, UserPreferences.self, configurations: configuration)
+        let container = try TestContainerFactory.makeContainer()
         return ModelContext(container)
     }
 

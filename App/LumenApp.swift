@@ -29,6 +29,11 @@ struct LumenApp: App {
     static func createModelContainer() -> ModelContainer? {
         let schema = appSchema
 
+        if ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil {
+            let config = ModelConfiguration(isStoredInMemoryOnly: true, cloudKitDatabase: .none)
+            return try? ModelContainer(for: schema, configurations: [config])
+        }
+
         let isSyncEnabled = UserDefaults.standard.bool(forKey: "lumen.cloudSync.enabled")
         let cloudConfig: ModelConfiguration.CloudKitDatabase = isSyncEnabled ? .automatic : .none
 

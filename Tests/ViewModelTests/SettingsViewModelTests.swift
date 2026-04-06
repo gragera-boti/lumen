@@ -43,8 +43,7 @@ import Testing
     }
 
     private func createInMemoryContext() throws -> ModelContext {
-        let configuration = ModelConfiguration(isStoredInMemoryOnly: true, cloudKitDatabase: .none)
-        let container = try ModelContainer(for: Favorite.self, SeenEvent.self, Dislike.self, UserPreferences.self, Affirmation.self, Category.self, configurations: configuration)
+        let container = try TestContainerFactory.makeContainer()
         return ModelContext(container)
     }
 

@@ -56,15 +56,10 @@ private enum TestError: Error {
 // MARK: - Tests
 
 @Suite("CardEditorViewModel")
-struct CardEditorViewModelTests {
+@MainActor struct CardEditorViewModelTests {
 
     private func makeModelContext() throws -> ModelContext {
-        let config = ModelConfiguration(isStoredInMemoryOnly: true)
-        let container = try ModelContainer(
-            for: Affirmation.self,
-            CardCustomization.self,
-            configurations: config
-        )
+        let container = try TestContainerFactory.makeContainer()
         return ModelContext(container)
     }
 
@@ -150,7 +145,11 @@ struct CardEditorViewModelTests {
 
         #expect(!viewModel.hasChanges)
 
+        // Find a style different from the current one to ensure a change is detected
         viewModel.selectedStyle = .cosmos
+        if !viewModel.hasChanges {
+            viewModel.selectedStyle = .aurora
+        }
         #expect(viewModel.hasChanges)
     }
 

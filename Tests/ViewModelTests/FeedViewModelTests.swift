@@ -75,8 +75,7 @@ import Testing
     }
 
     private func createInMemoryContext() throws -> ModelContext {
-        let configuration = ModelConfiguration(isStoredInMemoryOnly: true)
-        let container = try ModelContainer(for: Affirmation.self, UserPreferences.self, AppTheme.self, configurations: configuration)
+        let container = try TestContainerFactory.makeContainer()
         return ModelContext(container)
     }
 

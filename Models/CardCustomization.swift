@@ -39,6 +39,9 @@ final class CardCustomization {
     /// Path to a cached background image (relative to app documents), if any.
     var cachedImagePath: String?
 
+    /// Whether this card uses a user-provided custom photo as a background.
+    var isCustomPhoto: Bool?
+
     /// Custom text (only for user-owned affirmations, `nil` = use original).
     var customText: String?
 
@@ -56,6 +59,7 @@ final class CardCustomization {
         fontStyleOverride: String? = nil,
         aiPromptId: String? = nil,
         usesAIBackground: Bool = false,
+        isCustomPhoto: Bool? = nil,
         customText: String? = nil
     ) {
         self.affirmationId = affirmationId
@@ -65,6 +69,7 @@ final class CardCustomization {
         self.fontStyleOverride = fontStyleOverride
         self.aiPromptId = aiPromptId
         self.usesAIBackground = usesAIBackground
+        self.isCustomPhoto = isCustomPhoto
         self.customText = customText
         self.createdAt = Date()
         self.updatedAt = Date()

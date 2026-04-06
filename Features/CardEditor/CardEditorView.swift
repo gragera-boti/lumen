@@ -1,5 +1,6 @@
 import SwiftData
 import SwiftUI
+import PhotosUI
 
 // MARK: - CardEditorView
 
@@ -13,6 +14,7 @@ struct CardEditorView: View {
     private let onSaveComplete: (() -> Void)?
     @State private var viewModel: CardEditorViewModel
     @FocusState private var isInputFocused: Bool
+    @State private var photoItem: PhotosPickerItem?
 
     init(
         affirmation: Affirmation, 
@@ -231,6 +233,22 @@ struct CardEditorView: View {
             sectionHeader("My Backgrounds", icon: "photo.on.rectangle")
 
             if viewModel.savedBackgrounds.isEmpty {
+                LazyVGrid(
+                    columns: [
+                        GridItem(.flexible()),
+                        GridItem(.flexible()),
+                        GridItem(.flexible()),
+                    ],
+                    spacing: LumenTheme.Spacing.sm
+                ) {
+                    addPhotoButton
+
+                    Color.clear
+                        .frame(height: 100)
+                    Color.clear
+                        .frame(height: 100)
+                }
+
                 VStack(spacing: LumenTheme.Spacing.md) {
                     Image(systemName: "photo.stack")
                         .font(.title)
@@ -252,6 +270,7 @@ struct CardEditorView: View {
                     ],
                     spacing: LumenTheme.Spacing.sm
                 ) {
+                    addPhotoButton
                     ForEach(viewModel.savedBackgrounds) { item in
                         Button {
                             viewModel.selectSavedBackground(item)
@@ -285,6 +304,40 @@ struct CardEditorView: View {
                 }
             }
         }
+        .onChange(of: photoItem) { _, newItem in
+            Task {
+                if let data = try? await newItem?.loadTransferable(type: Data.self) {
+                    viewModel.loadCustomPhoto(data: data)
+                }
+            }
+        }
+    }
+
+    private var addPhotoButton: some View {
+        PhotosPicker(selection: $photoItem, matching: .images) {
+            VStack(spacing: 8) {
+                Image(systemName: "plus")
+                    .font(.title2)
+                Text("Add Photo")
+                    .font(.caption.weight(.semibold))
+            }
+            .foregroundStyle(.primary)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .aspectRatio(contentMode: .fill)
+            .frame(height: 100)
+            .background(LumenTheme.Colors.glassBackground)
+            .clipShape(RoundedRectangle(cornerRadius: LumenTheme.Radii.sm))
+            .overlay(
+                RoundedRectangle(cornerRadius: LumenTheme.Radii.sm)
+                    .strokeBorder(
+                        (viewModel.newlySelectedPhoto || viewModel.isCurrentSelectionCustomPhoto)
+                            ? LumenTheme.Colors.primary
+                            : Color.clear,
+                        lineWidth: 3
+                    )
+            )
+        }
+        .accessibilityLabel("Add custom photo from library")
     }
 
     // MARK: - AI Controls (matching ThemeGeneratorView)

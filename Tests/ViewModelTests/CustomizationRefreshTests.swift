@@ -55,6 +55,11 @@ struct CustomizationRefreshTests {
         ) -> UIImage? { nil }
     }
 
+    private final class MockWidgetService: WidgetServiceProtocol, @unchecked Sendable {
+        func updateWidget(entries: [(text: String, gradientColors: [String], backgroundImage: UIImage?)]) {}
+        func updateFavoritesWidget(favorites: [(text: String, gradientColors: [String], backgroundImage: UIImage?)]) {}
+    }
+
     private actor MockBackgroundGenerator: BackgroundGeneratorProtocol {
         var generateCallCount = 0
         var lastRequest: BackgroundRequest?
@@ -96,15 +101,10 @@ struct CustomizationRefreshTests {
     private let mockFeedService = MockFeedService()
     private let mockFavoriteService = MockFavoriteService()
     private let mockShareService = MockShareService()
+    private let mockWidgetService = MockWidgetService()
 
-    init() throws {
-        let schema = LumenApp.appSchema
-        container = try ModelContainer(
-            for: schema,
-            configurations: [
-                ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
-            ]
-        )
+    @MainActor init() throws {
+        container = try TestContainerFactory.makeContainer()
         context = ModelContext(container)
     }
 
@@ -116,6 +116,7 @@ struct CustomizationRefreshTests {
             $0.feedService = mockFeedService
             $0.favoriteService = mockFavoriteService
             $0.shareService = mockShareService
+            $0.widgetService = mockWidgetService
             $0.cardCustomizationService = CardCustomizationService.shared
             $0.backgroundGenerator = mockBG
         } operation: {

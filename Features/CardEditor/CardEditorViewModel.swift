@@ -96,6 +96,11 @@ final class CardEditorViewModel {
     var suggestions: [String] = []
     var isLoadingSuggestions = false
 
+    /// Raw data for the custom photo to save directly without compression.
+    var customPhotoData: Data?
+    var newlySelectedPhoto: Bool = false
+    var isCurrentSelectionCustomPhoto: Bool = false
+
     /// Path to the last generated image (for caching on save).
     private var lastGeneratedImagePath: URL?
     private var generatedThemeId: String?
@@ -113,6 +118,8 @@ final class CardEditorViewModel {
             || backgroundSeed != initialSeed
             || selectedPrompt?.id != initialPromptId
             || selectedSavedBackground?.id != initialSavedThemeId
+            || isCurrentSelectionCustomPhoto != initialIsCustomPhoto
+            || newlySelectedPhoto
     }
 
     // MARK: - Private
@@ -130,6 +137,7 @@ final class CardEditorViewModel {
     private let initialSeed: UInt32
     private let initialPromptId: String?
     private let initialSavedThemeId: String?
+    private let initialIsCustomPhoto: Bool
 
     // MARK: - Init
 
@@ -142,8 +150,9 @@ final class CardEditorViewModel {
         self.isCreatingNew = isCreatingNew
 
         let usesAI = existingCustomization?.usesAIBackground ?? false
+        let isCustomPhoto = existingCustomization?.isCustomPhoto ?? false
         let savedThemeId = existingCustomization?.savedThemeId
-        let mode: BackgroundMode = savedThemeId != nil ? .saved : (usesAI ? .ai : .procedural)
+        let mode: BackgroundMode = (isCustomPhoto || savedThemeId != nil) ? .saved : (usesAI ? .ai : .procedural)
         let style =
             existingCustomization?.backgroundStyle
             .flatMap(GeneratorStyle.init(rawValue:)) ?? Self.defaultStyle(for: affirmation)
@@ -172,6 +181,7 @@ final class CardEditorViewModel {
         if let resolvedPrompt {
             self.selectedPromptCategory = resolvedPrompt.category
         }
+        self.isCurrentSelectionCustomPhoto = isCustomPhoto
 
         // Load cached image if it exists
         if let cachedPath = existingCustomization?.cachedImagePath {
@@ -188,6 +198,7 @@ final class CardEditorViewModel {
         self.initialSeed = seed
         self.initialPromptId = promptId
         self.initialSavedThemeId = savedThemeId
+        self.initialIsCustomPhoto = isCustomPhoto
     }
 
     // MARK: - Actions
@@ -301,6 +312,10 @@ final class CardEditorViewModel {
     /// Select a saved background as the card's background.
     func selectSavedBackground(_ item: SavedBackgroundItem) {
         selectedSavedBackground = item
+        isCurrentSelectionCustomPhoto = false
+        customPhotoData = nil
+        newlySelectedPhoto = false
+        
         if let path = item.fullImagePath {
             if let image = UIImage(contentsOfFile: path.path) {
                 previewImage = image
@@ -324,7 +339,7 @@ final class CardEditorViewModel {
         case .procedural:
             await generateProceduralPreview()
         case .saved:
-            break  // Saved backgrounds are loaded directly, no generation needed
+            break  // Saved or photo backgrounds are loaded directly, no generation needed
         case .ai:
             await generateAIPreview()
         }
@@ -336,7 +351,9 @@ final class CardEditorViewModel {
 
         // Cache the preview image to persistent storage
         var relativePath: String?
-        if let _ = previewImage, let lastPath = lastGeneratedImagePath {
+        if backgroundMode == .saved, isCurrentSelectionCustomPhoto, let customData = customPhotoData {
+            relativePath = try Self.cacheRawData(customData, for: affirmation.id)
+        } else if let _ = previewImage, let lastPath = lastGeneratedImagePath {
             relativePath = try Self.cacheImage(from: lastPath, for: affirmation.id)
         } else if let image = previewImage {
             // Fallback: save from UIImage directly
@@ -351,10 +368,11 @@ final class CardEditorViewModel {
             fontStyleOverride: selectedFontStyle?.rawValue,
             aiPromptId: selectedPrompt?.id,
             usesAIBackground: backgroundMode == .ai,
+            isCustomPhoto: backgroundMode == .saved && isCurrentSelectionCustomPhoto,
             customText: canEditText ? customText : nil
         )
         customization.cachedImagePath = relativePath
-        customization.savedThemeId = backgroundMode == .saved ? selectedSavedBackground?.id : nil
+        customization.savedThemeId = (backgroundMode == .saved && !isCurrentSelectionCustomPhoto) ? selectedSavedBackground?.id : nil
         try customizationService.save(customization, modelContext: modelContext)
 
         if let fontStyle = selectedFontStyle {
@@ -404,6 +422,9 @@ final class CardEditorViewModel {
         selectedPrompt = nil
         previewImage = nil
         lastGeneratedImagePath = nil
+        customPhotoData = nil
+        newlySelectedPhoto = false
+        isCurrentSelectionCustomPhoto = false
 
         Logger.viewModel.debug("Reset card customization for \(self.affirmation.id, privacy: .private)")
     }
@@ -477,6 +498,18 @@ final class CardEditorViewModel {
         }
     }
 
+    /// Loads custom photo data directly, preserving its raw image bytes.
+    func loadCustomPhoto(data: Data) {
+        if let image = UIImage(data: data) {
+            previewImage = image
+            lastGeneratedImagePath = nil
+            customPhotoData = data
+            newlySelectedPhoto = true
+            isCurrentSelectionCustomPhoto = true
+            selectedSavedBackground = nil
+        }
+    }
+
     // MARK: - Image Caching
 
     static let customizationImagesDir: URL = {
@@ -500,6 +533,14 @@ final class CardEditorViewModel {
         let destPath = customizationImagesDir.appendingPathComponent(filename)
         cleanOldCaches(for: affirmationId)
         guard let data = image.pngData() else { throw CacheError.encodingFailed }
+        try data.write(to: destPath)
+        return filename
+    }
+
+    private static func cacheRawData(_ data: Data, for affirmationId: String) throws -> String {
+        let filename = "\(affirmationId)_\(Int(Date().timeIntervalSince1970)).png"
+        let destPath = customizationImagesDir.appendingPathComponent(filename)
+        cleanOldCaches(for: affirmationId)
         try data.write(to: destPath)
         return filename
     }

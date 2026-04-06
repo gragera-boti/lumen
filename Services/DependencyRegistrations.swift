@@ -1,4 +1,5 @@
 import Dependencies
+import UIKit
 import Foundation
 
 // MARK: - Service Dependency Keys
@@ -184,8 +185,14 @@ extension DependencyValues {
 
 // MARK: WidgetService
 
-private enum WidgetServiceKey: DependencyKey {
+private enum WidgetServiceKey: TestDependencyKey {
     static let liveValue: any WidgetServiceProtocol = WidgetService.shared
+    static let testValue: any WidgetServiceProtocol = UnimplementedWidgetService()
+}
+
+struct UnimplementedWidgetService: WidgetServiceProtocol {
+    func updateWidget(entries: [(text: String, gradientColors: [String], backgroundImage: UIImage?)]) {}
+    func updateFavoritesWidget(favorites: [(text: String, gradientColors: [String], backgroundImage: UIImage?)]) {}
 }
 
 extension DependencyValues {

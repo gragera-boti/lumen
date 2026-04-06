@@ -7,15 +7,13 @@ import Testing
 // MARK: - CardCustomizationServiceTests
 
 @Suite("CardCustomizationService")
-struct CardCustomizationServiceTests {
+@MainActor struct CardCustomizationServiceTests {
 
     private let service = CardCustomizationService()
 
     /// Creates an in-memory `ModelContext` for isolated test execution.
     private func makeContext() throws -> ModelContext {
-        let schema = LumenApp.appSchema
-        let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
-        let container = try ModelContainer(for: schema, configurations: [config])
+        let container = try TestContainerFactory.makeContainer()
         return ModelContext(container)
     }
 

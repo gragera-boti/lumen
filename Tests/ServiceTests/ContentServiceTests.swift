@@ -10,10 +10,8 @@ import Testing
     private var context: ModelContext
     private let service = ContentService.shared
 
-    init() throws {
-        let schema = LumenApp.appSchema
-        let config = ModelConfiguration(isStoredInMemoryOnly: true)
-        container = try ModelContainer(for: schema, configurations: [config])
+    @MainActor init() throws {
+        container = try TestContainerFactory.makeContainer()
         context = ModelContext(container)
     }
 
