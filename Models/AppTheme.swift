@@ -12,6 +12,8 @@ final class AppTheme {
     /// Whether this theme is in the active rotation shown in the feed.
     /// Uses optional to allow lightweight migration from older schema.
     var isActive: Bool?
+    @Attribute(.externalStorage) var imageData: Data?
+    @Attribute(.externalStorage) var thumbnailData: Data?
     var createdAt: Date = Date.now
     var updatedAt: Date = Date.now
 
@@ -28,6 +30,8 @@ final class AppTheme {
         isPremium: Bool = false,
         dataJSON: String = "{}",
         isActive: Bool? = true,
+        imageData: Data? = nil,
+        thumbnailData: Data? = nil,
         createdAt: Date = .now,
         updatedAt: Date = .now
     ) {
@@ -37,6 +41,8 @@ final class AppTheme {
         self.isPremium = isPremium
         self.dataJSON = dataJSON
         self.isActive = isActive
+        self.imageData = imageData
+        self.thumbnailData = thumbnailData
         self.createdAt = createdAt
         self.updatedAt = updatedAt
     }

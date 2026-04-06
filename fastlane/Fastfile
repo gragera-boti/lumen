@@ -14,7 +14,7 @@ platform :ios do
     scan(
       scheme: "Lumen",
       clean: true,
-      devices: ["iPhone 15 Pro"] # You can configure the simulator here
+      devices: ["iPhone 17 Pro"] # Fallbacking simulators often destabilizes xcodebuild test runner connections
     )
   end
 

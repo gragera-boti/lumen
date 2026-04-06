@@ -263,6 +263,7 @@ final class CategoryFeedViewModel {
                 predicate: #Predicate<AppTheme> { $0.isActive == true || $0.isActive == nil }
             )
             let themes = try modelContext.fetch(descriptor)
+            ThemeSyncService.syncToDisk(themes: themes)
             activeThemeIds = themes.map(\.id)
             logger.info("Loaded \(themes.count) active themes for rotation")
         } catch {

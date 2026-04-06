@@ -415,24 +415,42 @@ final class CardEditorViewModel {
         if let themeId = generatedThemeId {
             if backgroundMode == .ai {
                 let prompt = selectedPrompt ?? .random(category: selectedPromptCategory)
+                var imgData: Data?
+                var thumbData: Data?
+                if let path = lastGeneratedImagePath, let data = try? Data(contentsOf: path) {
+                    imgData = data
+                    if let img = UIImage(data: data) {
+                        thumbData = img.preparingThumbnail(of: CGSize(width: 120, height: 120))?.jpegData(compressionQuality: 0.7)
+                    }
+                }
+                
                 let theme = AppTheme(
                     id: themeId,
                     name: "AI Background",
                     type: .generatedImage,
                     isPremium: true,
                     dataJSON: "{\"promptId\":\"\(prompt.id)\"}",
-                    isActive: true
+                    isActive: true,
+                    imageData: imgData,
+                    thumbnailData: thumbData
                 )
                 modelContext.insert(theme)
                 customization.savedThemeId = themeId
             } else if backgroundMode == .saved && isCurrentSelectionCustomPhoto {
+                var thumbData: Data?
+                if let customData = customPhotoData, let img = UIImage(data: customData) {
+                    thumbData = img.preparingThumbnail(of: CGSize(width: 120, height: 120))?.jpegData(compressionQuality: 0.7)
+                }
+                
                 let theme = AppTheme(
                     id: themeId,
                     name: "Custom Photo",
                     type: .customPhoto,
                     isPremium: false,
                     dataJSON: "{}",
-                    isActive: true
+                    isActive: true,
+                    imageData: customPhotoData,
+                    thumbnailData: thumbData
                 )
                 modelContext.insert(theme)
                 customization.savedThemeId = themeId

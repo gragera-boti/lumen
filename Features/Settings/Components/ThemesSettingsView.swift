@@ -90,6 +90,9 @@ struct ThemesSettingsView: View {
                 isCreatingNew: true
             )
         }
+        .onChange(of: themes, initial: true) { _, newThemes in
+            ThemeSyncService.syncToDisk(themes: newThemes)
+        }
     }
 }
 

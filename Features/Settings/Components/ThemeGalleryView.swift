@@ -89,6 +89,9 @@ struct ThemeGalleryView: View {
             aiHistory = await aiBackgroundService.cachedBackgrounds()
             isLoadingAI = false
         }
+        .onChange(of: themes, initial: true) { _, newThemes in
+            ThemeSyncService.syncToDisk(themes: newThemes)
+        }
     }
 
     // MARK: - List

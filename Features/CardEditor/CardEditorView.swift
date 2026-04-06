@@ -314,7 +314,8 @@ struct CardEditorView: View {
     }
 
     private var addPhotoButton: some View {
-        PhotosPicker(selection: $photoItem, matching: .images) {
+        let isSelected = viewModel.newlySelectedPhoto || viewModel.isCurrentSelectionCustomPhoto
+        return PhotosPicker(selection: $photoItem, matching: .images) {
             VStack(spacing: 8) {
                 Image(systemName: "plus")
                     .font(.title2)
@@ -330,9 +331,7 @@ struct CardEditorView: View {
             .overlay(
                 RoundedRectangle(cornerRadius: LumenTheme.Radii.sm)
                     .strokeBorder(
-                        (viewModel.newlySelectedPhoto || viewModel.isCurrentSelectionCustomPhoto)
-                            ? LumenTheme.Colors.primary
-                            : Color.clear,
+                        isSelected ? LumenTheme.Colors.primary : Color.clear,
                         lineWidth: 3
                     )
             )
