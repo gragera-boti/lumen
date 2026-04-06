@@ -237,7 +237,7 @@ final class CardEditorViewModel {
                 sortBy: [SortDescriptor(\.createdAt, order: .reverse)]
             )
             let allThemes = try modelContext.fetch(descriptor)
-            let themes = allThemes.filter { $0.type == .curatedImage || $0.type == .generatedImage }
+            let themes = allThemes.filter { $0.type == .curatedImage || $0.type == .generatedImage || $0.type == .customPhoto }
             
             // Extract lightweight values to avoid Swift 6 concurrency boundary checking errors with AppTheme models
             let themeData = themes.map { (id: $0.id, isCurated: $0.type == .curatedImage) }
@@ -251,10 +251,14 @@ final class CardEditorViewModel {
                         .appendingPathComponent("themes/ai"),
                     fm.containerURL(forSecurityApplicationGroupIdentifier: "group.com.gragera.lumen")?
                         .appendingPathComponent("themes/generated"),
+                    fm.containerURL(forSecurityApplicationGroupIdentifier: "group.com.gragera.lumen")?
+                        .appendingPathComponent("themes/photos"),
                     fm.urls(for: .applicationSupportDirectory, in: .userDomainMask).first?
                         .appendingPathComponent("themes/ai"),
                     fm.urls(for: .applicationSupportDirectory, in: .userDomainMask).first?
                         .appendingPathComponent("themes/generated"),
+                    fm.urls(for: .applicationSupportDirectory, in: .userDomainMask).first?
+                        .appendingPathComponent("themes/photos"),
                 ].compactMap { $0 }
 
                 for data in themeData {
@@ -353,6 +357,24 @@ final class CardEditorViewModel {
         var relativePath: String?
         if backgroundMode == .saved, isCurrentSelectionCustomPhoto, let customData = customPhotoData {
             relativePath = try Self.cacheRawData(customData, for: affirmation.id)
+            
+            // If it's a completely new photo, save it as a global Theme as well!
+            if newlySelectedPhoto {
+                let themeId = "photo_\(UUID().uuidString)"
+                generatedThemeId = themeId
+                
+                if let appGroupURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.gragera.lumen") {
+                    let photosDir = appGroupURL.appendingPathComponent("themes").appendingPathComponent("photos")
+                    try? FileManager.default.createDirectory(at: photosDir, withIntermediateDirectories: true)
+                    let imagePath = photosDir.appendingPathComponent("\(themeId).jpg")
+                    try? customData.write(to: imagePath)
+                    
+                    if let img = UIImage(data: customData), let thumbData = img.preparingThumbnail(of: CGSize(width: 120, height: 120))?.jpegData(compressionQuality: 0.7) {
+                        let thumbPath = photosDir.appendingPathComponent("\(themeId)_thumb.jpg")
+                        try? thumbData.write(to: thumbPath)
+                    }
+                }
+            }
         } else if let _ = previewImage, let lastPath = lastGeneratedImagePath {
             relativePath = try Self.cacheImage(from: lastPath, for: affirmation.id)
         } else if let image = previewImage {
@@ -389,19 +411,33 @@ final class CardEditorViewModel {
             modelContext.insert(favorite)
         }
         
-        // Also save to global Themes if this is a newly generated AI background!
-        if backgroundMode == .ai, let themeId = generatedThemeId {
-            let prompt = selectedPrompt ?? .random(category: selectedPromptCategory)
-            let theme = AppTheme(
-                id: themeId,
-                name: "AI Background",
-                type: .generatedImage,
-                isPremium: true,
-                dataJSON: "{\"promptId\":\"\(prompt.id)\"}",
-                isActive: true
-            )
-            modelContext.insert(theme)
-            customization.savedThemeId = themeId
+        // Also save to global Themes if this is a newly generated AI background or custom photo!
+        if let themeId = generatedThemeId {
+            if backgroundMode == .ai {
+                let prompt = selectedPrompt ?? .random(category: selectedPromptCategory)
+                let theme = AppTheme(
+                    id: themeId,
+                    name: "AI Background",
+                    type: .generatedImage,
+                    isPremium: true,
+                    dataJSON: "{\"promptId\":\"\(prompt.id)\"}",
+                    isActive: true
+                )
+                modelContext.insert(theme)
+                customization.savedThemeId = themeId
+            } else if backgroundMode == .saved && isCurrentSelectionCustomPhoto {
+                let theme = AppTheme(
+                    id: themeId,
+                    name: "Custom Photo",
+                    type: .customPhoto,
+                    isPremium: false,
+                    dataJSON: "{}",
+                    isActive: true
+                )
+                modelContext.insert(theme)
+                customization.savedThemeId = themeId
+                customization.isCustomPhoto = false
+            }
         }
 
         try? modelContext.save()

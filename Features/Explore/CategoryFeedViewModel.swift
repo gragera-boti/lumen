@@ -306,10 +306,14 @@ final class CategoryFeedViewModel {
                 .appendingPathComponent("themes/generated"),
             FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.gragera.lumen")?
                 .appendingPathComponent("themes/ai"),
+            FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.gragera.lumen")?
+                .appendingPathComponent("themes/photos"),
             FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first?
                 .appendingPathComponent("themes/generated"),
             FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first?
                 .appendingPathComponent("themes/ai"),
+            FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first?
+                .appendingPathComponent("themes/photos"),
         ].compactMap { $0 }
 
         let extensions = ["png", "jpg"]
