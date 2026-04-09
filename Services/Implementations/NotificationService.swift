@@ -6,6 +6,7 @@ import UIKit
 @MainActor
 final class NotificationService: NSObject, NotificationServiceProtocol, UNUserNotificationCenterDelegate {
     static let shared = NotificationService()
+    var pendingTapURL: URL?
     private let logger = Logger(subsystem: "com.gragera.lumen", category: "NotificationService")
     private let center = UNUserNotificationCenter.current()
 
@@ -129,8 +130,10 @@ final class NotificationService: NSObject, NotificationServiceProtocol, UNUserNo
         withCompletionHandler completionHandler: @escaping () -> Void
     ) {
         let userInfo = response.notification.request.content.userInfo
-        if let affirmationId = userInfo["affirmationId"] as? String {
-            if let url = URL(string: "lumen://affirmation/\(affirmationId)") {
+        if let affirmationId = userInfo["affirmationId"] as? String,
+           let url = URL(string: "lumen://affirmation/\(affirmationId)") {
+            Task { @MainActor in
+                NotificationService.shared.pendingTapURL = url
                 NotificationCenter.default.post(name: Notification.Name("didReceiveNotificationTap"), object: url)
             }
         }

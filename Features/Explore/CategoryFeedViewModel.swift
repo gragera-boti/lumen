@@ -272,7 +272,7 @@ final class CategoryFeedViewModel {
         }
     }
 
-    /// Assign a random background image to each card from the active theme pool.
+    /// Assign a background image to each card, preferring customizations.
     private func assignBackgrounds(for affirmations: [Affirmation]) async {
         guard !activeThemeIds.isEmpty else {
             cardBackgrounds = [:]
@@ -280,24 +280,42 @@ final class CategoryFeedViewModel {
         }
 
         let themeIds = activeThemeIds
-        let assignments: [(String, String)] = affirmations.map { aff in
+        let loadRequests: [(affId: String, cachedPath: String?, themeId: String?)] = affirmations.map { aff in
+            let custom = customizations[aff.id]
+            if let cachedPath = custom?.cachedImagePath {
+                return (aff.id, cachedPath, nil)
+            }
+            if let savedThemeId = custom?.savedThemeId {
+                return (aff.id, nil, savedThemeId)
+            }
             let themeId = themeIds[abs(aff.id.hashValue) % themeIds.count]
-            return (aff.id, themeId)
+            return (aff.id, nil, themeId)
         }
 
         // Load images off main thread
-        let loaded: [(String, UIImage)] = await Task.detached {
-            assignments.compactMap { (affId, themeId) in
-                guard let image = Self.loadThemeImage(themeId: themeId) else { return nil }
-                return (affId, image)
+        let loaded: [String: UIImage] = await Task.detached {
+            var backgrounds: [String: UIImage] = [:]
+            let customImageDir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+                .appendingPathComponent("CardCustomizations", isDirectory: true)
+
+            for req in loadRequests {
+                if let cachedPath = req.cachedPath {
+                    let fullPath = customImageDir.appendingPathComponent(cachedPath)
+                    if let image = UIImage(contentsOfFile: fullPath.path) {
+                        backgrounds[req.affId] = image
+                        continue
+                    }
+                }
+                if let themeId = req.themeId {
+                    if let image = Self.loadThemeImage(themeId: themeId) {
+                        backgrounds[req.affId] = image
+                    }
+                }
             }
+            return backgrounds
         }.value
 
-        var backgrounds: [String: UIImage] = [:]
-        for (affId, image) in loaded {
-            backgrounds[affId] = image
-        }
-        cardBackgrounds = backgrounds
+        cardBackgrounds = loaded
     }
 
     /// Resolve a theme image from disk (generated or AI).

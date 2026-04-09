@@ -64,11 +64,17 @@ struct FeedView: View {
                 modelContext: modelContext
             )
             viewModel.updateMainWidget()
+            if let targetId = router.feedTargetAffirmationId {
+                viewModel.jumpToAffirmation(id: targetId, modelContext: modelContext)
+                router.feedTargetAffirmationId = nil
+            }
         }
         .onChange(of: router.feedTargetAffirmationId) { _, targetId in
             if let targetId = targetId {
-                viewModel.jumpToAffirmation(id: targetId, modelContext: modelContext)
-                router.feedTargetAffirmationId = nil
+                if !viewModel.cards.isEmpty {
+                    viewModel.jumpToAffirmation(id: targetId, modelContext: modelContext)
+                    router.feedTargetAffirmationId = nil
+                }
             }
         }
     }

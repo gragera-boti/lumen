@@ -81,6 +81,12 @@ struct LumenApp: App {
                             deepLinkHandler.handle(url: url, router: router)
                         }
                     }
+                    .onAppear {
+                        if let url = NotificationService.shared.pendingTapURL {
+                            deepLinkHandler.handle(url: url, router: router)
+                            NotificationService.shared.pendingTapURL = nil
+                        }
+                    }
                     .modelContainer(container)
                     .onReceive(NotificationCenter.default.publisher(for: .cloudSyncToggled)) { _ in
                         sharedModelContainer = nil
