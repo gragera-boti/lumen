@@ -27,7 +27,7 @@ struct WidgetService: WidgetServiceProtocol {
             var imageFilename: String? = nil
             if let image = entry.backgroundImage,
                let imageData = image.jpegData(compressionQuality: 0.8) {
-                let filename = "widget_bg_\(index).jpg"
+                let filename = "widget_bg_\(index)_\(UUID().uuidString).jpg"
                 let fileURL = containerURL.appendingPathComponent(filename)
                 do {
                     try imageData.write(to: fileURL, options: .atomic)
@@ -99,7 +99,7 @@ struct WidgetService: WidgetServiceProtocol {
             var imageFilename: String? = nil
             if let image = fav.backgroundImage,
                let imageData = image.jpegData(compressionQuality: 0.8) {
-                let filename = "fav_bg_\(index).jpg"
+                let filename = "fav_bg_\(index)_\(UUID().uuidString).jpg"
                 let fileURL = containerURL.appendingPathComponent(filename)
                 do {
                     try imageData.write(to: fileURL, options: .atomic)
