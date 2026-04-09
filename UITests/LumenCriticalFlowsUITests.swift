@@ -1,6 +1,6 @@
 import XCTest
 
-class LumenCriticalFlowsUITests: XCTestCase {
+final class LumenCriticalFlowsUITests: XCTestCase, @unchecked Sendable {
     private nonisolated(unsafe) var app: XCUIApplication!
 
     override func setUp() async throws {
