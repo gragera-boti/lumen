@@ -185,7 +185,7 @@ extension DependencyValues {
 
 // MARK: WidgetService
 
-private enum WidgetServiceKey: TestDependencyKey {
+private enum WidgetServiceKey: DependencyKey {
     static let liveValue: any WidgetServiceProtocol = WidgetService.shared
     static let testValue: any WidgetServiceProtocol = UnimplementedWidgetService()
 }

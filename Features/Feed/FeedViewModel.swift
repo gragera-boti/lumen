@@ -140,17 +140,75 @@ final class FeedViewModel {
             }
             
             let allFavs = try favoriteService.fetchFavorites(modelContext: modelContext)
-            let entries = allFavs.map { aff -> (text: String, gradientColors: [String], backgroundImage: UIImage?) in
-                let index = abs(aff.id.hashValue) % LumenTheme.Colors.gradients.count
-                let colors = LumenTheme.Colors.gradients[index].map { $0.hexString }
-                return (text: aff.text, gradientColors: colors, backgroundImage: self.backgroundImage(for: aff))
+            Task {
+                await self.syncFavoritesWidgetBackground(modelContext: modelContext, allFavs: allFavs)
             }
-            widgetService.updateFavoritesWidget(favorites: entries)
         } catch {
             logger.error("Favorite error: \(error.localizedDescription)")
             errorMessage = error.localizedDescription
         }
     }
+
+    private func syncFavoritesWidgetBackground(modelContext: ModelContext, allFavs: [Affirmation]) async {
+        do {
+            let allCustoms = try customizationService.allCustomizations(modelContext: modelContext)
+            var map: [String: CardCustomization] = [:]
+            for c in allCustoms { map[c.affirmationId] = c }
+            
+            let descriptor = FetchDescriptor<AppTheme>(
+                predicate: #Predicate<AppTheme> { $0.isActive == true || $0.isActive == nil }
+            )
+            let themes = try modelContext.fetch(descriptor)
+            let activeThemeIds = themes.map(\.id)
+            
+            let loadRequests: [(affId: String, cachedPath: String?, themeId: String?)] = allFavs.map { aff in
+                let custom = map[aff.id]
+                if let cachedPath = custom?.cachedImagePath {
+                    return (aff.id, cachedPath, nil)
+                }
+                if let savedThemeId = custom?.savedThemeId {
+                    return (aff.id, nil, savedThemeId)
+                }
+                guard !activeThemeIds.isEmpty else { return (aff.id, nil, nil) }
+                let themeId = activeThemeIds[abs(aff.id.hashValue) % activeThemeIds.count]
+                return (aff.id, nil, themeId)
+            }
+            
+            let customImageDir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+                .appendingPathComponent("CardCustomizations", isDirectory: true)
+                
+            let backgrounds: [String: UIImage] = await Task.detached {
+                var bgs: [String: UIImage] = [:]
+                for req in loadRequests {
+                    if let cachedPath = req.cachedPath {
+                        let fullPath = customImageDir.appendingPathComponent(cachedPath)
+                        if let image = UIImage(contentsOfFile: fullPath.path) {
+                            bgs[req.affId] = image
+                            continue
+                        }
+                    }
+                    if let themeId = req.themeId {
+                        if let image = Self.loadThemeImage(themeId: themeId) {
+                            bgs[req.affId] = image
+                        }
+                    }
+                }
+                return bgs
+            }.value
+
+            let entries = allFavs.map { aff -> (text: String, gradientColors: [String], backgroundImage: UIImage?) in
+                let custom = map[aff.id]
+                let textToUse = (custom?.customText?.isEmpty == false) ? custom!.customText! : aff.text
+                let index = abs(aff.id.hashValue) % LumenTheme.Colors.gradients.count
+                let colors = LumenTheme.Colors.gradients[index].map { $0.hexString }
+                return (text: textToUse, gradientColors: colors, backgroundImage: backgrounds[aff.id])
+            }
+            widgetService.updateFavoritesWidget(favorites: entries)
+        } catch {
+            logger.error("Failed to sync favorites widget backgrounds: \(error.localizedDescription)")
+        }
+    }
+
 
     func shareImage(isPremium: Bool) -> UIImage? {
         guard let card = currentCard else { return nil }
@@ -246,6 +304,16 @@ final class FeedViewModel {
                 cardBackgrounds.removeValue(forKey: affId)
             }
             updateMainWidget()
+
+            // Always sync the favorites widget — a customization change could affect
+            // any favorited card regardless of whether it's in the current feed batch.
+            let descriptor = FetchDescriptor<Favorite>(sortBy: [SortDescriptor(\.favoritedAt, order: .reverse)])
+            if let favorites = try? modelContext.fetch(descriptor) {
+                let allFavs = favorites.compactMap { $0.affirmation }
+                if !allFavs.isEmpty {
+                    await syncFavoritesWidgetBackground(modelContext: modelContext, allFavs: allFavs)
+                }
+            }
         }
     }
 
@@ -257,10 +325,6 @@ final class FeedViewModel {
         }
         guard !widgetCards.isEmpty else { return }
 
-        // Don't push a partial update if backgrounds haven't finished loading yet.
-        // This prevents a race where reloadCustomizations fires while assignBackgrounds
-        // is still awaiting, and overwrites the widget with only 1 background.
-        guard widgetCards.allSatisfy({ cardBackgrounds[$0.id] != nil }) else { return }
         let colorSets: [[String]] = [
             ["#1B998B", "#3B5998"], ["#E8A87C", "#C38D9E"],
             ["#7FBBCA", "#A688B5"], ["#7EC8A0", "#3B5998"],

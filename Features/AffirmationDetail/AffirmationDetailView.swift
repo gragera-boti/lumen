@@ -37,6 +37,7 @@ struct AffirmationDetailView: View {
         .onChange(of: editingAffirmation) { _, newValue in
             if newValue == nil {
                 reloadCustomization()
+                Task { await syncFavoritesWidget() }
             }
         }
     }
@@ -216,6 +217,70 @@ struct AffirmationDetailView: View {
             isFavorited = true
         }
         try? modelContext.save()
+        Task { await syncFavoritesWidget() }
+    }
+
+    private func syncFavoritesWidget() async {
+        let descriptor = FetchDescriptor<Favorite>(sortBy: [SortDescriptor(\.favoritedAt, order: .reverse)])
+        guard let favorites = try? modelContext.fetch(descriptor) else { return }
+        let allFavs = favorites.compactMap { $0.affirmation }
+        guard !allFavs.isEmpty else { return }
+
+        let allCustoms = try? customizationService.allCustomizations(modelContext: modelContext)
+        var map: [String: CardCustomization] = [:]
+        if let allCustoms {
+            for c in allCustoms { map[c.affirmationId] = c }
+        }
+
+        let themeDescriptor = FetchDescriptor<AppTheme>(
+            predicate: #Predicate<AppTheme> { $0.isActive == true || $0.isActive == nil }
+        )
+        let themes = try? modelContext.fetch(themeDescriptor)
+        let activeThemeIds = themes?.map(\.id) ?? []
+
+        let loadRequests: [(affId: String, cachedPath: String?, themeId: String?)] = allFavs.map { aff in
+            let custom = map[aff.id]
+            if let cachedPath = custom?.cachedImagePath {
+                return (aff.id, cachedPath, nil)
+            }
+            if let savedThemeId = custom?.savedThemeId {
+                return (aff.id, nil, savedThemeId)
+            }
+            guard !activeThemeIds.isEmpty else { return (aff.id, nil, nil) }
+            let themeId = activeThemeIds[abs(aff.id.hashValue) % activeThemeIds.count]
+            return (aff.id, nil, themeId)
+        }
+
+        let customImageDir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+            .appendingPathComponent("CardCustomizations", isDirectory: true)
+
+        let backgrounds: [String: UIImage] = await Task.detached {
+            var bgs: [String: UIImage] = [:]
+            for req in loadRequests {
+                if let cachedPath = req.cachedPath {
+                    let fullPath = customImageDir.appendingPathComponent(cachedPath)
+                    if let image = UIImage(contentsOfFile: fullPath.path) {
+                        bgs[req.affId] = image
+                        continue
+                    }
+                }
+                if let themeId = req.themeId {
+                    if let image = Self.loadThemeImage(themeId: themeId) {
+                        bgs[req.affId] = image
+                    }
+                }
+            }
+            return bgs
+        }.value
+
+        let entries = allFavs.map { aff -> (text: String, gradientColors: [String], backgroundImage: UIImage?) in
+            let custom = map[aff.id]
+            let textToUse = (custom?.customText?.isEmpty == false) ? custom!.customText! : aff.text
+            let index = abs(aff.id.hashValue) % LumenTheme.Colors.gradients.count
+            let colors = LumenTheme.Colors.gradients[index].map { $0.hexString }
+            return (text: textToUse, gradientColors: colors, backgroundImage: backgrounds[aff.id])
+        }
+        WidgetService.shared.updateFavoritesWidget(favorites: entries)
     }
 
     // MARK: - Background Loading

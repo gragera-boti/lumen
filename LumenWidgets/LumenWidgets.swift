@@ -20,7 +20,15 @@ struct WidgetSnapshotList: Codable {
 
 struct LumenTimelineProvider: TimelineProvider {
     func placeholder(in context: Context) -> LumenEntry {
-        LumenEntry(
+        if let data = loadEntries().first {
+             return LumenEntry(
+                 date: .now,
+                 affirmationText: data.text,
+                 gradientColors: data.gradientColors,
+                 backgroundImageFilename: data.backgroundImageFilename
+             )
+        }
+        return LumenEntry(
             date: .now,
             affirmationText: "I can take one small step today.",
             gradientColors: ["#7FBBCA", "#A688B5"],
@@ -181,7 +189,15 @@ struct LumenWidget: Widget {
 
 struct FavoritesTimelineProvider: TimelineProvider {
     func placeholder(in context: Context) -> FavoritesEntry {
-        FavoritesEntry(
+        if let fav = loadFavorites().first {
+             return FavoritesEntry(
+                 date: .now,
+                 affirmationText: fav.text,
+                 gradientColors: fav.gradientColors,
+                 backgroundImageFilename: fav.backgroundImageFilename
+             )
+        }
+        return FavoritesEntry(
             date: .now,
             affirmationText: "You are worthy of love and kindness.",
             gradientColors: ["#A688B5", "#E8837C"],
