@@ -57,6 +57,15 @@
 		<string>ZillaSlab-SemiBold.ttf</string>
 		<string>ZillaSlab-Bold.ttf</string>
 		<string>Righteous-Regular.ttf</string>
+		<string>Sacramento-Regular.ttf</string>
+		<string>StyleScript-Regular.ttf</string>
+		<string>Urbanist.ttf</string>
+		<string>Outfit.ttf</string>
+		<string>SpaceGrotesk.ttf</string>
+		<string>PlusJakartaSans.ttf</string>
+		<string>Melodrama.ttf</string>
+		<string>Tanker-Regular.ttf</string>
+		<string>Panchang.ttf</string>
 	</array>
 	<key>UILaunchScreen</key>
 	<dict/>

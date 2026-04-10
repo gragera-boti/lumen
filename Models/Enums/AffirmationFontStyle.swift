@@ -16,6 +16,18 @@ enum AffirmationFontStyle: String, CaseIterable, Identifiable, Codable {
     case mono // SF Mono — typewriter, clean UI
     case serifModern // SF Serif — modern editorial
     case marker // Marker Felt — playful, raw expressiveness
+    // Modern sans-serif
+    case urbanist  // Urbanist — clean, premium geometric sans
+    case outfit  // Outfit — friendly geometric with warmth
+    case spaceGrotesk  // Space Grotesk — retro-futuristic grotesque
+    case plusJakarta  // Plus Jakarta Sans — warm, versatile geometric
+    // Expressive display
+    case melodrama  // Melodrama — glamorous high-contrast display
+    case tanker  // Tanker — industrial heavy display
+    case panchang  // Panchang — bold expressive grotesque
+    // Scripts
+    case sacramento  // Sacramento — tall elegant calligraphy
+    case styleScript  // Style Script — structured brush script
 
 
     var id: String { rawValue }
@@ -54,6 +66,15 @@ enum AffirmationFontStyle: String, CaseIterable, Identifiable, Codable {
         case .mono: "Mono"
         case .serifModern: "Classic"
         case .marker: "Marker"
+        case .urbanist: "Urbanist"
+        case .outfit: "Outfit"
+        case .spaceGrotesk: "Grotesk"
+        case .plusJakarta: "Jakarta"
+        case .melodrama: "Melodrama"
+        case .tanker: "Tanker"
+        case .panchang: "Panchang"
+        case .sacramento: "Sacramento"
+        case .styleScript: "Brush"
         }
     }
 
@@ -86,6 +107,24 @@ enum AffirmationFontStyle: String, CaseIterable, Identifiable, Codable {
             .system(size: size, weight: .semibold, design: .serif)
         case .marker:
             .custom("MarkerFelt-Wide", size: size)
+        case .urbanist:
+            .custom("Urbanist-Light", size: size)
+        case .outfit:
+            .custom("Outfit-Light", size: size)
+        case .spaceGrotesk:
+            .custom("SpaceGrotesk-Regular", size: size)
+        case .plusJakarta:
+            .custom("PlusJakartaSans-Regular", size: size)
+        case .melodrama:
+            .custom("Melodrama-Regular", size: size)
+        case .tanker:
+            .custom("Tanker-Regular", size: size)
+        case .panchang:
+            .custom("Panchang-Regular", size: size)
+        case .sacramento:
+            .custom("Sacramento-Regular", size: size)
+        case .styleScript:
+            .custom("StyleScript-Regular", size: size)
         }
     }
 
@@ -134,6 +173,24 @@ enum AffirmationFontStyle: String, CaseIterable, Identifiable, Codable {
             .system(size: size, weight: .bold, design: .serif)
         case .marker:
             .custom("MarkerFelt-Wide", size: size)
+        case .urbanist:
+            .custom("Urbanist-Bold", size: size)
+        case .outfit:
+            .custom("Outfit-Bold", size: size)
+        case .spaceGrotesk:
+            .custom("SpaceGrotesk-Bold", size: size)
+        case .plusJakarta:
+            .custom("PlusJakartaSans-Bold", size: size)
+        case .melodrama:
+            .custom("Melodrama-Bold", size: size)
+        case .tanker:
+            .custom("Tanker-Regular", size: size)  // Single weight, already heavy
+        case .panchang:
+            .custom("Panchang-Bold", size: size)
+        case .sacramento:
+            .custom("Sacramento-Regular", size: size)  // Script — single weight
+        case .styleScript:
+            .custom("StyleScript-Regular", size: size)  // Script — single weight
         }
     }
 }

@@ -52,7 +52,16 @@ let project = Project(
                     "PlayfairDisplay.ttf",
                     "Righteous-Regular.ttf",
                     "ZillaSlab-Bold.ttf",
-                    "ZillaSlab-SemiBold.ttf"
+                    "ZillaSlab-SemiBold.ttf",
+                    "Sacramento-Regular.ttf",
+                    "StyleScript-Regular.ttf",
+                    "Urbanist.ttf",
+                    "Outfit.ttf",
+                    "SpaceGrotesk.ttf",
+                    "PlusJakartaSans.ttf",
+                    "Melodrama.ttf",
+                    "Tanker-Regular.ttf",
+                    "Panchang.ttf"
                 ]
             ]),
             sources: [
