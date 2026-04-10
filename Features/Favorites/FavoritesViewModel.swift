@@ -39,11 +39,20 @@ final class FavoritesViewModel {
         defer { isLoading = false }
 
         do {
-            let all = try favoriteService.fetchFavorites(modelContext: modelContext)
+            let favorited = try favoriteService.fetchFavorites(modelContext: modelContext)
 
-            // Split into user-created and curated
-            userCreated = all.filter { $0.source == .user }
-            curatedFavorites = all.filter { $0.source != .user }
+            // User-created affirmations always show regardless of favorite status
+            let userSourceRaw = AffirmationSource.user.rawValue
+            let userCreatedDescriptor = FetchDescriptor<Affirmation>(
+                predicate: #Predicate<Affirmation> { $0.source.rawValue == userSourceRaw },
+                sortBy: [SortDescriptor(\.createdAt, order: .reverse)]
+            )
+            let allUserCreated = try modelContext.fetch(userCreatedDescriptor)
+
+            userCreated = allUserCreated
+            curatedFavorites = favorited.filter { $0.source != .user }
+
+            let all = allUserCreated + curatedFavorites
 
             loadCustomizations(for: all, modelContext: modelContext)
             await assignBackgrounds(for: all)
