@@ -204,13 +204,7 @@ struct FavoritesTimelineProvider: TimelineProvider {
                  textColor: fav.textColor
              )
         }
-        return FavoritesEntry(
-            date: .now,
-            affirmationText: "You are worthy of love and kindness.",
-            gradientColors: ["#A688B5", "#E8837C"],
-            backgroundImageFilename: nil,
-            textColor: nil
-        )
+        return .empty
     }
 
     func getSnapshot(in context: Context, completion: @escaping (FavoritesEntry) -> Void) {
@@ -221,8 +215,7 @@ struct FavoritesTimelineProvider: TimelineProvider {
     func getTimeline(in context: Context, completion: @escaping (Timeline<FavoritesEntry>) -> Void) {
         let favorites = loadFavorites()
         guard !favorites.isEmpty else {
-            let entry = placeholder(in: context)
-            let timeline = Timeline(entries: [entry], policy: .after(Date().adding(hours: 1)))
+            let timeline = Timeline(entries: [FavoritesEntry.empty], policy: .after(Date().adding(hours: 1)))
             completion(timeline)
             return
         }
@@ -282,6 +275,18 @@ struct FavoritesEntry: TimelineEntry {
     let gradientColors: [String]
     let backgroundImageFilename: String?
     let textColor: String?
+    var isEmpty: Bool = false
+
+    static var empty: FavoritesEntry {
+        FavoritesEntry(
+            date: .now,
+            affirmationText: "",
+            gradientColors: ["#A688B5", "#E8837C"],
+            backgroundImageFilename: nil,
+            textColor: nil,
+            isEmpty: true
+        )
+    }
 }
 
 struct FavoritesWidgetEntryView: View {
@@ -290,26 +295,44 @@ struct FavoritesWidgetEntryView: View {
 
     var body: some View {
         VStack {
-            Spacer()
-
-            Text(entry.affirmationText)
-                .font(textFont)
-                .foregroundStyle(entry.textColor.map { Color(hex: $0) } ?? .white)
-                .multilineTextAlignment(.center)
-                .shadow(color: .black.opacity(0.2), radius: 3, y: 1)
-                .minimumScaleFactor(0.7)
-
-            Spacer()
-
-            HStack(spacing: 4) {
-                Image(systemName: "heart.fill")
-                    .font(.caption2)
+            if entry.isEmpty {
+                Spacer()
+                Image(systemName: "heart")
+                    .font(.title2)
+                    .foregroundStyle(.white.opacity(0.7))
+                Text("No favorites yet")
+                    .font(.system(.caption, design: .serif, weight: .medium))
+                    .foregroundStyle(.white.opacity(0.9))
+                    .multilineTextAlignment(.center)
                 if family != .systemSmall {
-                    Text("Favorites")
+                    Text("Open Lumen to add some")
                         .font(.caption2)
+                        .foregroundStyle(.white.opacity(0.5))
+                        .multilineTextAlignment(.center)
                 }
+                Spacer()
+            } else {
+                Spacer()
+
+                Text(entry.affirmationText)
+                    .font(textFont)
+                    .foregroundStyle(entry.textColor.map { Color(hex: $0) } ?? .white)
+                    .multilineTextAlignment(.center)
+                    .shadow(color: .black.opacity(0.2), radius: 3, y: 1)
+                    .minimumScaleFactor(0.7)
+
+                Spacer()
+
+                HStack(spacing: 4) {
+                    Image(systemName: "heart.fill")
+                        .font(.caption2)
+                    if family != .systemSmall {
+                        Text("Favorites")
+                            .font(.caption2)
+                    }
+                }
+                .foregroundStyle(.white.opacity(0.5))
             }
-            .foregroundStyle(.white.opacity(0.5))
         }
         .containerBackground(for: .widget) {
             ZStack {

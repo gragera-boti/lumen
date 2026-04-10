@@ -205,7 +205,20 @@ struct ContentView: View {
 
         reloadPreferences()
         isPremium = await EntitlementService.shared.isPremium()
+        syncFavoritesWidgetOnLaunch()
         isLoadingContent = false
+    }
+
+    private func syncFavoritesWidgetOnLaunch() {
+        let descriptor = FetchDescriptor<Favorite>(sortBy: [SortDescriptor(\.favoritedAt, order: .reverse)])
+        guard let favorites = try? modelContext.fetch(descriptor) else { return }
+        let allFavs = favorites.compactMap { $0.affirmation }
+        let entries = allFavs.map { aff in
+            let index = abs(aff.id.hashValue) % LumenTheme.Colors.gradients.count
+            let colors = LumenTheme.Colors.gradients[index].map { $0.hexString }
+            return (text: aff.text, gradientColors: colors, backgroundImage: nil as UIImage?, textColor: nil as String?)
+        }
+        WidgetService.shared.updateFavoritesWidget(favorites: entries)
     }
 
     private func reloadPreferences() {
