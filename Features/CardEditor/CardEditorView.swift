@@ -507,46 +507,45 @@ struct CardEditorView: View {
 
     private var textColorPicker: some View {
         VStack(alignment: .leading, spacing: LumenTheme.Spacing.sm) {
-            HStack {
-                Text("Text Color")
-                    .font(.subheadline.weight(.medium))
-                Spacer()
+            Text("Text Color")
+                .font(.subheadline.weight(.medium))
+
+            LazyVGrid(
+                columns: Array(repeating: GridItem(.flexible()), count: Self.textColorPresets.count + 1),
+                spacing: LumenTheme.Spacing.sm
+            ) {
+                ForEach(Self.textColorPresets, id: \.name) { preset in
+                    let isSelected = viewModel.selectedTextColor.hexString == preset.color.hexString
+                    Button {
+                        viewModel.selectedTextColor = preset.color
+                    } label: {
+                        Circle()
+                            .fill(preset.color)
+                            .aspectRatio(1, contentMode: .fit)
+                            .overlay(
+                                Circle()
+                                    .strokeBorder(
+                                        isSelected ? LumenTheme.Colors.primary : Color.white.opacity(0.3),
+                                        lineWidth: isSelected ? 2.5 : 1
+                                    )
+                            )
+                            .shadow(color: .black.opacity(0.2), radius: 2)
+                            .overlay {
+                                if isSelected {
+                                    Image(systemName: "checkmark")
+                                        .font(.caption2.weight(.bold))
+                                        .foregroundStyle(preset.color == .white ? Color.black : Color.white)
+                                }
+                            }
+                    }
+                    .accessibilityLabel("\(preset.name) text color")
+                    .accessibilityAddTraits(isSelected ? .isSelected : [])
+                }
+
+                // Custom color picker as last cell
                 ColorPicker("", selection: $viewModel.selectedTextColor, supportsOpacity: false)
                     .labelsHidden()
-                    .frame(width: 36, height: 28)
-            }
-
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: LumenTheme.Spacing.sm) {
-                    ForEach(Self.textColorPresets, id: \.name) { preset in
-                        let isSelected = viewModel.selectedTextColor.hexString == preset.color.hexString
-                        Button {
-                            viewModel.selectedTextColor = preset.color
-                        } label: {
-                            Circle()
-                                .fill(preset.color)
-                                .frame(width: 32, height: 32)
-                                .overlay(
-                                    Circle()
-                                        .strokeBorder(
-                                            isSelected ? LumenTheme.Colors.primary : Color.white.opacity(0.3),
-                                            lineWidth: isSelected ? 2.5 : 1
-                                        )
-                                )
-                                .shadow(color: .black.opacity(0.2), radius: 2)
-                                .overlay {
-                                    if isSelected {
-                                        Image(systemName: "checkmark")
-                                            .font(.caption2.weight(.bold))
-                                            .foregroundStyle(preset.color == .white ? Color.black : Color.white)
-                                    }
-                                }
-                        }
-                        .accessibilityLabel("\(preset.name) text color")
-                        .accessibilityAddTraits(isSelected ? .isSelected : [])
-                    }
-                }
-                .padding(.vertical, 4)
+                    .accessibilityLabel("Custom text color")
             }
         }
     }
