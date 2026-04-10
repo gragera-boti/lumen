@@ -496,13 +496,13 @@ struct CardEditorView: View {
 
     private static let textColorPresets: [(name: String, color: Color)] = [
         ("White", .white),
-        ("Cream", Color(hex: "#FFF8E7")),
-        ("Yellow", Color(hex: "#FFE566")),
-        ("Mint", Color(hex: "#A8E6CF")),
-        ("Sky", Color(hex: "#87CEEB")),
-        ("Lavender", Color(hex: "#E6D5F5")),
-        ("Peach", Color(hex: "#FFCBA4")),
-        ("Gold", Color(hex: "#FFD700")),
+        ("Blush", Color(hex: "#F8E0DE")),
+        ("Lavender", Color(hex: "#D9C7F2")),
+        ("Mauve", Color(hex: "#B896C4")),
+        ("Crocus", Color(hex: "#BC6CA7")),
+        ("Sage", Color(hex: "#A5D6A7")),
+        ("Mocha", Color(hex: "#A47764")),
+        ("Terracotta", Color(hex: "#CE7B5B")),
     ]
 
     private var textColorPicker: some View {
