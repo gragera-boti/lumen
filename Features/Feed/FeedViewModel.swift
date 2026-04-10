@@ -196,12 +196,12 @@ final class FeedViewModel {
                 return bgs
             }.value
 
-            let entries = allFavs.map { aff -> (text: String, gradientColors: [String], backgroundImage: UIImage?) in
+            let entries = allFavs.map { aff -> (text: String, gradientColors: [String], backgroundImage: UIImage?, textColor: String?) in
                 let custom = map[aff.id]
                 let textToUse = (custom?.customText?.isEmpty == false) ? custom!.customText! : aff.text
                 let index = abs(aff.id.hashValue) % LumenTheme.Colors.gradients.count
                 let colors = LumenTheme.Colors.gradients[index].map { $0.hexString }
-                return (text: textToUse, gradientColors: colors, backgroundImage: backgrounds[aff.id])
+                return (text: textToUse, gradientColors: colors, backgroundImage: backgrounds[aff.id], textColor: custom?.textColor)
             }
             widgetService.updateFavoritesWidget(favorites: entries)
         } catch {
@@ -330,9 +330,10 @@ final class FeedViewModel {
             ["#7FBBCA", "#A688B5"], ["#7EC8A0", "#3B5998"],
             ["#F4D06F", "#E8A87C"], ["#C38D9E", "#7FBBCA"],
         ]
-        let entries = widgetCards.map { card -> (text: String, gradientColors: [String], backgroundImage: UIImage?) in
+        let entries = widgetCards.map { card -> (text: String, gradientColors: [String], backgroundImage: UIImage?, textColor: String?) in
             let index = abs(card.id.hashValue) % colorSets.count
-            return (text: card.text, gradientColors: colorSets[index], backgroundImage: backgroundImage(for: card))
+            let custom = customizations[card.id]
+            return (text: card.text, gradientColors: colorSets[index], backgroundImage: backgroundImage(for: card), textColor: custom?.textColor)
         }
         widgetService.updateWidget(entries: entries)
     }

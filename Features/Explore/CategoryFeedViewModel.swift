@@ -216,12 +216,12 @@ final class CategoryFeedViewModel {
             return bgs
         }.value
 
-        let entries = allFavs.map { aff -> (text: String, gradientColors: [String], backgroundImage: UIImage?) in
+        let entries = allFavs.map { aff -> (text: String, gradientColors: [String], backgroundImage: UIImage?, textColor: String?) in
             let custom = map[aff.id]
             let textToUse = (custom?.customText?.isEmpty == false) ? custom!.customText! : aff.text
             let index = abs(aff.id.hashValue) % LumenTheme.Colors.gradients.count
             let colors = LumenTheme.Colors.gradients[index].map { $0.hexString }
-            return (text: textToUse, gradientColors: colors, backgroundImage: backgrounds[aff.id])
+            return (text: textToUse, gradientColors: colors, backgroundImage: backgrounds[aff.id], textColor: custom?.textColor)
         }
         widgetService.updateFavoritesWidget(favorites: entries)
     }

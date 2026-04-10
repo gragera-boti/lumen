@@ -29,7 +29,7 @@ struct WidgetService: WidgetServiceProtocol {
         }
     }
 
-    func updateWidget(entries: [(text: String, gradientColors: [String], backgroundImage: UIImage?)]) {
+    func updateWidget(entries: [(text: String, gradientColors: [String], backgroundImage: UIImage?, textColor: String?)]) {
         guard
             let containerURL = FileManager.default.containerURL(
                 forSecurityApplicationGroupIdentifier: appGroupId
@@ -62,6 +62,7 @@ struct WidgetService: WidgetServiceProtocol {
                 text: entry.text,
                 gradientColors: entry.gradientColors,
                 backgroundImageFilename: imageFilename,
+                textColor: entry.textColor,
                 updatedAt: .now
             )
             snapshots.append(snapshot)
@@ -121,7 +122,7 @@ struct WidgetService: WidgetServiceProtocol {
         }
     }
 
-    func updateFavoritesWidget(favorites: [(text: String, gradientColors: [String], backgroundImage: UIImage?)]) {
+    func updateFavoritesWidget(favorites: [(text: String, gradientColors: [String], backgroundImage: UIImage?, textColor: String?)]) {
         guard
             let containerURL = FileManager.default.containerURL(
                 forSecurityApplicationGroupIdentifier: appGroupId
@@ -148,7 +149,7 @@ struct WidgetService: WidgetServiceProtocol {
                     logger.error("Failed to save favorite background image: \(error.localizedDescription)")
                 }
             }
-            entries.append(FavoriteWidgetEntry(text: fav.text, gradientColors: fav.gradientColors, backgroundImageFilename: imageFilename))
+            entries.append(FavoriteWidgetEntry(text: fav.text, gradientColors: fav.gradientColors, backgroundImageFilename: imageFilename, textColor: fav.textColor))
         }
 
         let snapshot = FavoritesWidgetSnapshot(
@@ -181,6 +182,7 @@ private struct WidgetSnapshot: Codable {
     let text: String
     let gradientColors: [String]
     let backgroundImageFilename: String?
+    let textColor: String?
     let updatedAt: Date
 }
 
@@ -193,6 +195,7 @@ struct FavoriteWidgetEntry: Codable {
     let text: String
     let gradientColors: [String]
     let backgroundImageFilename: String?
+    let textColor: String?
 }
 
 struct FavoritesWidgetSnapshot: Codable {

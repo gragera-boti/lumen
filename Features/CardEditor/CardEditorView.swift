@@ -157,7 +157,7 @@ struct CardEditorView: View {
 
             Text(viewModel.customText)
                 .font(previewFont)
-                .foregroundStyle(.white)
+                .foregroundStyle(viewModel.selectedTextColor)
                 .multilineTextAlignment(.center)
                 .lineSpacing(6)
                 .padding(.horizontal, LumenTheme.Spacing.xl)
@@ -483,10 +483,71 @@ struct CardEditorView: View {
     // MARK: - Typography Section
 
     private var typographySection: some View {
-        VStack(alignment: .leading, spacing: LumenTheme.Spacing.sm) {
+        VStack(alignment: .leading, spacing: LumenTheme.Spacing.md) {
             sectionHeader("Typography", icon: "textformat")
 
             FontPickerView(selection: $viewModel.selectedFontStyle)
+
+            textColorPicker
+        }
+    }
+
+    // MARK: - Text Color Picker
+
+    private static let textColorPresets: [(name: String, color: Color)] = [
+        ("White", .white),
+        ("Cream", Color(hex: "#FFF8E7")),
+        ("Yellow", Color(hex: "#FFE566")),
+        ("Mint", Color(hex: "#A8E6CF")),
+        ("Sky", Color(hex: "#87CEEB")),
+        ("Lavender", Color(hex: "#E6D5F5")),
+        ("Peach", Color(hex: "#FFCBA4")),
+        ("Gold", Color(hex: "#FFD700")),
+    ]
+
+    private var textColorPicker: some View {
+        VStack(alignment: .leading, spacing: LumenTheme.Spacing.sm) {
+            HStack {
+                Text("Text Color")
+                    .font(.subheadline.weight(.medium))
+                Spacer()
+                ColorPicker("", selection: $viewModel.selectedTextColor, supportsOpacity: false)
+                    .labelsHidden()
+                    .frame(width: 36, height: 28)
+            }
+
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: LumenTheme.Spacing.sm) {
+                    ForEach(Self.textColorPresets, id: \.name) { preset in
+                        let isSelected = viewModel.selectedTextColor.hexString == preset.color.hexString
+                        Button {
+                            viewModel.selectedTextColor = preset.color
+                        } label: {
+                            Circle()
+                                .fill(preset.color)
+                                .frame(width: 32, height: 32)
+                                .overlay(
+                                    Circle()
+                                        .strokeBorder(
+                                            isSelected ? LumenTheme.Colors.primary : Color.white.opacity(0.3),
+                                            lineWidth: isSelected ? 2.5 : 1
+                                        )
+                                )
+                                .shadow(color: .black.opacity(0.2), radius: 2)
+                                .overlay {
+                                    if isSelected {
+                                        Image(systemName: "checkmark")
+                                            .font(.caption2.weight(.bold))
+                                            .foregroundStyle(preset.color == .white ? Color.black : Color.white)
+                                    }
+                                }
+                        }
+                        .accessibilityLabel("\(preset.name) text color")
+                        .accessibilityAddTraits(isSelected ? .isSelected : [])
+                    }
+                }
+                .padding(.vertical, 4)
+            }
         }
     }
 

@@ -1,6 +1,7 @@
 import Dependencies
 import OSLog
 import SwiftData
+import SwiftUI
 import UIKit
 
 // MARK: - CardEditorViewModel
@@ -74,6 +75,7 @@ final class CardEditorViewModel {
     var selectedStyle: GeneratorStyle
     var selectedPalette: ColorPalette
     var selectedFontStyle: AffirmationFontStyle?
+    var selectedTextColor: Color
     var customText: String
     var backgroundSeed: UInt32
 
@@ -114,6 +116,7 @@ final class CardEditorViewModel {
             || selectedStyle != initialStyle
             || selectedPalette != initialPalette
             || selectedFontStyle != initialFontStyle
+            || selectedTextColor != initialTextColor
             || customText != initialCustomText
             || backgroundSeed != initialSeed
             || selectedPrompt?.id != initialPromptId
@@ -133,6 +136,7 @@ final class CardEditorViewModel {
     private let initialStyle: GeneratorStyle
     private let initialPalette: ColorPalette
     private let initialFontStyle: AffirmationFontStyle?
+    private let initialTextColor: Color
     private let initialCustomText: String
     private let initialSeed: UInt32
     private let initialPromptId: String?
@@ -163,6 +167,7 @@ final class CardEditorViewModel {
             existingCustomization?.fontStyleOverride
             .flatMap(AffirmationFontStyle.init(rawValue:))
             ?? affirmation.fontStyle.flatMap(AffirmationFontStyle.init(rawValue:))
+        let textColor = existingCustomization?.textColor.map { Color(hex: $0) } ?? .white
         let text = existingCustomization?.customText ?? affirmation.text
         let seed = existingCustomization?.backgroundSeed ?? Self.defaultSeed(for: affirmation)
         let promptId = existingCustomization?.aiPromptId
@@ -175,6 +180,7 @@ final class CardEditorViewModel {
         self.selectedStyle = style
         self.selectedPalette = palette
         self.selectedFontStyle = fontStyle
+        self.selectedTextColor = textColor
         self.customText = text
         self.backgroundSeed = seed
         self.selectedPrompt = resolvedPrompt
@@ -194,6 +200,7 @@ final class CardEditorViewModel {
         self.initialStyle = style
         self.initialPalette = palette
         self.initialFontStyle = fontStyle
+        self.initialTextColor = textColor
         self.initialCustomText = text
         self.initialSeed = seed
         self.initialPromptId = promptId
@@ -382,6 +389,7 @@ final class CardEditorViewModel {
             relativePath = try Self.cacheImageData(image, for: affirmation.id)
         }
 
+        let textColorHex = selectedTextColor == .white ? nil : selectedTextColor.hexString
         let customization = CardCustomization(
             affirmationId: affirmation.id,
             backgroundStyle: selectedStyle.rawValue,
@@ -391,7 +399,8 @@ final class CardEditorViewModel {
             aiPromptId: selectedPrompt?.id,
             usesAIBackground: backgroundMode == .ai,
             isCustomPhoto: backgroundMode == .saved && isCurrentSelectionCustomPhoto,
-            customText: canEditText ? customText : nil
+            customText: canEditText ? customText : nil,
+            textColor: textColorHex
         )
         customization.cachedImagePath = relativePath
         customization.savedThemeId = (backgroundMode == .saved && !isCurrentSelectionCustomPhoto) ? selectedSavedBackground?.id : nil
@@ -471,6 +480,7 @@ final class CardEditorViewModel {
         selectedStyle = Self.defaultStyle(for: affirmation)
         selectedPalette = Self.defaultPalette(for: affirmation)
         selectedFontStyle = affirmation.fontStyle.flatMap(AffirmationFontStyle.init(rawValue:))
+        selectedTextColor = .white
         customText = affirmation.text
         backgroundSeed = Self.defaultSeed(for: affirmation)
         selectedPrompt = nil

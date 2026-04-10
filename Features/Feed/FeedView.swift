@@ -170,13 +170,14 @@ struct FeedView: View {
                 } else {
                     current.text
                 }
+            let textColor: Color = customization?.textColor.map { Color(hex: $0) } ?? .white
             VStack {
                 Spacer()
 
                 Text(displayText)
                     .font(customizedFont(for: current, customization: customization))
                     .tracking(letterSpacing(for: current))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(textColor)
                     .multilineTextAlignment(.center)
                     .lineSpacing(8)
                     .fixedSize(horizontal: false, vertical: true)

@@ -45,6 +45,9 @@ final class CardCustomization {
     /// Custom text (only for user-owned affirmations, `nil` = use original).
     var customText: String?
 
+    /// Text color override as a hex string (e.g. "#FFFFFF"), `nil` = use default white.
+    var textColor: String?
+
     /// Date this customization was created.
     var createdAt: Date = Date.now
 
@@ -60,7 +63,8 @@ final class CardCustomization {
         aiPromptId: String? = nil,
         usesAIBackground: Bool = false,
         isCustomPhoto: Bool? = nil,
-        customText: String? = nil
+        customText: String? = nil,
+        textColor: String? = nil
     ) {
         self.affirmationId = affirmationId
         self.backgroundStyle = backgroundStyle
@@ -71,6 +75,7 @@ final class CardCustomization {
         self.usesAIBackground = usesAIBackground
         self.isCustomPhoto = isCustomPhoto
         self.customText = customText
+        self.textColor = textColor
         self.createdAt = Date()
         self.updatedAt = Date()
     }
