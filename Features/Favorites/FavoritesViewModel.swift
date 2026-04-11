@@ -41,10 +41,10 @@ final class FavoritesViewModel {
         do {
             let favorited = try favoriteService.fetchFavorites(modelContext: modelContext)
 
-            // User-created affirmations always show regardless of favorite status
-            let userSource = AffirmationSource.user
+            // User-created affirmations always show regardless of favorite status.
+            // Using `id.starts(with: "user_")` to bypass SwiftData's `#Predicate` crash on Enums.
             let userCreatedDescriptor = FetchDescriptor<Affirmation>(
-                predicate: #Predicate<Affirmation> { $0.source == userSource },
+                predicate: #Predicate<Affirmation> { $0.id.starts(with: "user_") },
                 sortBy: [SortDescriptor(\.createdAt, order: .reverse)]
             )
             let allUserCreated = try modelContext.fetch(userCreatedDescriptor)
