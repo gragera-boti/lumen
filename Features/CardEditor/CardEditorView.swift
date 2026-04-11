@@ -166,6 +166,12 @@ struct CardEditorView: View {
         .frame(height: 260)
         .clipShape(RoundedRectangle(cornerRadius: LumenTheme.Radii.card))
         .accessibilityLabel("Card preview")
+        .onTapGesture {
+            viewModel.randomizeSeed()
+            // Haptic feedback to indicate tap
+            let generator = UIImpactFeedbackGenerator(style: .medium)
+            generator.impactOccurred()
+        }
     }
 
     private var previewFont: Font {

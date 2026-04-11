@@ -277,7 +277,8 @@ extension BackgroundGeneratorService {
 
                 // Rings get fainter as they expand
                 let falloff = 1.0 - (CGFloat(i) / CGFloat(ringCount))
-                let alpha = CGFloat(0.06 + complexity * 0.12) * falloff
+                // Dramatically increase alpha and contrast
+                let alpha = CGFloat(0.3 + complexity * 0.4) * falloff
 
                 // Slight wobble for organic feel
                 gc.saveGState()
@@ -287,7 +288,8 @@ extension BackgroundGeneratorService {
                 gc.scaleBy(x: scaleX, y: scaleY)
                 gc.translateBy(x: -center.x, y: -center.y)
 
-                let lineWidth = CGFloat(1.5 + complexity * 2.0) * falloff + 0.5
+                // Increased edge thickness for contrast
+                let lineWidth = CGFloat(2.5 + complexity * 4.0) * falloff + 1.0
                 gc.setStrokeColor(color.withAlphaComponent(alpha).cgColor)
                 gc.setLineWidth(lineWidth)
                 gc.strokeEllipse(
@@ -394,9 +396,11 @@ extension BackgroundGeneratorService {
         rect: CGRect,
         palette: ColorPalette,
         complexity: Float,
-        rng: inout SeededRNG
+        rng: inout SeededRNG,
+        seed: UInt32
     ) {
         let allColors = palette.cgColors + [palette.accentCGColor]
+        let noise = NoiseUtility(seed: seed)
 
         // Generate a simple height field using overlapping sine functions
         let peaks = 3 + Int(rng.nextFloat() * 3)
@@ -428,11 +432,16 @@ extension BackgroundGeneratorService {
         let cols = Int(rect.width / step)
         let rows = Int(rect.height / step)
 
-        // Pre-compute height grid
+        // Pre-compute height grid with added noise for rugged topography
         var grid: [[CGFloat]] = Array(repeating: Array(repeating: 0, count: cols + 1), count: rows + 1)
         for r in 0...rows {
             for c in 0...cols {
-                grid[r][c] = heightAt(CGFloat(c) * step, CGFloat(r) * step)
+                let x = CGFloat(c) * step
+                let y = CGFloat(r) * step
+                let baseHeight = heightAt(x, y)
+                // Add noise
+                let n = CGFloat(noise.fbm(x: Double(x) * 0.005, y: Double(y) * 0.005))
+                grid[r][c] = min(max(baseHeight + (n - 0.5) * 0.4, 0.0), 1.0)
             }
         }
 
@@ -440,10 +449,11 @@ extension BackgroundGeneratorService {
             let threshold = CGFloat(level + 1) / CGFloat(contourLevels + 1)
             let colorIdx = level % allColors.count
             let color = UIColor(cgColor: allColors[colorIdx])
-            let alpha = CGFloat(0.12 + complexity * 0.15)
+            // Drastically higher opacity and width for impact
+            let alpha = CGFloat(0.40 + complexity * 0.40)
 
             gc.setStrokeColor(color.withAlphaComponent(alpha).cgColor)
-            gc.setLineWidth(CGFloat(0.8 + complexity * 0.8))
+            gc.setLineWidth(CGFloat(1.5 + complexity * 1.5))
 
             // Simple marching squares: find edges where height crosses threshold
             for r in 0..<rows {

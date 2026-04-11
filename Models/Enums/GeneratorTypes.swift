@@ -5,16 +5,26 @@ import UIKit
 enum GeneratorStyle: String, CaseIterable, Identifiable, Sendable {
     case aurora  // Flowing horizontal light bands
     case bokeh  // Soft luminous floating circles
-    case mist  // Dreamy layered fog
     case dunes  // Smooth rolling wave bands
-    case minimal  // Clean multi-stop gradient
     case cosmos  // Deep space with nebula + stars
-    case geometric  // Tessellated polygons / crystal facets
     case watercolor  // Soft bleeding paint washes
     case stainedGlass  // Bold angular shards with bright edges
     case waves  // Concentric ripple rings
     case prism  // Refracted light streaks / rainbow bars
     case topography  // Contour-map elevation lines
+
+    // Advanced Non-Metal Algorithmic
+    case etherealFlow // Swirling hair-like strands
+    case neuralGrowth // Reaction-diffusion brain-like patterns
+    case harmony // Hypotrochoids orbits
+    case shards // Layered Voronoi cells
+    case hyphae // Organic branching growth
+    case juliaNebula // Julia set fractals
+    
+    // Metal Shaders
+    case nebula // Iterative space clouds
+    case iridescence // Color shift interference
+
 
     var id: String { rawValue }
 
@@ -22,16 +32,22 @@ enum GeneratorStyle: String, CaseIterable, Identifiable, Sendable {
         switch self {
         case .aurora: "Aurora"
         case .bokeh: "Bokeh"
-        case .mist: "Mist"
         case .dunes: "Dunes"
-        case .minimal: "Minimal"
         case .cosmos: "Cosmos"
-        case .geometric: "Geometric"
         case .watercolor: "Watercolor"
         case .stainedGlass: "Stained Glass"
         case .waves: "Waves"
         case .prism: "Prism"
         case .topography: "Topography"
+        case .etherealFlow: "Ethereal Flow"
+        case .neuralGrowth: "Neural Growth"
+        case .harmony: "Harmony"
+        case .shards: "Shards"
+        case .hyphae: "Hyphae"
+        case .juliaNebula: "Julia Nebula"
+        case .nebula: "Nebula"
+        case .iridescence: "Iridescence"
+
         }
     }
 }

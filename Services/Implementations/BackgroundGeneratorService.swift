@@ -32,12 +32,12 @@ actor BackgroundGeneratorService: BackgroundGeneratorProtocol {
             )
 
             var rng = SeededRNG(seed: UInt64(seed))
-            let image = renderImage(request: request, rng: &rng)
+            let image = try await self.generateImageContext(request: request, seed: seed, rng: &rng)
 
             try Task.checkCancellation()
 
             let themeId = "bg_\(UUID().uuidString.prefix(8))"
-            let (imagePath, thumbPath) = try saveImage(image, themeId: themeId)
+            let (imagePath, thumbPath) = try self.saveImage(image, themeId: themeId)
             let durationMs = Int((CFAbsoluteTimeGetCurrent() - startTime) * 1000)
 
             let metadata = GenerationMetadata(
@@ -71,8 +71,13 @@ actor BackgroundGeneratorService: BackgroundGeneratorProtocol {
     }
 
     // MARK: - Rendering pipeline
+    
+    private func generateImageContext(request: BackgroundRequest, seed: UInt32, rng: inout SeededRNG) async throws -> UIImage {
+        // Since ImageRenderer fails off-screen with colorEffect, all metal styles are ported to off-thread CoreGraphics
+        return renderCoreGraphicsImage(request: request, rng: &rng, seed: seed)
+    }
 
-    private func renderImage(request: BackgroundRequest, rng: inout SeededRNG) -> UIImage {
+    private func renderCoreGraphicsImage(request: BackgroundRequest, rng: inout SeededRNG, seed: UInt32) -> UIImage {
         let size = request.size
         let renderer = UIGraphicsImageRenderer(size: size)
 
@@ -84,7 +89,7 @@ actor BackgroundGeneratorService: BackgroundGeneratorProtocol {
             drawBaseGradient(gc: gc, rect: rect, palette: request.palette, mood: request.mood, rng: &rng)
 
             // Layer 2: Glow orbs (skip for styles that don't benefit)
-            let skipOrbs: Set<GeneratorStyle> = [.geometric, .stainedGlass, .prism, .topography]
+            let skipOrbs: Set<GeneratorStyle> = [.stainedGlass, .prism, .topography, .shards, .hyphae, .harmony, .neuralGrowth, .nebula]
             if !skipOrbs.contains(request.style) {
                 drawGlowOrbs(gc: gc, rect: rect, palette: request.palette, rng: &rng, complexity: request.complexity)
             }
@@ -95,32 +100,41 @@ actor BackgroundGeneratorService: BackgroundGeneratorProtocol {
                 drawAurora(gc: gc, rect: rect, palette: request.palette, complexity: request.complexity, rng: &rng)
             case .bokeh:
                 drawBokeh(gc: gc, rect: rect, palette: request.palette, complexity: request.complexity, rng: &rng)
-            case .mist:
-                drawMist(gc: gc, rect: rect, palette: request.palette, complexity: request.complexity, rng: &rng)
             case .dunes:
                 drawDunes(gc: gc, rect: rect, palette: request.palette, complexity: request.complexity, rng: &rng)
-            case .minimal:
-                break  // Just base + orbs
             case .cosmos:
                 drawCosmos(gc: gc, rect: rect, palette: request.palette, complexity: request.complexity, rng: &rng)
-            case .geometric:
-                drawGeometric(gc: gc, rect: rect, palette: request.palette, complexity: request.complexity, rng: &rng)
             case .watercolor:
                 drawWatercolor(gc: gc, rect: rect, palette: request.palette, complexity: request.complexity, rng: &rng)
             case .stainedGlass:
-                drawStainedGlass(
-                    gc: gc,
-                    rect: rect,
-                    palette: request.palette,
-                    complexity: request.complexity,
-                    rng: &rng
-                )
+                drawStainedGlass(gc: gc, rect: rect, palette: request.palette, complexity: request.complexity, rng: &rng)
             case .waves:
                 drawWaves(gc: gc, rect: rect, palette: request.palette, complexity: request.complexity, rng: &rng)
             case .prism:
                 drawPrism(gc: gc, rect: rect, palette: request.palette, complexity: request.complexity, rng: &rng)
             case .topography:
-                drawTopography(gc: gc, rect: rect, palette: request.palette, complexity: request.complexity, rng: &rng)
+                drawTopography(gc: gc, rect: rect, palette: request.palette, complexity: request.complexity, rng: &rng, seed: seed)
+            // New Advanced Non-Metal Algorithmic
+            case .etherealFlow:
+                drawEtherealFlow(gc: gc, rect: rect, palette: request.palette, complexity: request.complexity, rng: &rng, seed: seed)
+            case .neuralGrowth:
+                drawNeuralGrowth(gc: gc, rect: rect, palette: request.palette, complexity: request.complexity, rng: &rng, seed: seed)
+            case .harmony:
+                drawHarmony(gc: gc, rect: rect, palette: request.palette, complexity: request.complexity, rng: &rng)
+            case .shards:
+                drawShards(gc: gc, rect: rect, palette: request.palette, complexity: request.complexity, rng: &rng)
+            case .hyphae:
+                drawHyphae(gc: gc, rect: rect, palette: request.palette, complexity: request.complexity, rng: &rng, seed: seed)
+            case .juliaNebula:
+                drawJuliaNebula(gc: gc, rect: rect, palette: request.palette, complexity: request.complexity, rng: &rng)
+            
+            // Re-implemented Metal Shaders in CoreGraphics
+            case .nebula:
+                drawNebula(gc: gc, rect: rect, palette: request.palette, complexity: request.complexity, rng: &rng, seed: seed)
+            case .iridescence:
+                drawIridescence(gc: gc, rect: rect, palette: request.palette, complexity: request.complexity, rng: &rng, seed: seed)
+            default:
+                break
             }
 
             // Layer 4: Light leak
