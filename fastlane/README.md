@@ -23,6 +23,14 @@ For _fastlane_ installation instructions, see [Installing _fastlane_](https://do
 
 Run automated tests
 
+### ios bump_version
+
+```sh
+[bundle exec] fastlane ios bump_version
+```
+
+Bump app version and build number in Project.swift
+
 ### ios upload_testflight
 
 ```sh

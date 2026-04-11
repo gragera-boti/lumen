@@ -14,7 +14,7 @@ let baseSettings: SettingsDictionary = [
     "DEVELOPMENT_TEAM": .string(teamId),
     "CODE_SIGN_STYLE": "Automatic",
     "CODE_SIGN_ALLOW_ENTITLEMENTS_MODIFICATION": "YES",
-    "MARKETING_VERSION": "1.0.3",
+    "MARKETING_VERSION": "1.0.4",
     "CURRENT_PROJECT_VERSION": "1",
 ]
 
@@ -106,6 +106,7 @@ let project = Project(
             bundleId: "\(bundleIdPrefix).lumen.widgets",
             deploymentTargets: .iOS("18.0"),
             infoPlist: .extendingDefault(with: [
+                "CFBundleDisplayName": "$(PRODUCT_NAME)",
                 "NSExtension": [
                     "NSExtensionPointIdentifier": "com.apple.widgetkit-extension",
                 ],
