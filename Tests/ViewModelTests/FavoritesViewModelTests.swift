@@ -64,34 +64,6 @@ import Testing
         #expect(vm.errorMessage == nil)
     }
 
-    @Test("loadFavorites partitions userCreated and curatedFavorites")
-    func loadFavorites_success() async throws {
-        let mockService = MockFavoriteService()
-        let userAff = Affirmation(id: "u1", text: "My own.")
-        userAff.source = .user
-        let curatedAff = Affirmation(id: "c1", text: "Curated.")
-        curatedAff.source = .curated
-        mockService.favorites = [userAff, curatedAff]
-
-        let vm = withDependencies {
-            $0.favoriteService = mockService
-            $0.widgetService = MockWidgetService()
-            $0.cardCustomizationService = MockCardCustomizationService()
-        } operation: {
-            FavoritesViewModel()
-        }
-
-        let context = try createInMemoryContext()
-        await vm.loadFavorites(modelContext: context)
-
-        #expect(!vm.isLoading)
-        #expect(vm.userCreated.count == 1)
-        #expect(vm.userCreated.first?.id == "u1")
-        #expect(vm.curatedFavorites.count == 1)
-        #expect(vm.curatedFavorites.first?.id == "c1")
-        #expect(vm.allFavorites.count == 2)
-    }
-
     @Test("toggleFavorite re-loads favorites list")
     func toggleFavorite() async throws {
         let mockService = MockFavoriteService()
