@@ -133,8 +133,6 @@ actor BackgroundGeneratorService: BackgroundGeneratorProtocol {
                 drawNebula(gc: gc, rect: rect, palette: request.palette, complexity: request.complexity, rng: &rng, seed: seed)
             case .iridescence:
                 drawIridescence(gc: gc, rect: rect, palette: request.palette, complexity: request.complexity, rng: &rng, seed: seed)
-            default:
-                break
             }
 
             // Layer 4: Light leak

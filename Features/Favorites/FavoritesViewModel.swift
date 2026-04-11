@@ -64,12 +64,13 @@ final class FavoritesViewModel {
     }
 
     private func syncFavoritesWidget() {
-        let entries = allFavorites.map { aff -> (text: String, gradientColors: [String], backgroundImage: UIImage?, textColor: String?) in
+        let entries = allFavorites.map { aff -> (text: String, fontStyle: String?, gradientColors: [String], backgroundImage: UIImage?, textColor: String?) in
             let custom = customizations[aff.id]
             let textToUse = (custom?.customText?.isEmpty == false) ? custom!.customText! : aff.text
+            let fontStyle = custom?.fontStyleOverride ?? aff.fontStyle
             let index = abs(aff.id.hashValue) % LumenTheme.Colors.gradients.count
             let colors = LumenTheme.Colors.gradients[index].map { $0.hexString }
-            return (text: textToUse, gradientColors: colors, backgroundImage: self.backgroundImage(for: aff), textColor: custom?.textColor)
+            return (text: textToUse, fontStyle: fontStyle, gradientColors: colors, backgroundImage: self.backgroundImage(for: aff), textColor: custom?.textColor)
         }
         widgetService.updateFavoritesWidget(favorites: entries)
     }

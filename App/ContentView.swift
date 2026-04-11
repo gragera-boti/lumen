@@ -215,11 +215,12 @@ struct ContentView: View {
         let allFavs = favorites.compactMap { $0.affirmation }
         let allCustoms = try? CardCustomizationService.shared.allCustomizations(modelContext: modelContext)
         let customMap = Dictionary(uniqueKeysWithValues: (allCustoms ?? []).map { ($0.affirmationId, $0) })
-        let entries = allFavs.map { aff in
+        let entries = allFavs.map { aff -> (text: String, fontStyle: String?, gradientColors: [String], backgroundImage: UIImage?, textColor: String?) in
             let index = abs(aff.id.hashValue) % LumenTheme.Colors.gradients.count
             let colors = LumenTheme.Colors.gradients[index].map { $0.hexString }
             let custom = customMap[aff.id]
-            return (text: aff.text, gradientColors: colors, backgroundImage: nil as UIImage?, textColor: custom?.textColor)
+            let fontStyle = custom?.fontStyleOverride ?? aff.fontStyle
+            return (text: aff.text, fontStyle: fontStyle, gradientColors: colors, backgroundImage: nil as UIImage?, textColor: custom?.textColor)
         }
         WidgetService.shared.updateFavoritesWidget(favorites: entries)
     }

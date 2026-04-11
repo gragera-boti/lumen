@@ -105,15 +105,46 @@ let project = Project(
             product: .appExtension,
             bundleId: "\(bundleIdPrefix).lumen.widgets",
             deploymentTargets: .iOS("18.0"),
-            infoPlist: .file(path: "LumenWidgets/Info.plist"),
+            infoPlist: .extendingDefault(with: [
+                "NSExtension": [
+                    "NSExtensionPointIdentifier": "com.apple.widgetkit-extension",
+                ],
+                "UIAppFonts": [
+                    "AbrilFatface-Regular.ttf",
+                    "Caveat.ttf",
+                    "CormorantGaramond-Bold.ttf",
+                    "CormorantGaramond-SemiBold.ttf",
+                    "DancingScript.ttf",
+                    "JosefinSans.ttf",
+                    "PlayfairDisplay.ttf",
+                    "Righteous-Regular.ttf",
+                    "ZillaSlab-Bold.ttf",
+                    "ZillaSlab-SemiBold.ttf",
+                    "Sacramento-Regular.ttf",
+                    "StyleScript-Regular.ttf",
+                    "Urbanist.ttf",
+                    "Outfit.ttf",
+                    "SpaceGrotesk.ttf",
+                    "PlusJakartaSans.ttf",
+                    "Melodrama-Regular.ttf",
+                    "Melodrama-Bold.ttf",
+                    "Tanker-Regular.ttf",
+                    "Panchang-Regular.ttf",
+                    "Panchang-Bold.ttf"
+                ]
+            ]),
             sources: [
                 "LumenWidgets/**",
                 "Models/Enums/Tone.swift",
                 "Models/Enums/ThemeType.swift",
+                "Models/Enums/AffirmationFontStyle.swift",
                 "Extensions/Color+Hex.swift",
                 "Theme/Theme.swift",
                 "Theme/Components/GradientBackground.swift",
                 "Theme/Components/ReadabilityOverlay.swift",
+            ],
+            resources: [
+                .glob(pattern: "Resources/Fonts/**"),
             ],
             entitlements: .file(path: "LumenWidgets/LumenWidgets.entitlements"),
             settings: .settings(base: [

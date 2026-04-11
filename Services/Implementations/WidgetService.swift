@@ -29,7 +29,7 @@ struct WidgetService: WidgetServiceProtocol {
         }
     }
 
-    func updateWidget(entries: [(text: String, gradientColors: [String], backgroundImage: UIImage?, textColor: String?)]) {
+    func updateWidget(entries: [(text: String, fontStyle: String?, gradientColors: [String], backgroundImage: UIImage?, textColor: String?)]) {
         guard
             let containerURL = FileManager.default.containerURL(
                 forSecurityApplicationGroupIdentifier: appGroupId
@@ -60,6 +60,7 @@ struct WidgetService: WidgetServiceProtocol {
             let snapshot = WidgetSnapshot(
                 id: UUID().uuidString,
                 text: entry.text,
+                fontStyle: entry.fontStyle,
                 gradientColors: entry.gradientColors,
                 backgroundImageFilename: imageFilename,
                 textColor: entry.textColor,
@@ -122,7 +123,7 @@ struct WidgetService: WidgetServiceProtocol {
         }
     }
 
-    func updateFavoritesWidget(favorites: [(text: String, gradientColors: [String], backgroundImage: UIImage?, textColor: String?)]) {
+    func updateFavoritesWidget(favorites: [(text: String, fontStyle: String?, gradientColors: [String], backgroundImage: UIImage?, textColor: String?)]) {
         guard
             let containerURL = FileManager.default.containerURL(
                 forSecurityApplicationGroupIdentifier: appGroupId
@@ -149,7 +150,7 @@ struct WidgetService: WidgetServiceProtocol {
                     logger.error("Failed to save favorite background image: \(error.localizedDescription)")
                 }
             }
-            entries.append(FavoriteWidgetEntry(text: fav.text, gradientColors: fav.gradientColors, backgroundImageFilename: imageFilename, textColor: fav.textColor))
+            entries.append(FavoriteWidgetEntry(text: fav.text, fontStyle: fav.fontStyle, gradientColors: fav.gradientColors, backgroundImageFilename: imageFilename, textColor: fav.textColor))
         }
 
         let snapshot = FavoritesWidgetSnapshot(
@@ -180,6 +181,7 @@ struct WidgetService: WidgetServiceProtocol {
 private struct WidgetSnapshot: Codable {
     let id: String
     let text: String
+    let fontStyle: String?
     let gradientColors: [String]
     let backgroundImageFilename: String?
     let textColor: String?
@@ -193,6 +195,7 @@ private struct WidgetSnapshotList: Codable {
 
 struct FavoriteWidgetEntry: Codable {
     let text: String
+    let fontStyle: String?
     let gradientColors: [String]
     let backgroundImageFilename: String?
     let textColor: String?

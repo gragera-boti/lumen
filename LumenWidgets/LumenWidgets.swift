@@ -9,6 +9,7 @@ struct WidgetAffirmation: Codable {
     let gradientColors: [String]
     let backgroundImageFilename: String?
     let textColor: String?
+    let fontStyle: String?
     let updatedAt: Date
 }
 
@@ -27,7 +28,8 @@ struct LumenTimelineProvider: TimelineProvider {
                  affirmationText: data.text,
                  gradientColors: data.gradientColors,
                  backgroundImageFilename: data.backgroundImageFilename,
-                 textColor: data.textColor
+                 textColor: data.textColor,
+                 fontStyle: data.fontStyle
              )
         }
         return LumenEntry(
@@ -35,7 +37,8 @@ struct LumenTimelineProvider: TimelineProvider {
             affirmationText: "I can take one small step today.",
             gradientColors: ["#7FBBCA", "#A688B5"],
             backgroundImageFilename: nil,
-            textColor: nil
+            textColor: nil,
+            fontStyle: nil
         )
     }
 
@@ -46,7 +49,8 @@ struct LumenTimelineProvider: TimelineProvider {
                 affirmationText: data.text,
                 gradientColors: data.gradientColors,
                 backgroundImageFilename: data.backgroundImageFilename,
-                textColor: data.textColor
+                textColor: data.textColor,
+                fontStyle: data.fontStyle
             )
             completion(entry)
         } else {
@@ -72,7 +76,8 @@ struct LumenTimelineProvider: TimelineProvider {
                 affirmationText: data.text,
                 gradientColors: data.gradientColors,
                 backgroundImageFilename: data.backgroundImageFilename,
-                textColor: data.textColor
+                textColor: data.textColor,
+                fontStyle: data.fontStyle
             ))
         }
 
@@ -105,6 +110,7 @@ struct LumenEntry: TimelineEntry {
     let gradientColors: [String]
     let backgroundImageFilename: String?
     let textColor: String?
+    let fontStyle: String?
 }
 
 // MARK: - Widget Views
@@ -164,15 +170,42 @@ struct LumenWidgetEntryView: View {
     }
 
     private var textFont: Font {
+        let size: CGFloat
         switch family {
-        case .systemSmall:
-            .system(.callout, design: .serif, weight: .medium)
-        case .systemMedium:
-            .system(.body, design: .serif, weight: .medium)
-        case .systemLarge:
-            .system(.title3, design: .serif, weight: .medium)
-        default:
-            .system(.body, design: .serif, weight: .medium)
+        case .systemSmall: size = 18
+        case .systemMedium: size = 22
+        case .systemLarge: size = 28
+        default: size = 22
+        }
+        
+        guard let fontStyle = entry.fontStyle else {
+            return .system(size: size, weight: .medium, design: .serif)
+        }
+        
+        switch fontStyle {
+        case "playfair", "serif": return .custom("PlayfairDisplayRoman-Bold", size: size)
+        case "cormorant", "elegant": return .custom("CormorantGaramond-Bold", size: size)
+        case "caveat", "handwritten": return .custom("CaveatRoman-Bold", size: size)
+        case "dancing", "script": return .custom("DancingScript-Bold", size: size)
+        case "abril": return .custom("AbrilFatface-Regular", size: size)
+        case "josefin", "classic": return .custom("JosefinSansRoman-Regular", size: size)
+        case "zilla", "typewriter": return .custom("ZillaSlab-Bold", size: size)
+        case "righteous": return .custom("Righteous-Regular", size: size)
+        case "rounded": return .system(size: size, weight: .bold, design: .rounded)
+        case "heavy", "bold": return .system(size: size, weight: .heavy, design: .default)
+        case "mono": return .system(size: size, weight: .bold, design: .monospaced)
+        case "serifModern": return .system(size: size, weight: .bold, design: .serif)
+        case "marker": return .custom("MarkerFelt-Wide", size: size)
+        case "urbanist": return .custom("UrbanistRoman-Bold", size: size)
+        case "outfit": return .custom("Outfit-Bold", size: size)
+        case "spaceGrotesk": return .custom("SpaceGrotesk-Bold", size: size)
+        case "plusJakarta": return .custom("PlusJakartaSans-Bold", size: size)
+        case "melodrama": return .custom("Melodrama-Bold", size: size)
+        case "tanker": return .custom("Tanker-Regular", size: size)
+        case "panchang": return .custom("Panchang-Bold", size: size)
+        case "sacramento": return .custom("Sacramento-Regular", size: size)
+        case "styleScript": return .custom("StyleScript-Regular", size: size)
+        default: return .system(size: size, weight: .medium, design: .serif)
         }
     }
 }
@@ -202,7 +235,8 @@ struct FavoritesTimelineProvider: TimelineProvider {
                  affirmationText: fav.text,
                  gradientColors: fav.gradientColors,
                  backgroundImageFilename: fav.backgroundImageFilename,
-                 textColor: fav.textColor
+                 textColor: fav.textColor,
+                 fontStyle: fav.fontStyle
              )
         }
         return .empty
@@ -233,7 +267,8 @@ struct FavoritesTimelineProvider: TimelineProvider {
                     affirmationText: fav.text,
                     gradientColors: fav.gradientColors,
                     backgroundImageFilename: fav.backgroundImageFilename,
-                    textColor: fav.textColor
+                    textColor: fav.textColor,
+                    fontStyle: fav.fontStyle
                 )
             )
         }
@@ -265,7 +300,8 @@ struct FavoritesTimelineProvider: TimelineProvider {
             affirmationText: fav.text,
             gradientColors: fav.gradientColors,
             backgroundImageFilename: fav.backgroundImageFilename,
-            textColor: fav.textColor
+            textColor: fav.textColor,
+            fontStyle: fav.fontStyle
         )
     }
 }
@@ -276,6 +312,7 @@ struct FavoritesEntry: TimelineEntry {
     let gradientColors: [String]
     let backgroundImageFilename: String?
     let textColor: String?
+    let fontStyle: String?
     var isEmpty: Bool = false
 
     static var empty: FavoritesEntry {
@@ -285,6 +322,7 @@ struct FavoritesEntry: TimelineEntry {
             gradientColors: ["#A688B5", "#E8837C"],
             backgroundImageFilename: nil,
             textColor: nil,
+            fontStyle: nil,
             isEmpty: true
         )
     }
@@ -366,15 +404,42 @@ struct FavoritesWidgetEntryView: View {
     }
 
     private var textFont: Font {
+        let size: CGFloat
         switch family {
-        case .systemSmall:
-            .system(.callout, design: .serif, weight: .medium)
-        case .systemMedium:
-            .system(.body, design: .serif, weight: .medium)
-        case .systemLarge:
-            .system(.title3, design: .serif, weight: .medium)
-        default:
-            .system(.body, design: .serif, weight: .medium)
+        case .systemSmall: size = 18
+        case .systemMedium: size = 22
+        case .systemLarge: size = 28
+        default: size = 22
+        }
+        
+        guard let fontStyle = entry.fontStyle else {
+            return .system(size: size, weight: .medium, design: .serif)
+        }
+        
+        switch fontStyle {
+        case "playfair", "serif": return .custom("PlayfairDisplayRoman-Bold", size: size)
+        case "cormorant", "elegant": return .custom("CormorantGaramond-Bold", size: size)
+        case "caveat", "handwritten": return .custom("CaveatRoman-Bold", size: size)
+        case "dancing", "script": return .custom("DancingScript-Bold", size: size)
+        case "abril": return .custom("AbrilFatface-Regular", size: size)
+        case "josefin", "classic": return .custom("JosefinSansRoman-Regular", size: size)
+        case "zilla", "typewriter": return .custom("ZillaSlab-Bold", size: size)
+        case "righteous": return .custom("Righteous-Regular", size: size)
+        case "rounded": return .system(size: size, weight: .bold, design: .rounded)
+        case "heavy", "bold": return .system(size: size, weight: .heavy, design: .default)
+        case "mono": return .system(size: size, weight: .bold, design: .monospaced)
+        case "serifModern": return .system(size: size, weight: .bold, design: .serif)
+        case "marker": return .custom("MarkerFelt-Wide", size: size)
+        case "urbanist": return .custom("UrbanistRoman-Bold", size: size)
+        case "outfit": return .custom("Outfit-Bold", size: size)
+        case "spaceGrotesk": return .custom("SpaceGrotesk-Bold", size: size)
+        case "plusJakarta": return .custom("PlusJakartaSans-Bold", size: size)
+        case "melodrama": return .custom("Melodrama-Bold", size: size)
+        case "tanker": return .custom("Tanker-Regular", size: size)
+        case "panchang": return .custom("Panchang-Bold", size: size)
+        case "sacramento": return .custom("Sacramento-Regular", size: size)
+        case "styleScript": return .custom("StyleScript-Regular", size: size)
+        default: return .system(size: size, weight: .medium, design: .serif)
         }
     }
 }
@@ -399,6 +464,7 @@ struct FavoriteWidgetEntry: Codable {
     let gradientColors: [String]
     let backgroundImageFilename: String?
     let textColor: String?
+    let fontStyle: String?
 }
 
 struct FavoritesWidgetSnapshot: Codable {
@@ -410,6 +476,26 @@ struct FavoritesWidgetSnapshot: Codable {
 
 @main
 struct LumenWidgetBundle: WidgetBundle {
+    init() {
+        let bundle = Bundle.main
+        let appBundleURL = bundle.bundleURL.deletingLastPathComponent().deletingLastPathComponent()
+        
+        let fontNames = [
+            "AbrilFatface-Regular.ttf", "Caveat.ttf", "CormorantGaramond-Bold.ttf",
+            "CormorantGaramond-SemiBold.ttf", "DancingScript.ttf", "JosefinSans.ttf",
+            "PlayfairDisplay.ttf", "Righteous-Regular.ttf", "ZillaSlab-Bold.ttf",
+            "ZillaSlab-SemiBold.ttf", "Sacramento-Regular.ttf", "StyleScript-Regular.ttf",
+            "Urbanist.ttf", "Outfit.ttf", "SpaceGrotesk.ttf", "PlusJakartaSans.ttf",
+            "Melodrama-Regular.ttf", "Melodrama-Bold.ttf", "Tanker-Regular.ttf",
+            "Panchang-Regular.ttf", "Panchang-Bold.ttf"
+        ]
+        
+        for fontName in fontNames {
+            let fontURL = appBundleURL.appendingPathComponent(fontName)
+            CTFontManagerRegisterFontsForURL(fontURL as CFURL, .process, nil)
+        }
+    }
+
     var body: some Widget {
         LumenWidget()
         FavoritesWidget()

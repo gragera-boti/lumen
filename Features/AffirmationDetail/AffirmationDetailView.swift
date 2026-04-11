@@ -275,12 +275,13 @@ struct AffirmationDetailView: View {
             return bgs
         }.value
 
-        let entries = allFavs.map { aff -> (text: String, gradientColors: [String], backgroundImage: UIImage?, textColor: String?) in
+        let entries = allFavs.map { aff -> (text: String, fontStyle: String?, gradientColors: [String], backgroundImage: UIImage?, textColor: String?) in
             let custom = map[aff.id]
             let textToUse = (custom?.customText?.isEmpty == false) ? custom!.customText! : aff.text
             let index = abs(aff.id.hashValue) % LumenTheme.Colors.gradients.count
             let colors = LumenTheme.Colors.gradients[index].map { $0.hexString }
-            return (text: textToUse, gradientColors: colors, backgroundImage: backgrounds[aff.id], textColor: custom?.textColor)
+            let fontStyle = custom?.fontStyleOverride ?? aff.fontStyle
+            return (text: textToUse, fontStyle: fontStyle, gradientColors: colors, backgroundImage: backgrounds[aff.id], textColor: custom?.textColor)
         }
         WidgetService.shared.updateFavoritesWidget(favorites: entries)
     }
