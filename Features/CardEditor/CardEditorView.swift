@@ -217,7 +217,12 @@ struct CardEditorView: View {
 
                 StylePickerView(
                     selection: $viewModel.selectedStyle,
-                    palette: viewModel.selectedPalette
+                    palette: viewModel.selectedPalette,
+                    onStyleTap: {
+                        viewModel.randomizeSeed()
+                        let generator = UIImpactFeedbackGenerator(style: .light)
+                        generator.impactOccurred()
+                    }
                 )
             }
 

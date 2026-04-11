@@ -6,6 +6,7 @@ import SwiftUI
 struct StylePickerView: View {
     @Binding var selection: GeneratorStyle
     let palette: ColorPalette
+    var onStyleTap: (() -> Void)? = nil
 
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
@@ -19,6 +20,7 @@ struct StylePickerView: View {
                         withAnimation(.easeInOut(duration: 0.2)) {
                             selection = style
                         }
+                        onStyleTap?()
                     }
                 }
             }
