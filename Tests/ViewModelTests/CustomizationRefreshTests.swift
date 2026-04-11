@@ -56,8 +56,8 @@ struct CustomizationRefreshTests {
     }
 
     private final class MockWidgetService: WidgetServiceProtocol, @unchecked Sendable {
-        func updateWidget(entries: [(text: String, gradientColors: [String], backgroundImage: UIImage?, textColor: String?)]) {}
-        func updateFavoritesWidget(favorites: [(text: String, gradientColors: [String], backgroundImage: UIImage?, textColor: String?)]) {}
+        func updateWidget(entries: [(text: String, fontStyle: String?, gradientColors: [String], backgroundImage: UIImage?, textColor: String?)]) {}
+        func updateFavoritesWidget(favorites: [(text: String, fontStyle: String?, gradientColors: [String], backgroundImage: UIImage?, textColor: String?)]) {}
     }
 
     private actor MockBackgroundGenerator: BackgroundGeneratorProtocol {

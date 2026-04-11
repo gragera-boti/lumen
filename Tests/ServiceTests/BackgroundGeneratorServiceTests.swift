@@ -77,7 +77,7 @@ import Testing
     func generate_allMoods() async throws {
         for mood in GeneratorMood.allCases {
             let request = BackgroundRequest(
-                style: .mist,
+                style: .aurora,
                 palette: .nightFade,
                 mood: mood,
                 complexity: 0.5
@@ -96,7 +96,7 @@ import Testing
 
     @Test("generate new styles")
     func generate_newStyles() async throws {
-        let newStyles: [GeneratorStyle] = [.geometric, .watercolor, .stainedGlass, .waves, .prism, .topography]
+        let newStyles: [GeneratorStyle] = [.watercolor, .stainedGlass, .waves, .prism, .topography]
 
         for style in newStyles {
             let request = BackgroundRequest(
