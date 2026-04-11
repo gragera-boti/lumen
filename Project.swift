@@ -59,9 +59,11 @@ let project = Project(
                     "Outfit.ttf",
                     "SpaceGrotesk.ttf",
                     "PlusJakartaSans.ttf",
-                    "Melodrama.ttf",
+                    "Melodrama-Regular.ttf",
+                    "Melodrama-Bold.ttf",
                     "Tanker-Regular.ttf",
-                    "Panchang.ttf"
+                    "Panchang-Regular.ttf",
+                    "Panchang-Bold.ttf"
                 ]
             ]),
             sources: [

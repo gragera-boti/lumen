@@ -155,13 +155,22 @@ struct CardEditorView: View {
                     .tint(.white)
             }
 
-            Text(viewModel.customText)
-                .font(previewFont)
-                .foregroundStyle(viewModel.selectedTextColor)
-                .multilineTextAlignment(.center)
-                .lineSpacing(6)
-                .padding(.horizontal, LumenTheme.Spacing.xl)
-                .shadow(color: .black.opacity(0.4), radius: 8, y: 3)
+            Group {
+                if viewModel.textOutlineEnabled {
+                    Text(viewModel.customText)
+                        .font(previewFont)
+                        .foregroundStyle(viewModel.selectedTextColor)
+                        .textOutline()
+                } else {
+                    Text(viewModel.customText)
+                        .font(previewFont)
+                        .foregroundStyle(viewModel.selectedTextColor)
+                        .shadow(color: .black.opacity(0.4), radius: 8, y: 3)
+                }
+            }
+            .multilineTextAlignment(.center)
+            .lineSpacing(6)
+            .padding(.horizontal, LumenTheme.Spacing.xl)
         }
         .frame(height: 260)
         .clipShape(RoundedRectangle(cornerRadius: LumenTheme.Radii.card))
@@ -489,6 +498,12 @@ struct CardEditorView: View {
             FontPickerView(selection: $viewModel.selectedFontStyle)
 
             textColorPicker
+
+            Toggle(isOn: $viewModel.textOutlineEnabled) {
+                Label("Text Outline", systemImage: "character.cursor.ibeam")
+                    .font(.subheadline.weight(.medium))
+            }
+            .tint(LumenTheme.Colors.primary)
         }
     }
 

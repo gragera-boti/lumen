@@ -43,8 +43,8 @@ import Testing
     }
 
     private final class MockWidgetService: WidgetServiceProtocol, @unchecked Sendable {
-        func updateWidget(entries: [(text: String, gradientColors: [String], backgroundImage: UIImage?, textColor: String?)]) {}
-        func updateFavoritesWidget(favorites: [(text: String, gradientColors: [String], backgroundImage: UIImage?, textColor: String?)]) {}
+        func updateWidget(entries: [(text: String, gradientColors: [String], backgroundImage: UIImage?, textColor: String?, textOutline: Bool)]) {}
+        func updateFavoritesWidget(favorites: [(text: String, gradientColors: [String], backgroundImage: UIImage?, textColor: String?, textOutline: Bool)]) {}
     }
 
     private final class MockCardCustomizationService: CardCustomizationServiceProtocol, @unchecked Sendable {

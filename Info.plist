@@ -63,9 +63,11 @@
 		<string>Outfit.ttf</string>
 		<string>SpaceGrotesk.ttf</string>
 		<string>PlusJakartaSans.ttf</string>
-		<string>Melodrama.ttf</string>
+		<string>Melodrama-Regular.ttf</string>
+		<string>Melodrama-Bold.ttf</string>
 		<string>Tanker-Regular.ttf</string>
-		<string>Panchang.ttf</string>
+		<string>Panchang-Regular.ttf</string>
+		<string>Panchang-Bold.ttf</string>
 	</array>
 	<key>UILaunchScreen</key>
 	<dict/>

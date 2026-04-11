@@ -96,12 +96,23 @@ struct AffirmationDetailView: View {
             VStack(spacing: LumenTheme.Spacing.xl) {
                 Spacer()
 
-                Text(displayText)
-                    .font(detailFont(for: affirmation))
-                    .foregroundStyle(customization?.textColor.map { Color(hex: $0) } ?? .white)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, LumenTheme.Spacing.xl)
-                    .accessibilityAddTraits(.isHeader)
+                let textColor: Color = customization?.textColor.map { Color(hex: $0) } ?? .white
+                let outlineEnabled = customization?.textOutline ?? false
+                Group {
+                    if outlineEnabled {
+                        Text(displayText)
+                            .foregroundStyle(textColor)
+                            .textOutline()
+                    } else {
+                        Text(displayText)
+                            .foregroundStyle(textColor)
+                            .shadow(color: .black.opacity(0.3), radius: 6, y: 2)
+                    }
+                }
+                .font(detailFont(for: affirmation))
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, LumenTheme.Spacing.xl)
+                .accessibilityAddTraits(.isHeader)
 
                 if !(affirmation.categories?.isEmpty ?? true) {
                     HStack(spacing: LumenTheme.Spacing.xs) {
@@ -273,12 +284,12 @@ struct AffirmationDetailView: View {
             return bgs
         }.value
 
-        let entries = allFavs.map { aff -> (text: String, gradientColors: [String], backgroundImage: UIImage?, textColor: String?) in
+        let entries = allFavs.map { aff -> (text: String, gradientColors: [String], backgroundImage: UIImage?, textColor: String?, textOutline: Bool) in
             let custom = map[aff.id]
             let textToUse = (custom?.customText?.isEmpty == false) ? custom!.customText! : aff.text
             let index = abs(aff.id.hashValue) % LumenTheme.Colors.gradients.count
             let colors = LumenTheme.Colors.gradients[index].map { $0.hexString }
-            return (text: textToUse, gradientColors: colors, backgroundImage: backgrounds[aff.id], textColor: custom?.textColor)
+            return (text: textToUse, gradientColors: colors, backgroundImage: backgrounds[aff.id], textColor: custom?.textColor, textOutline: custom?.textOutline ?? false)
         }
         WidgetService.shared.updateFavoritesWidget(favorites: entries)
     }

@@ -108,7 +108,7 @@ enum AffirmationFontStyle: String, CaseIterable, Identifiable, Codable {
         case .marker:
             .custom("MarkerFelt-Wide", size: size)
         case .urbanist:
-            .custom("Urbanist-Light", size: size)
+            .custom("UrbanistRoman-Light", size: size)
         case .outfit:
             .custom("Outfit-Light", size: size)
         case .spaceGrotesk:
@@ -174,7 +174,7 @@ enum AffirmationFontStyle: String, CaseIterable, Identifiable, Codable {
         case .marker:
             .custom("MarkerFelt-Wide", size: size)
         case .urbanist:
-            .custom("Urbanist-Bold", size: size)
+            .custom("UrbanistRoman-Bold", size: size)
         case .outfit:
             .custom("Outfit-Bold", size: size)
         case .spaceGrotesk:

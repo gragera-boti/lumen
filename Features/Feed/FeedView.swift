@@ -171,19 +171,11 @@ struct FeedView: View {
                     current.text
                 }
             let textColor: Color = customization?.textColor.map { Color(hex: $0) } ?? .white
+            let outlineEnabled = customization?.textOutline ?? false
             VStack {
                 Spacer()
 
-                Text(displayText)
-                    .font(customizedFont(for: current, customization: customization))
-                    .tracking(letterSpacing(for: current))
-                    .foregroundStyle(textColor)
-                    .multilineTextAlignment(.center)
-                    .lineSpacing(8)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .minimumScaleFactor(0.5)
-                    .padding(.horizontal, 32)
-                    .shadow(color: .black.opacity(0.4), radius: 8, y: 3)
+                affirmationText(displayText, for: current, customization: customization, textColor: textColor, outline: outlineEnabled)
                     .opacity(textOpacity)
                     .accessibilityAddTraits(.isHeader)
 
@@ -369,6 +361,39 @@ struct FeedView: View {
         case .abril, .playfair: return 0.3
         case .zilla: return 0.2
         default: return 0.5
+        }
+    }
+
+    @ViewBuilder
+    private func affirmationText(
+        _ text: String,
+        for affirmation: Affirmation,
+        customization: CardCustomization?,
+        textColor: Color,
+        outline: Bool
+    ) -> some View {
+        if outline {
+            Text(text)
+                .font(customizedFont(for: affirmation, customization: customization))
+                .tracking(letterSpacing(for: affirmation))
+                .foregroundStyle(textColor)
+                .multilineTextAlignment(.center)
+                .lineSpacing(8)
+                .fixedSize(horizontal: false, vertical: true)
+                .minimumScaleFactor(0.5)
+                .padding(.horizontal, 32)
+                .textOutline()
+        } else {
+            Text(text)
+                .font(customizedFont(for: affirmation, customization: customization))
+                .tracking(letterSpacing(for: affirmation))
+                .foregroundStyle(textColor)
+                .multilineTextAlignment(.center)
+                .lineSpacing(8)
+                .fixedSize(horizontal: false, vertical: true)
+                .minimumScaleFactor(0.5)
+                .padding(.horizontal, 32)
+                .shadow(color: .black.opacity(0.4), radius: 8, y: 3)
         }
     }
 
