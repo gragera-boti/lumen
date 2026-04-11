@@ -191,8 +191,8 @@ private enum WidgetServiceKey: DependencyKey {
 }
 
 struct UnimplementedWidgetService: WidgetServiceProtocol {
-    func updateWidget(entries: [(text: String, gradientColors: [String], backgroundImage: UIImage?, textColor: String?, textOutline: Bool)]) {}
-    func updateFavoritesWidget(favorites: [(text: String, gradientColors: [String], backgroundImage: UIImage?, textColor: String?, textOutline: Bool)]) {}
+    func updateWidget(entries: [(text: String, gradientColors: [String], backgroundImage: UIImage?, textColor: String?)]) {}
+    func updateFavoritesWidget(favorites: [(text: String, gradientColors: [String], backgroundImage: UIImage?, textColor: String?)]) {}
 }
 
 extension DependencyValues {

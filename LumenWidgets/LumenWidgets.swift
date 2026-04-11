@@ -9,7 +9,6 @@ struct WidgetAffirmation: Codable {
     let gradientColors: [String]
     let backgroundImageFilename: String?
     let textColor: String?
-    let textOutline: Bool?
     let updatedAt: Date
 }
 
@@ -28,8 +27,7 @@ struct LumenTimelineProvider: TimelineProvider {
                  affirmationText: data.text,
                  gradientColors: data.gradientColors,
                  backgroundImageFilename: data.backgroundImageFilename,
-                 textColor: data.textColor,
-                 textOutline: data.textOutline ?? false
+                 textColor: data.textColor
              )
         }
         return LumenEntry(
@@ -37,8 +35,7 @@ struct LumenTimelineProvider: TimelineProvider {
             affirmationText: "I can take one small step today.",
             gradientColors: ["#7FBBCA", "#A688B5"],
             backgroundImageFilename: nil,
-            textColor: nil,
-            textOutline: false
+            textColor: nil
         )
     }
 
@@ -49,8 +46,7 @@ struct LumenTimelineProvider: TimelineProvider {
                 affirmationText: data.text,
                 gradientColors: data.gradientColors,
                 backgroundImageFilename: data.backgroundImageFilename,
-                textColor: data.textColor,
-                textOutline: data.textOutline ?? false
+                textColor: data.textColor
             )
             completion(entry)
         } else {
@@ -76,8 +72,7 @@ struct LumenTimelineProvider: TimelineProvider {
                 affirmationText: data.text,
                 gradientColors: data.gradientColors,
                 backgroundImageFilename: data.backgroundImageFilename,
-                textColor: data.textColor,
-                textOutline: data.textOutline ?? false
+                textColor: data.textColor
             ))
         }
 
@@ -110,7 +105,6 @@ struct LumenEntry: TimelineEntry {
     let gradientColors: [String]
     let backgroundImageFilename: String?
     let textColor: String?
-    let textOutline: Bool
 }
 
 // MARK: - Widget Views
@@ -124,21 +118,12 @@ struct LumenWidgetEntryView: View {
             Spacer()
 
             let fg = entry.textColor.map { Color(hex: $0) } ?? Color.white
-            if entry.textOutline {
-                Text(entry.affirmationText)
-                    .font(textFont)
-                    .foregroundStyle(fg)
-                    .multilineTextAlignment(.center)
-                    .minimumScaleFactor(0.7)
-                    .widgetTextOutline()
-            } else {
-                Text(entry.affirmationText)
-                    .font(textFont)
-                    .foregroundStyle(fg)
-                    .multilineTextAlignment(.center)
-                    .shadow(color: .black.opacity(0.2), radius: 3, y: 1)
-                    .minimumScaleFactor(0.7)
-            }
+            Text(entry.affirmationText)
+                .font(textFont)
+                .foregroundStyle(fg)
+                .multilineTextAlignment(.center)
+                .shadow(color: .black.opacity(0.2), radius: 3, y: 1)
+                .minimumScaleFactor(0.7)
 
             Spacer()
 
@@ -217,8 +202,7 @@ struct FavoritesTimelineProvider: TimelineProvider {
                  affirmationText: fav.text,
                  gradientColors: fav.gradientColors,
                  backgroundImageFilename: fav.backgroundImageFilename,
-                 textColor: fav.textColor,
-                 textOutline: fav.textOutline ?? false
+                 textColor: fav.textColor
              )
         }
         return .empty
@@ -249,8 +233,7 @@ struct FavoritesTimelineProvider: TimelineProvider {
                     affirmationText: fav.text,
                     gradientColors: fav.gradientColors,
                     backgroundImageFilename: fav.backgroundImageFilename,
-                    textColor: fav.textColor,
-                    textOutline: fav.textOutline ?? false
+                    textColor: fav.textColor
                 )
             )
         }
@@ -282,8 +265,7 @@ struct FavoritesTimelineProvider: TimelineProvider {
             affirmationText: fav.text,
             gradientColors: fav.gradientColors,
             backgroundImageFilename: fav.backgroundImageFilename,
-            textColor: fav.textColor,
-            textOutline: fav.textOutline ?? false
+            textColor: fav.textColor
         )
     }
 }
@@ -294,7 +276,6 @@ struct FavoritesEntry: TimelineEntry {
     let gradientColors: [String]
     let backgroundImageFilename: String?
     let textColor: String?
-    let textOutline: Bool
     var isEmpty: Bool = false
 
     static var empty: FavoritesEntry {
@@ -304,7 +285,6 @@ struct FavoritesEntry: TimelineEntry {
             gradientColors: ["#A688B5", "#E8837C"],
             backgroundImageFilename: nil,
             textColor: nil,
-            textOutline: false,
             isEmpty: true
         )
     }
@@ -336,21 +316,12 @@ struct FavoritesWidgetEntryView: View {
                 Spacer()
 
                 let fg = entry.textColor.map { Color(hex: $0) } ?? Color.white
-                if entry.textOutline {
-                    Text(entry.affirmationText)
-                        .font(textFont)
-                        .foregroundStyle(fg)
-                        .multilineTextAlignment(.center)
-                        .minimumScaleFactor(0.7)
-                        .widgetTextOutline()
-                } else {
-                    Text(entry.affirmationText)
-                        .font(textFont)
-                        .foregroundStyle(fg)
-                        .multilineTextAlignment(.center)
-                        .shadow(color: .black.opacity(0.2), radius: 3, y: 1)
-                        .minimumScaleFactor(0.7)
-                }
+                Text(entry.affirmationText)
+                    .font(textFont)
+                    .foregroundStyle(fg)
+                    .multilineTextAlignment(.center)
+                    .shadow(color: .black.opacity(0.2), radius: 3, y: 1)
+                    .minimumScaleFactor(0.7)
 
                 Spacer()
 
@@ -428,7 +399,6 @@ struct FavoriteWidgetEntry: Codable {
     let gradientColors: [String]
     let backgroundImageFilename: String?
     let textColor: String?
-    let textOutline: Bool?
 }
 
 struct FavoritesWidgetSnapshot: Codable {
@@ -446,38 +416,7 @@ struct LumenWidgetBundle: WidgetBundle {
     }
 }
 
-// MARK: - Text outline (mirrors View+TextOutline.swift in the main target)
-
-extension View {
-    func widgetTextOutline(color: Color = .black.opacity(0.55), width: CGFloat = 1.5) -> some View {
-        self.modifier(WidgetTextOutlineModifier(outlineColor: color, lineWidth: width))
-    }
-}
-
-private struct WidgetTextOutlineModifier: ViewModifier {
-    let outlineColor: Color
-    let lineWidth: CGFloat
-
-    func body(content: Content) -> some View {
-        let d = lineWidth
-        content
-            .overlay(
-                ZStack {
-                    content.foregroundStyle(outlineColor).offset(x: -d, y: -d)
-                    content.foregroundStyle(outlineColor).offset(x:  0, y: -d)
-                    content.foregroundStyle(outlineColor).offset(x:  d, y: -d)
-                    content.foregroundStyle(outlineColor).offset(x: -d, y:  0)
-                    content.foregroundStyle(outlineColor).offset(x:  d, y:  0)
-                    content.foregroundStyle(outlineColor).offset(x: -d, y:  d)
-                    content.foregroundStyle(outlineColor).offset(x:  0, y:  d)
-                    content.foregroundStyle(outlineColor).offset(x:  d, y:  d)
-                }
-                .allowsHitTesting(false)
-            )
-    }
-}
-
-// Color(hex:) is provided by the shared Color+Hex.swift extension
+// MARK: - Date Helpers
 
 extension Date {
     func adding(days: Int) -> Date {
@@ -492,3 +431,4 @@ extension Date {
         Calendar.current.date(byAdding: .minute, value: minutes, to: self) ?? self
     }
 }
+

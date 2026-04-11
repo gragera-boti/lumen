@@ -48,8 +48,6 @@ final class CardCustomization {
     /// Text color override as a hex string (e.g. "#FFFFFF"), `nil` = use default white.
     var textColor: String?
 
-    /// Whether the text should render with an outline/stroke effect.
-    var textOutline: Bool = false
 
     /// Date this customization was created.
     var createdAt: Date = Date.now

@@ -76,7 +76,6 @@ final class CardEditorViewModel {
     var selectedPalette: ColorPalette
     var selectedFontStyle: AffirmationFontStyle?
     var selectedTextColor: Color
-    var textOutlineEnabled: Bool
     var customText: String
     var backgroundSeed: UInt32
 
@@ -118,7 +117,6 @@ final class CardEditorViewModel {
             || selectedPalette != initialPalette
             || selectedFontStyle != initialFontStyle
             || selectedTextColor != initialTextColor
-            || textOutlineEnabled != initialTextOutline
             || customText != initialCustomText
             || backgroundSeed != initialSeed
             || selectedPrompt?.id != initialPromptId
@@ -139,7 +137,6 @@ final class CardEditorViewModel {
     private let initialPalette: ColorPalette
     private let initialFontStyle: AffirmationFontStyle?
     private let initialTextColor: Color
-    private let initialTextOutline: Bool
     private let initialCustomText: String
     private let initialSeed: UInt32
     private let initialPromptId: String?
@@ -170,12 +167,11 @@ final class CardEditorViewModel {
             existingCustomization?.fontStyleOverride
             .flatMap(AffirmationFontStyle.init(rawValue:))
             ?? affirmation.fontStyle.flatMap(AffirmationFontStyle.init(rawValue:))
+
         let textColor = existingCustomization?.textColor.map { Color(hex: $0) } ?? .white
-        let textOutline = existingCustomization?.textOutline ?? false
         let text = existingCustomization?.customText ?? affirmation.text
         let seed = existingCustomization?.backgroundSeed ?? Self.defaultSeed(for: affirmation)
         let promptId = existingCustomization?.aiPromptId
-
         let resolvedPrompt = promptId.flatMap { id in
             AIBackgroundPrompt.library.first { $0.id == id }
         }
@@ -185,7 +181,6 @@ final class CardEditorViewModel {
         self.selectedPalette = palette
         self.selectedFontStyle = fontStyle
         self.selectedTextColor = textColor
-        self.textOutlineEnabled = textOutline
         self.customText = text
         self.backgroundSeed = seed
         self.selectedPrompt = resolvedPrompt
@@ -206,7 +201,6 @@ final class CardEditorViewModel {
         self.initialPalette = palette
         self.initialFontStyle = fontStyle
         self.initialTextColor = textColor
-        self.initialTextOutline = textOutline
         self.initialCustomText = text
         self.initialSeed = seed
         self.initialPromptId = promptId
@@ -408,7 +402,6 @@ final class CardEditorViewModel {
             customText: canEditText ? customText : nil,
             textColor: textColorHex
         )
-        customization.textOutline = textOutlineEnabled
         customization.cachedImagePath = relativePath
         customization.savedThemeId = (backgroundMode == .saved && !isCurrentSelectionCustomPhoto) ? selectedSavedBackground?.id : nil
         try customizationService.save(customization, modelContext: modelContext)
@@ -488,7 +481,6 @@ final class CardEditorViewModel {
         selectedPalette = Self.defaultPalette(for: affirmation)
         selectedFontStyle = affirmation.fontStyle.flatMap(AffirmationFontStyle.init(rawValue:))
         selectedTextColor = .white
-        textOutlineEnabled = false
         customText = affirmation.text
         backgroundSeed = Self.defaultSeed(for: affirmation)
         selectedPrompt = nil

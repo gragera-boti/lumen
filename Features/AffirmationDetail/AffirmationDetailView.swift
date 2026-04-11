@@ -97,18 +97,9 @@ struct AffirmationDetailView: View {
                 Spacer()
 
                 let textColor: Color = customization?.textColor.map { Color(hex: $0) } ?? .white
-                let outlineEnabled = customization?.textOutline ?? false
-                Group {
-                    if outlineEnabled {
-                        Text(displayText)
-                            .foregroundStyle(textColor)
-                            .textOutline()
-                    } else {
-                        Text(displayText)
-                            .foregroundStyle(textColor)
-                            .shadow(color: .black.opacity(0.3), radius: 6, y: 2)
-                    }
-                }
+                Text(displayText)
+                    .foregroundStyle(textColor)
+                    .shadow(color: .black.opacity(0.3), radius: 6, y: 2)
                 .font(detailFont(for: affirmation))
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, LumenTheme.Spacing.xl)
@@ -284,12 +275,12 @@ struct AffirmationDetailView: View {
             return bgs
         }.value
 
-        let entries = allFavs.map { aff -> (text: String, gradientColors: [String], backgroundImage: UIImage?, textColor: String?, textOutline: Bool) in
+        let entries = allFavs.map { aff -> (text: String, gradientColors: [String], backgroundImage: UIImage?, textColor: String?) in
             let custom = map[aff.id]
             let textToUse = (custom?.customText?.isEmpty == false) ? custom!.customText! : aff.text
             let index = abs(aff.id.hashValue) % LumenTheme.Colors.gradients.count
             let colors = LumenTheme.Colors.gradients[index].map { $0.hexString }
-            return (text: textToUse, gradientColors: colors, backgroundImage: backgrounds[aff.id], textColor: custom?.textColor, textOutline: custom?.textOutline ?? false)
+            return (text: textToUse, gradientColors: colors, backgroundImage: backgrounds[aff.id], textColor: custom?.textColor)
         }
         WidgetService.shared.updateFavoritesWidget(favorites: entries)
     }

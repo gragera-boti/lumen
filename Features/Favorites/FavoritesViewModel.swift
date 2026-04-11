@@ -42,9 +42,9 @@ final class FavoritesViewModel {
             let favorited = try favoriteService.fetchFavorites(modelContext: modelContext)
 
             // User-created affirmations always show regardless of favorite status
-            let userSourceRaw = AffirmationSource.user.rawValue
+            let userSource = AffirmationSource.user
             let userCreatedDescriptor = FetchDescriptor<Affirmation>(
-                predicate: #Predicate<Affirmation> { $0.source.rawValue == userSourceRaw },
+                predicate: #Predicate<Affirmation> { $0.source == userSource },
                 sortBy: [SortDescriptor(\.createdAt, order: .reverse)]
             )
             let allUserCreated = try modelContext.fetch(userCreatedDescriptor)
@@ -64,12 +64,12 @@ final class FavoritesViewModel {
     }
 
     private func syncFavoritesWidget() {
-        let entries = allFavorites.map { aff -> (text: String, gradientColors: [String], backgroundImage: UIImage?, textColor: String?, textOutline: Bool) in
+        let entries = allFavorites.map { aff -> (text: String, gradientColors: [String], backgroundImage: UIImage?, textColor: String?) in
             let custom = customizations[aff.id]
             let textToUse = (custom?.customText?.isEmpty == false) ? custom!.customText! : aff.text
             let index = abs(aff.id.hashValue) % LumenTheme.Colors.gradients.count
             let colors = LumenTheme.Colors.gradients[index].map { $0.hexString }
-            return (text: textToUse, gradientColors: colors, backgroundImage: self.backgroundImage(for: aff), textColor: custom?.textColor, textOutline: custom?.textOutline ?? false)
+            return (text: textToUse, gradientColors: colors, backgroundImage: self.backgroundImage(for: aff), textColor: custom?.textColor)
         }
         widgetService.updateFavoritesWidget(favorites: entries)
     }

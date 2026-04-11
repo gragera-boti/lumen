@@ -219,7 +219,7 @@ struct ContentView: View {
             let index = abs(aff.id.hashValue) % LumenTheme.Colors.gradients.count
             let colors = LumenTheme.Colors.gradients[index].map { $0.hexString }
             let custom = customMap[aff.id]
-            return (text: aff.text, gradientColors: colors, backgroundImage: nil as UIImage?, textColor: custom?.textColor, textOutline: custom?.textOutline ?? false)
+            return (text: aff.text, gradientColors: colors, backgroundImage: nil as UIImage?, textColor: custom?.textColor)
         }
         WidgetService.shared.updateFavoritesWidget(favorites: entries)
     }
