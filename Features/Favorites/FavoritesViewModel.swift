@@ -70,7 +70,7 @@ final class FavoritesViewModel {
             let fontStyle = custom?.fontStyleOverride ?? aff.fontStyle
             let index = abs(aff.id.hashValue) % LumenTheme.Colors.gradients.count
             let colors = LumenTheme.Colors.gradients[index].map { $0.hexString }
-            return (text: textToUse, fontStyle: fontStyle, gradientColors: colors, backgroundImage: self.backgroundImage(for: aff), textColor: custom?.textColor)
+            return (text: textToUse, fontStyle: fontStyle, gradientColors: colors, backgroundImage: self.backgroundImage(for: aff), textColor: custom?.textColor, imageAlignmentX: custom?.imageAlignmentX, imageAlignmentY: custom?.imageAlignmentY)
         }
         widgetService.updateFavoritesWidget(favorites: entries)
     }

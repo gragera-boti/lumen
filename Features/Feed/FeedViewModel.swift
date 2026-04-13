@@ -202,7 +202,7 @@ final class FeedViewModel {
                 let index = abs(aff.id.hashValue) % LumenTheme.Colors.gradients.count
                 let colors = LumenTheme.Colors.gradients[index].map { $0.hexString }
                 let fontStyle = custom?.fontStyleOverride ?? aff.fontStyle
-                return (text: textToUse, fontStyle: fontStyle, gradientColors: colors, backgroundImage: backgrounds[aff.id], textColor: custom?.textColor)
+                return (text: textToUse, fontStyle: fontStyle, gradientColors: colors, backgroundImage: backgrounds[aff.id], textColor: custom?.textColor, imageAlignmentX: custom?.imageAlignmentX, imageAlignmentY: custom?.imageAlignmentY)
             }
             widgetService.updateFavoritesWidget(favorites: entries)
         } catch {
@@ -335,7 +335,7 @@ final class FeedViewModel {
             let index = abs(card.id.hashValue) % colorSets.count
             let custom = customizations[card.id]
             let fontStyle = custom?.fontStyleOverride ?? card.fontStyle
-            return (text: card.text, fontStyle: fontStyle, gradientColors: colorSets[index], backgroundImage: backgroundImage(for: card), textColor: custom?.textColor)
+            return (text: card.text, fontStyle: fontStyle, gradientColors: colorSets[index], backgroundImage: backgroundImage(for: card), textColor: custom?.textColor, imageAlignmentX: custom?.imageAlignmentX, imageAlignmentY: custom?.imageAlignmentY)
         }
         widgetService.updateWidget(entries: entries)
     }
@@ -416,10 +416,19 @@ final class FeedViewModel {
                 let insertIndex = currentIndex >= 0 && currentIndex < cards.count ? currentIndex : 0
                 cards.insert(aff, at: insertIndex)
                 Task {
-                    await assignBackgrounds(for: [aff])
+                    // Load background for this single card without wiping backgrounds
+                    // for the rest of the feed. assignBackgrounds() replaces the whole
+                    // dictionary, which would erase photo backgrounds on other cards and
+                    // cause the widget to lose them on the next updateMainWidget() call.
+                    if !activeThemeIds.isEmpty {
+                        let themeId = activeThemeIds[abs(aff.id.hashValue) % activeThemeIds.count]
+                        if let image = await Task.detached(operation: { Self.loadThemeImage(themeId: themeId) }).value {
+                            cardBackgrounds[aff.id] = image
+                        }
+                    }
                     applyCustomizations(to: [aff], modelContext: modelContext)
-                    if let Customization = customizations[id] {
-                        await regenerateBackground(for: id, customization: Customization)
+                    if let customization = customizations[id] {
+                        await regenerateBackground(for: id, customization: customization)
                     }
                 }
             }

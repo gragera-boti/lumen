@@ -3,6 +3,7 @@ import SwiftUI
 
 extension Notification.Name {
     static let onboardingReset = Notification.Name("onboardingReset")
+    static let cardCustomizationChanged = Notification.Name("cardCustomizationChanged")
 }
 
 struct ContentView: View {

@@ -57,6 +57,9 @@ struct FeedView: View {
                 viewModel.reloadCustomizations(modelContext: modelContext)
             }
         }
+        .onReceive(NotificationCenter.default.publisher(for: .cardCustomizationChanged)) { _ in
+            viewModel.reloadCustomizations(modelContext: modelContext)
+        }
         .task {
             await viewModel.loadFeed(
                 preferences: preferences,

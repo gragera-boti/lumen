@@ -38,6 +38,7 @@ struct AffirmationDetailView: View {
             if newValue == nil {
                 reloadCustomization()
                 Task { await syncFavoritesWidget() }
+                NotificationCenter.default.post(name: .cardCustomizationChanged, object: nil)
             }
         }
     }
