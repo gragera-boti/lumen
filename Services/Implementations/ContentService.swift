@@ -175,12 +175,10 @@ final class ContentService: ContentServiceProtocol {
             ("ai_bg_cloud_whisper", "Cloud Whisper"),
             ("ai_bg_nebula_heart", "Nebula Heart"),
             ("ai_bg_aurora_borealis", "Aurora Borealis"),
-            ("ai_bg_underwater_garden", "Underwater Garden"),
             ("ai_bg_prism_light", "Prism Light"),
             ("ai_bg_neon_dusk", "Neon Dusk"),
             ("ai_bg_ocean_current", "Ocean Current"),
             ("ai_bg_golden_hour", "Golden Hour"),
-            ("ai_bg_copper_sunset", "Copper Sunset"),
             ("ai_bg_starry_night", "Starry Night"),
             ("ai_bg_mystic_forest", "Mystic Forest"),
             ("ai_bg_desert_mirage", "Desert Mirage"),
@@ -189,8 +187,7 @@ final class ContentService: ContentServiceProtocol {
             ("ai_bg_autumn_leaves", "Autumn Leaves"),
             ("ai_bg_snowy_peaks", "Snowy Peaks"),
             ("ai_bg_zen_garden", "Zen Garden"),
-            ("ai_bg_cosmic_dust", "Cosmic Dust"),
-            ("ai_bg_ethereal_glow", "Ethereal Glow")
+            ("ai_bg_cosmic_dust", "Cosmic Dust")
         ]
 
         for (id, name) in backgrounds {
