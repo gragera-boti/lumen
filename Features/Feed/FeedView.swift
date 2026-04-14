@@ -145,11 +145,15 @@ struct FeedView: View {
     private func cardBackground(geo: GeometryProxy) -> some View {
         if let current = currentAffirmation {
             if let bgImage = viewModel.backgroundImage(for: current) {
-                Image(uiImage: bgImage)
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-                    .frame(width: geo.size.width, height: geo.size.height)
-                    .clipped()
+                let customization = viewModel.customizations[current.id]
+                PannableImage(
+                    uiImage: bgImage,
+                    alignment: UnitPoint(
+                        x: customization?.imageAlignmentX ?? 0.5,
+                        y: customization?.imageAlignmentY ?? 0.5
+                    )
+                )
+                .frame(width: geo.size.width, height: geo.size.height)
                     .opacity(backgroundOpacity)
                     .animation(.easeInOut(duration: 1.0), value: viewModel.currentIndex)
             } else {

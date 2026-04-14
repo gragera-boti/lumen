@@ -61,11 +61,14 @@ struct AffirmationDetailView: View {
                 )
             {
                 GeometryReader { geo in
-                    Image(uiImage: image)
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(width: geo.size.width, height: geo.size.height)
-                        .clipped()
+                    PannableImage(
+                        uiImage: image,
+                        alignment: UnitPoint(
+                            x: customization?.imageAlignmentX ?? 0.5,
+                            y: customization?.imageAlignmentY ?? 0.5
+                        )
+                    )
+                    .frame(width: geo.size.width, height: geo.size.height)
                 }
                 .ignoresSafeArea()
             } else if let paletteRaw = customization?.colorPalette,
@@ -79,11 +82,14 @@ struct AffirmationDetailView: View {
                 .ignoresSafeArea()
             } else if let bgImage = backgroundImage {
                 GeometryReader { geo in
-                    Image(uiImage: bgImage)
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(width: geo.size.width, height: geo.size.height)
-                        .clipped()
+                    PannableImage(
+                        uiImage: bgImage,
+                        alignment: UnitPoint(
+                            x: customization?.imageAlignmentX ?? 0.5,
+                            y: customization?.imageAlignmentY ?? 0.5
+                        )
+                    )
+                    .frame(width: geo.size.width, height: geo.size.height)
                 }
                 .ignoresSafeArea()
             } else {
@@ -276,13 +282,13 @@ struct AffirmationDetailView: View {
             return bgs
         }.value
 
-        let entries = allFavs.map { aff -> (text: String, fontStyle: String?, gradientColors: [String], backgroundImage: UIImage?, textColor: String?) in
+        let entries = allFavs.map { aff -> (text: String, fontStyle: String?, gradientColors: [String], backgroundImage: UIImage?, textColor: String?, imageAlignmentX: Double?, imageAlignmentY: Double?) in
             let custom = map[aff.id]
             let textToUse = (custom?.customText?.isEmpty == false) ? custom!.customText! : aff.text
             let index = abs(aff.id.hashValue) % LumenTheme.Colors.gradients.count
             let colors = LumenTheme.Colors.gradients[index].map { $0.hexString }
             let fontStyle = custom?.fontStyleOverride ?? aff.fontStyle
-            return (text: textToUse, fontStyle: fontStyle, gradientColors: colors, backgroundImage: backgrounds[aff.id], textColor: custom?.textColor)
+            return (text: textToUse, fontStyle: fontStyle, gradientColors: colors, backgroundImage: backgrounds[aff.id], textColor: custom?.textColor, imageAlignmentX: custom?.imageAlignmentX, imageAlignmentY: custom?.imageAlignmentY)
         }
         WidgetService.shared.updateFavoritesWidget(favorites: entries)
     }

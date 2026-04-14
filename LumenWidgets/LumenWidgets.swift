@@ -10,6 +10,8 @@ struct WidgetAffirmation: Codable {
     let backgroundImageFilename: String?
     let textColor: String?
     let fontStyle: String?
+    let imageAlignmentX: Double?
+    let imageAlignmentY: Double?
     let updatedAt: Date
 }
 
@@ -29,7 +31,9 @@ struct LumenTimelineProvider: TimelineProvider {
                  gradientColors: data.gradientColors,
                  backgroundImageFilename: data.backgroundImageFilename,
                  textColor: data.textColor,
-                 fontStyle: data.fontStyle
+                 fontStyle: data.fontStyle,
+                 imageAlignmentX: data.imageAlignmentX,
+                 imageAlignmentY: data.imageAlignmentY
              )
         }
         return LumenEntry(
@@ -38,7 +42,9 @@ struct LumenTimelineProvider: TimelineProvider {
             gradientColors: ["#7FBBCA", "#A688B5"],
             backgroundImageFilename: nil,
             textColor: nil,
-            fontStyle: nil
+            fontStyle: nil,
+            imageAlignmentX: nil,
+            imageAlignmentY: nil
         )
     }
 
@@ -50,7 +56,9 @@ struct LumenTimelineProvider: TimelineProvider {
                 gradientColors: data.gradientColors,
                 backgroundImageFilename: data.backgroundImageFilename,
                 textColor: data.textColor,
-                fontStyle: data.fontStyle
+                fontStyle: data.fontStyle,
+                imageAlignmentX: data.imageAlignmentX,
+                imageAlignmentY: data.imageAlignmentY
             )
             completion(entry)
         } else {
@@ -77,7 +85,9 @@ struct LumenTimelineProvider: TimelineProvider {
                 gradientColors: data.gradientColors,
                 backgroundImageFilename: data.backgroundImageFilename,
                 textColor: data.textColor,
-                fontStyle: data.fontStyle
+                fontStyle: data.fontStyle,
+                imageAlignmentX: data.imageAlignmentX,
+                imageAlignmentY: data.imageAlignmentY
             ))
         }
 
@@ -111,6 +121,8 @@ struct LumenEntry: TimelineEntry {
     let backgroundImageFilename: String?
     let textColor: String?
     let fontStyle: String?
+    let imageAlignmentX: Double?
+    let imageAlignmentY: Double?
 }
 
 // MARK: - Widget Views
@@ -144,9 +156,11 @@ struct LumenWidgetEntryView: View {
                 if let filename = entry.backgroundImageFilename,
                    let containerURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.gragera.lumen"),
                    let uiImage = UIImage(contentsOfFile: containerURL.appendingPathComponent(filename).path) {
-                    Image(uiImage: uiImage)
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
+                    PannableImage(
+                        uiImage: uiImage,
+                        alignment: UnitPoint(x: entry.imageAlignmentX ?? 0.5, y: entry.imageAlignmentY ?? 0.5)
+                    )
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else {
                     LinearGradient(
                         colors: entry.gradientColors.map { Color(hex: $0) },
@@ -236,7 +250,9 @@ struct FavoritesTimelineProvider: TimelineProvider {
                  gradientColors: fav.gradientColors,
                  backgroundImageFilename: fav.backgroundImageFilename,
                  textColor: fav.textColor,
-                 fontStyle: fav.fontStyle
+                 fontStyle: fav.fontStyle,
+                 imageAlignmentX: fav.imageAlignmentX,
+                 imageAlignmentY: fav.imageAlignmentY
              )
         }
         return .empty
@@ -268,7 +284,9 @@ struct FavoritesTimelineProvider: TimelineProvider {
                     gradientColors: fav.gradientColors,
                     backgroundImageFilename: fav.backgroundImageFilename,
                     textColor: fav.textColor,
-                    fontStyle: fav.fontStyle
+                    fontStyle: fav.fontStyle,
+                    imageAlignmentX: fav.imageAlignmentX,
+                    imageAlignmentY: fav.imageAlignmentY
                 )
             )
         }
@@ -301,7 +319,9 @@ struct FavoritesTimelineProvider: TimelineProvider {
             gradientColors: fav.gradientColors,
             backgroundImageFilename: fav.backgroundImageFilename,
             textColor: fav.textColor,
-            fontStyle: fav.fontStyle
+            fontStyle: fav.fontStyle,
+            imageAlignmentX: fav.imageAlignmentX,
+            imageAlignmentY: fav.imageAlignmentY
         )
     }
 }
@@ -313,6 +333,8 @@ struct FavoritesEntry: TimelineEntry {
     let backgroundImageFilename: String?
     let textColor: String?
     let fontStyle: String?
+    let imageAlignmentX: Double?
+    let imageAlignmentY: Double?
     var isEmpty: Bool = false
 
     static var empty: FavoritesEntry {
@@ -323,6 +345,8 @@ struct FavoritesEntry: TimelineEntry {
             backgroundImageFilename: nil,
             textColor: nil,
             fontStyle: nil,
+            imageAlignmentX: nil,
+            imageAlignmentY: nil,
             isEmpty: true
         )
     }
@@ -379,9 +403,11 @@ struct FavoritesWidgetEntryView: View {
                 if let filename = entry.backgroundImageFilename,
                    let containerURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.gragera.lumen"),
                    let uiImage = UIImage(contentsOfFile: containerURL.appendingPathComponent(filename).path) {
-                    Image(uiImage: uiImage)
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
+                    PannableImage(
+                        uiImage: uiImage,
+                        alignment: UnitPoint(x: entry.imageAlignmentX ?? 0.5, y: entry.imageAlignmentY ?? 0.5)
+                    )
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else {
                     LinearGradient(
                         colors: entry.gradientColors.map { Color(hex: $0) },
@@ -465,6 +491,8 @@ struct FavoriteWidgetEntry: Codable {
     let backgroundImageFilename: String?
     let textColor: String?
     let fontStyle: String?
+    let imageAlignmentX: Double?
+    let imageAlignmentY: Double?
 }
 
 struct FavoritesWidgetSnapshot: Codable {
@@ -515,6 +543,38 @@ extension Date {
 
     func adding(minutes: Int) -> Date {
         Calendar.current.date(byAdding: .minute, value: minutes, to: self) ?? self
+    }
+}
+
+/// A view that renders a UIImage scaled to fill its bounded frame, precisely
+/// shifted according to a defined `UnitPoint` alignment where `0` means fully flush left/top,
+/// `0.5` is centered, and `1.0` is exactly flush right/bottom.
+struct PannableImage: View {
+    let uiImage: UIImage
+    let alignment: UnitPoint
+
+    var body: some View {
+        GeometryReader { geo in
+            let viewSize = geo.size
+            let imageSize = uiImage.size
+
+            if imageSize.width > 0 && imageSize.height > 0 {
+                let scale = max(viewSize.width / imageSize.width, viewSize.height / imageSize.height)
+                let drawnSize = CGSize(width: imageSize.width * scale, height: imageSize.height * scale)
+
+                let extraWidth = drawnSize.width - viewSize.width
+                let extraHeight = drawnSize.height - viewSize.height
+
+                let offsetX = -extraWidth * (alignment.x - 0.5)
+                let offsetY = -extraHeight * (alignment.y - 0.5)
+
+                Image(uiImage: uiImage)
+                    .resizable()
+                    .frame(width: drawnSize.width, height: drawnSize.height)
+                    .position(x: viewSize.width / 2 + offsetX, y: viewSize.height / 2 + offsetY)
+            }
+        }
+        .clipped()
     }
 }
 

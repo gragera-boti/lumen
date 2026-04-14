@@ -48,6 +48,11 @@ final class CardCustomization {
     /// Text color override as a hex string (e.g. "#FFFFFF"), `nil` = use default white.
     var textColor: String?
 
+    /// Horizontal alignment for custom photos (0.0 = left, 1.0 = right).
+    var imageAlignmentX: Double?
+    
+    /// Vertical alignment for custom photos (0.0 = top, 1.0 = bottom).
+    var imageAlignmentY: Double?
 
     /// Date this customization was created.
     var createdAt: Date = Date.now
@@ -65,7 +70,9 @@ final class CardCustomization {
         usesAIBackground: Bool = false,
         isCustomPhoto: Bool? = nil,
         customText: String? = nil,
-        textColor: String? = nil
+        textColor: String? = nil,
+        imageAlignmentX: Double? = nil,
+        imageAlignmentY: Double? = nil
     ) {
         self.affirmationId = affirmationId
         self.backgroundStyle = backgroundStyle
@@ -77,6 +84,8 @@ final class CardCustomization {
         self.isCustomPhoto = isCustomPhoto
         self.customText = customText
         self.textColor = textColor
+        self.imageAlignmentX = imageAlignmentX
+        self.imageAlignmentY = imageAlignmentY
         self.createdAt = Date()
         self.updatedAt = Date()
     }

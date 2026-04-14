@@ -15,6 +15,8 @@ struct CardEditorView: View {
     @State private var viewModel: CardEditorViewModel
     @FocusState private var isInputFocused: Bool
     @State private var photoItem: PhotosPickerItem?
+    @State private var dragStartAlignment: UnitPoint?
+    @State private var showPanHint = true
 
     init(
         affirmation: Affirmation, 
@@ -135,11 +137,11 @@ struct CardEditorView: View {
     private var previewCard: some View {
         ZStack {
             if let image = viewModel.previewImage {
-                Image(uiImage: image)
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-                    .frame(maxWidth: .infinity, maxHeight: 260)
-                    .clipped()
+                PannableImage(
+                    uiImage: image,
+                    alignment: UnitPoint(x: viewModel.imageAlignmentX, y: viewModel.imageAlignmentY)
+                )
+                .frame(maxWidth: .infinity, maxHeight: 260)
             } else {
                 LinearGradient(
                     colors: viewModel.selectedPalette.cgColors.map { Color(cgColor: $0) },
@@ -166,11 +168,54 @@ struct CardEditorView: View {
         .frame(height: 260)
         .clipShape(RoundedRectangle(cornerRadius: LumenTheme.Radii.card))
         .accessibilityLabel("Card preview")
+        .overlay(alignment: .bottomTrailing) {
+            if viewModel.canPanBackground && showPanHint {
+                HStack(spacing: 4) {
+                    Image(systemName: "hand.draw")
+                    Text("Pan photo")
+                }
+                .font(.caption.weight(.medium))
+                .foregroundStyle(.white)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 6)
+                .background(.black.opacity(0.5), in: Capsule())
+                .padding(12)
+                .allowsHitTesting(false)
+                .transition(.opacity)
+            }
+        }
+        .animation(.easeOut(duration: 0.4), value: showPanHint)
+        .gesture(
+            DragGesture()
+                .onChanged { value in
+                    guard viewModel.canPanBackground else { return }
+                    if dragStartAlignment == nil {
+                        dragStartAlignment = UnitPoint(x: viewModel.imageAlignmentX, y: viewModel.imageAlignmentY)
+                    }
+                    if let start = dragStartAlignment {
+                        let deltaX = -value.translation.width / 300.0
+                        let deltaY = -value.translation.height / 300.0
+                        viewModel.imageAlignmentX = min(max(start.x + deltaX, 0.0), 1.0)
+                        viewModel.imageAlignmentY = min(max(start.y + deltaY, 0.0), 1.0)
+                    }
+                }
+                .onEnded { _ in
+                    dragStartAlignment = nil
+                    withAnimation { showPanHint = false }
+                }
+        )
+        .onChange(of: viewModel.isCurrentSelectionCustomPhoto) { _, isCustom in
+            if isCustom { showPanHint = true }
+        }
+        .onChange(of: viewModel.selectedSavedBackground?.id) { _, _ in
+            if viewModel.canPanBackground { showPanHint = true }
+        }
         .onTapGesture {
-            viewModel.randomizeSeed()
-            // Haptic feedback to indicate tap
-            let generator = UIImpactFeedbackGenerator(style: .medium)
-            generator.impactOccurred()
+            if viewModel.backgroundMode != .saved {
+                viewModel.randomizeSeed()
+                let generator = UIImpactFeedbackGenerator(style: .medium)
+                generator.impactOccurred()
+            }
         }
     }
 

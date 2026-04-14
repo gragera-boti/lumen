@@ -64,7 +64,7 @@ final class FavoritesViewModel {
     }
 
     private func syncFavoritesWidget() {
-        let entries = allFavorites.map { aff -> (text: String, fontStyle: String?, gradientColors: [String], backgroundImage: UIImage?, textColor: String?) in
+        let entries = allFavorites.map { aff -> (text: String, fontStyle: String?, gradientColors: [String], backgroundImage: UIImage?, textColor: String?, imageAlignmentX: Double?, imageAlignmentY: Double?) in
             let custom = customizations[aff.id]
             let textToUse = (custom?.customText?.isEmpty == false) ? custom!.customText! : aff.text
             let fontStyle = custom?.fontStyleOverride ?? aff.fontStyle

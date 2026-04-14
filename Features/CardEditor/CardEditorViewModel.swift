@@ -102,6 +102,15 @@ final class CardEditorViewModel {
     var customPhotoData: Data?
     var newlySelectedPhoto: Bool = false
     var isCurrentSelectionCustomPhoto: Bool = false
+    
+    var imageAlignmentX: Double = 0.5
+    var imageAlignmentY: Double = 0.5
+
+    /// True whenever the current background supports drag-to-pan (custom photo or saved photo theme).
+    var canPanBackground: Bool {
+        backgroundMode == .saved
+            && (isCurrentSelectionCustomPhoto || selectedSavedBackground?.id.hasPrefix("photo_") == true)
+    }
 
     /// Path to the last generated image (for caching on save).
     private var lastGeneratedImagePath: URL?
@@ -123,6 +132,8 @@ final class CardEditorViewModel {
             || selectedSavedBackground?.id != initialSavedThemeId
             || isCurrentSelectionCustomPhoto != initialIsCustomPhoto
             || newlySelectedPhoto
+            || imageAlignmentX != initialImageAlignmentX
+            || imageAlignmentY != initialImageAlignmentY
     }
 
     // MARK: - Private
@@ -142,6 +153,8 @@ final class CardEditorViewModel {
     private let initialPromptId: String?
     private let initialSavedThemeId: String?
     private let initialIsCustomPhoto: Bool
+    private let initialImageAlignmentX: Double
+    private let initialImageAlignmentY: Double
 
     // MARK: - Init
 
@@ -155,6 +168,8 @@ final class CardEditorViewModel {
 
         let usesAI = existingCustomization?.usesAIBackground ?? false
         let isCustomPhoto = existingCustomization?.isCustomPhoto ?? false
+        let imageAlignmentX = existingCustomization?.imageAlignmentX ?? 0.5
+        let imageAlignmentY = existingCustomization?.imageAlignmentY ?? 0.5
         let savedThemeId = existingCustomization?.savedThemeId
         let mode: BackgroundMode = (isCustomPhoto || savedThemeId != nil) ? .saved : (usesAI ? .ai : .procedural)
         let style =
@@ -188,6 +203,8 @@ final class CardEditorViewModel {
             self.selectedPromptCategory = resolvedPrompt.category
         }
         self.isCurrentSelectionCustomPhoto = isCustomPhoto
+        self.imageAlignmentX = imageAlignmentX
+        self.imageAlignmentY = imageAlignmentY
 
         // Load cached image if it exists
         if let cachedPath = existingCustomization?.cachedImagePath {
@@ -206,6 +223,8 @@ final class CardEditorViewModel {
         self.initialPromptId = promptId
         self.initialSavedThemeId = savedThemeId
         self.initialIsCustomPhoto = isCustomPhoto
+        self.initialImageAlignmentX = imageAlignmentX
+        self.initialImageAlignmentY = imageAlignmentY
     }
 
     // MARK: - Actions
@@ -326,6 +345,8 @@ final class CardEditorViewModel {
         isCurrentSelectionCustomPhoto = false
         customPhotoData = nil
         newlySelectedPhoto = false
+        imageAlignmentX = 0.5
+        imageAlignmentY = 0.5
         
         if let path = item.fullImagePath {
             if let image = UIImage(contentsOfFile: path.path) {
@@ -400,7 +421,9 @@ final class CardEditorViewModel {
             usesAIBackground: backgroundMode == .ai,
             isCustomPhoto: backgroundMode == .saved && isCurrentSelectionCustomPhoto,
             customText: canEditText ? customText : nil,
-            textColor: textColorHex
+            textColor: textColorHex,
+            imageAlignmentX: imageAlignmentX,
+            imageAlignmentY: imageAlignmentY
         )
         customization.cachedImagePath = relativePath
         customization.savedThemeId = (backgroundMode == .saved && !isCurrentSelectionCustomPhoto) ? selectedSavedBackground?.id : nil
@@ -489,6 +512,8 @@ final class CardEditorViewModel {
         customPhotoData = nil
         newlySelectedPhoto = false
         isCurrentSelectionCustomPhoto = false
+        imageAlignmentX = 0.5
+        imageAlignmentY = 0.5
 
         Logger.viewModel.debug("Reset card customization for \(self.affirmation.id, privacy: .private)")
     }
@@ -571,6 +596,8 @@ final class CardEditorViewModel {
             newlySelectedPhoto = true
             isCurrentSelectionCustomPhoto = true
             selectedSavedBackground = nil
+            imageAlignmentX = 0.5
+            imageAlignmentY = 0.5
         }
     }
 

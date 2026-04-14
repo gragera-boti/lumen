@@ -196,7 +196,7 @@ final class FeedViewModel {
                 return bgs
             }.value
 
-            let entries = allFavs.map { aff -> (text: String, fontStyle: String?, gradientColors: [String], backgroundImage: UIImage?, textColor: String?) in
+            let entries = allFavs.map { aff -> (text: String, fontStyle: String?, gradientColors: [String], backgroundImage: UIImage?, textColor: String?, imageAlignmentX: Double?, imageAlignmentY: Double?) in
                 let custom = map[aff.id]
                 let textToUse = (custom?.customText?.isEmpty == false) ? custom!.customText! : aff.text
                 let index = abs(aff.id.hashValue) % LumenTheme.Colors.gradients.count
@@ -331,7 +331,7 @@ final class FeedViewModel {
             ["#7FBBCA", "#A688B5"], ["#7EC8A0", "#3B5998"],
             ["#F4D06F", "#E8A87C"], ["#C38D9E", "#7FBBCA"],
         ]
-        let entries = widgetCards.map { card -> (text: String, fontStyle: String?, gradientColors: [String], backgroundImage: UIImage?, textColor: String?) in
+        let entries = widgetCards.map { card -> (text: String, fontStyle: String?, gradientColors: [String], backgroundImage: UIImage?, textColor: String?, imageAlignmentX: Double?, imageAlignmentY: Double?) in
             let index = abs(card.id.hashValue) % colorSets.count
             let custom = customizations[card.id]
             let fontStyle = custom?.fontStyleOverride ?? card.fontStyle
