@@ -15,8 +15,7 @@ struct CardEditorView: View {
     @State private var viewModel: CardEditorViewModel
     @FocusState private var isInputFocused: Bool
     @State private var photoItem: PhotosPickerItem?
-    @State private var dragStartAlignment: UnitPoint?
-    @State private var showPanHint = true
+    @State private var isRepositioningPhoto = false
 
     init(
         affirmation: Affirmation, 
@@ -169,52 +168,39 @@ struct CardEditorView: View {
         .clipShape(RoundedRectangle(cornerRadius: LumenTheme.Radii.card))
         .accessibilityLabel("Card preview")
         .overlay(alignment: .bottomTrailing) {
-            if viewModel.canPanBackground && showPanHint {
-                HStack(spacing: 4) {
-                    Image(systemName: "hand.draw")
-                    Text("Pan photo")
+            if viewModel.canPanBackground {
+                Button { isRepositioningPhoto = true } label: {
+                    HStack(spacing: 4) {
+                        Image(systemName: "arrow.up.left.and.arrow.down.right")
+                        Text("Adjust position")
+                    }
+                    .font(.caption.weight(.medium))
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 6)
+                    .background(.black.opacity(0.5), in: Capsule())
+                    .padding(12)
                 }
-                .font(.caption.weight(.medium))
-                .foregroundStyle(.white)
-                .padding(.horizontal, 10)
-                .padding(.vertical, 6)
-                .background(.black.opacity(0.5), in: Capsule())
-                .padding(12)
-                .allowsHitTesting(false)
-                .transition(.opacity)
+                .accessibilityLabel("Adjust photo position")
             }
-        }
-        .animation(.easeOut(duration: 0.4), value: showPanHint)
-        .gesture(
-            DragGesture()
-                .onChanged { value in
-                    guard viewModel.canPanBackground else { return }
-                    if dragStartAlignment == nil {
-                        dragStartAlignment = UnitPoint(x: viewModel.imageAlignmentX, y: viewModel.imageAlignmentY)
-                    }
-                    if let start = dragStartAlignment {
-                        let deltaX = -value.translation.width / 300.0
-                        let deltaY = -value.translation.height / 300.0
-                        viewModel.imageAlignmentX = min(max(start.x + deltaX, 0.0), 1.0)
-                        viewModel.imageAlignmentY = min(max(start.y + deltaY, 0.0), 1.0)
-                    }
-                }
-                .onEnded { _ in
-                    dragStartAlignment = nil
-                    withAnimation { showPanHint = false }
-                }
-        )
-        .onChange(of: viewModel.isCurrentSelectionCustomPhoto) { _, isCustom in
-            if isCustom { showPanHint = true }
-        }
-        .onChange(of: viewModel.selectedSavedBackground?.id) { _, _ in
-            if viewModel.canPanBackground { showPanHint = true }
         }
         .onTapGesture {
             if viewModel.backgroundMode != .saved {
                 viewModel.randomizeSeed()
                 let generator = UIImpactFeedbackGenerator(style: .medium)
                 generator.impactOccurred()
+            }
+        }
+        .fullScreenCover(isPresented: $isRepositioningPhoto) {
+            if let image = viewModel.previewImage {
+                PhotoRepositionView(
+                    image: image,
+                    text: viewModel.customText,
+                    font: previewFont,
+                    textColor: viewModel.selectedTextColor,
+                    alignmentX: $viewModel.imageAlignmentX,
+                    alignmentY: $viewModel.imageAlignmentY
+                )
             }
         }
     }
@@ -700,6 +686,91 @@ struct CardEditorView: View {
     private func sectionHeader(_ title: String, icon: String) -> some View {
         Label(title, systemImage: icon)
             .font(.headline)
+    }
+}
+
+// MARK: - Photo Reposition View
+
+/// Full-screen WYSIWYG editor for adjusting photo crop/position.
+/// Rendered at exact screen dimensions so what the user sees here is
+/// what they get in the feed and detail views.
+private struct PhotoRepositionView: View {
+    let image: UIImage
+    let text: String
+    let font: Font
+    let textColor: Color
+    @Binding var alignmentX: Double
+    @Binding var alignmentY: Double
+    @Environment(\.dismiss) private var dismiss
+
+    @State private var dragStartAlignment: UnitPoint?
+
+    var body: some View {
+        // The ZStack itself lives within the safe area so controls are naturally
+        // positioned below the status bar. Only the background layers opt out.
+        ZStack {
+            PannableImage(
+                uiImage: image,
+                alignment: UnitPoint(x: alignmentX, y: alignmentY)
+            )
+            .ignoresSafeArea()
+
+            ReadabilityOverlay()
+                .ignoresSafeArea()
+
+            Text(text)
+                .font(font)
+                .foregroundStyle(textColor)
+                .shadow(color: .black.opacity(0.4), radius: 8, y: 3)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 40)
+
+            VStack {
+                HStack {
+                    Spacer()
+                    Button { dismiss() } label: {
+                        Text("Done")
+                            .fontWeight(.semibold)
+                            .foregroundStyle(.white)
+                            .padding(.horizontal, 20)
+                            .padding(.vertical, 10)
+                            .background(.black.opacity(0.4), in: Capsule())
+                    }
+                    .padding()
+                }
+                Spacer()
+                Text("Drag to reposition")
+                    .font(.caption)
+                    .foregroundStyle(.white.opacity(0.6))
+                    .padding(.bottom, 40)
+            }
+        }
+        .contentShape(Rectangle())
+        .gesture(
+            DragGesture()
+                .onChanged { value in
+                    if dragStartAlignment == nil {
+                        dragStartAlignment = UnitPoint(x: alignmentX, y: alignmentY)
+                    }
+                    guard let start = dragStartAlignment else { return }
+
+                    // Use the full screen size (including safe areas) so the 1:1
+                    // drag feel matches the actual rendered photo dimensions.
+                    let screen = UIScreen.main.bounds.size
+                    let imgW = Double(image.size.width)
+                    let imgH = Double(image.size.height)
+                    let scale = max(screen.width / imgW, screen.height / imgH)
+                    let extraW = imgW * scale - screen.width
+                    let extraH = imgH * scale - screen.height
+
+                    let deltaX = extraW > 0 ? -Double(value.translation.width) / extraW : 0
+                    let deltaY = extraH > 0 ? -Double(value.translation.height) / extraH : 0
+
+                    alignmentX = min(max(start.x + deltaX, 0), 1)
+                    alignmentY = min(max(start.y + deltaY, 0), 1)
+                }
+                .onEnded { _ in dragStartAlignment = nil }
+        )
     }
 }
 
